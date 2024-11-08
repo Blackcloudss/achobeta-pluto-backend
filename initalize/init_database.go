@@ -2,18 +2,20 @@ package initalize
 
 import (
 	"tgwp/configs"
-	"tgwp/db/databases"
-	"tgwp/db/myRedis"
 	"tgwp/global"
+	"tgwp/internal/pkg/database"
 	"tgwp/internal/pkg/mysqlx"
+	"tgwp/internal/pkg/redisx"
 	"tgwp/log/zlog"
 )
 
 func InitDataBase(config configs.Config) {
 	switch config.DB.Driver {
 	case "mysql":
-		databases.InitDataBases(mysqlx.NewMySql(), config)
-		break
+		database.InitDataBases(mysqlx.NewMySql(), config)
+	default:
+		
+		zlog.Fatalf("不支持的数据库驱动：%s", config.DB.Driver)
 	}
 	if config.App.Env != "pro" {
 		err := global.DB.AutoMigrate()
@@ -26,7 +28,7 @@ func InitDataBase(config configs.Config) {
 func InitRedis(config configs.Config) {
 	if config.Redis.Enable {
 		var err error
-		global.Rdb, err = myRedis.GetRedisClient(config)
+		global.Rdb, err = redisx.GetRedisClient(config)
 		if err != nil {
 			zlog.Errorf("无法初始化Redis : %v", err)
 		}
