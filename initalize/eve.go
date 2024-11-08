@@ -12,7 +12,6 @@ func Eve() {
 	if errRedis != nil {
 		zlog.Errorf("Redis关闭失败 ：%v", errRedis.Error())
 	}
-
 	sqlDB, _ := global.DB.DB()
 	errDB := sqlDB.Close()
 	if errDB != nil {
