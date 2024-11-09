@@ -9,3 +9,9 @@ type Test01Resp struct {
 	Name string `json:"name"`
 	Age  int    `json:"age"`
 }
+type PhoneReq struct {
+	Phone string `json:"phone"`
+}
+type PhoneResp struct {
+	Code string `json:"code"`
+}

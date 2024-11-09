@@ -46,6 +46,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.POST("/login", func(c *gin.Context) {
 
 		})
+		rg.GET("code", api.GetCode)
 	})
 
 	// 个人信息相关路由
