@@ -43,9 +43,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		//登陆中间件
 		rg.Use()
 		//example
-		rg.POST("/login", func(c *gin.Context) {
-
-		})
+		rg.POST("/login", api.LoginWithCode)
+		rg.POST("code", api.GetCode)
 	})
 
 	// 个人信息相关路由
