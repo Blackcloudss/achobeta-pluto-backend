@@ -5,7 +5,7 @@ var Conf = new(Config)
 type Config struct {
 	App   ApplicationConfig `mapstructure:"app"`
 	Log   LoggerConfig      `mapstructure:"log"`
-	Mysql MysqlConfig       `mapstructure:"mysql"`
+	DB    DBConfig          `mapstructure:"DB"`
 	Redis RedisConfig       `mapstructure:"redis"`
 }
 
@@ -22,7 +22,7 @@ type LoggerConfig struct {
 	ShowLine bool   `mapstructure:"show-line"`
 }
 
-type MysqlConfig struct {
+type DBConfig struct {
 	Driver      string `mapstructure:"driver"`
 	AutoMigrate bool   `mapstructure:"migrate"`
 	Dsn         string `mapstructure:"dsn"`
