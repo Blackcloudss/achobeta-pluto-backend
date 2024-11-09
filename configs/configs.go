@@ -5,7 +5,7 @@ var Conf = new(Config)
 type Config struct {
 	App   ApplicationConfig `mapstructure:"app"`
 	Log   LoggerConfig      `mapstructure:"log"`
-	DB    DBConfig          `mapstructure:"DB"`
+	DB    DBConfig          `mapstructure:"database"`
 	Redis RedisConfig       `mapstructure:"redis"`
 }
 

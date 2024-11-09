@@ -3,6 +3,7 @@ package routerg
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"tgwp/configs"
 	"tgwp/internal/api"
 	"tgwp/internal/manager"
 	"tgwp/internal/middleware"
@@ -16,7 +17,7 @@ func RunServer() {
 		zlog.Errorf("Listen error: %v", err)
 		panic(err.Error())
 	}
-	r.Run(fmt.Sprintf("%s:%d", "", 8080)) // 启动 Gin 服务器
+	r.Run(fmt.Sprintf("%s:%d", configs.Conf.App.Host, configs.Conf.App.Port)) // 启动 Gin 服务器
 }
 
 // listen 配置 Gin 服务器
