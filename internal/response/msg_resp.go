@@ -9,13 +9,13 @@ type MsgCode struct {
 
 var (
 	/* 成功 */
-	SUCCESS = MsgCode{Code: 200, Msg: "成功"}
+	SUCCESS = MsgCode{Code: 20000, Msg: "成功"}
 
 	/* 默认失败 */
 	COMMON_FAIL = MsgCode{-43960, "失败"}
 
 	/* 请求错误 <0 */
-	TOKEN_IS_EXPIRED = MsgCode{-2, "token已过期"}
+	TOKEN_IS_EXPIRED = MsgCode{-20000, "token已过期"}
 
 	/* 内部错误 60000 ~ 69999 */
 	INTERNAL_ERROR             = MsgCode{60001, "内部错误, check log"}

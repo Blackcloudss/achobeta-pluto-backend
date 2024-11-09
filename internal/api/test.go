@@ -8,12 +8,7 @@ import (
 	"tgwp/log/zlog"
 )
 
-// only for test
-// 团队信息获取
-func GetTeamStructure(c *gin.Context) {
-
-}
-
+// Test  api层 仅作为校验参数和返回相应，复杂逻辑交给logic层处理
 func Test(c *gin.Context) {
 	// always in the first
 	ctx := zlog.GetCtxFromGin(c)
@@ -22,8 +17,9 @@ func Test(c *gin.Context) {
 	if err != nil {
 		return
 	}
-
+	zlog.CtxInfof(ctx, "Test request: %v", req)
 	resp, err := logic.NewTestLogic().TestLogic(ctx, req)
+
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return

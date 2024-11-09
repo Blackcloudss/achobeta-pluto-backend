@@ -15,6 +15,8 @@ type TestLogic struct {
 func NewTestLogic() *TestLogic {
 	return &TestLogic{}
 }
+
+// TestLogic 逻辑层 用做逻辑处理相关操作
 func (l *TestLogic) TestLogic(ctx context.Context, req types.TestO1Req) (resp types.Test01Resp, err error) {
 	defer util.RecordTime(time.Now())()
 	//..... some logic

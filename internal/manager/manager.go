@@ -1,7 +1,9 @@
 package manager
 
 import (
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+	"tgwp/internal/middleware"
 )
 
 //主要管理路由组和中间件的注册
@@ -58,5 +60,6 @@ func (rm *RouteManager) RegisterMiddleware(group string, middleware Middleware) 
 
 // RequestGlobalMiddleware 注册全局中间件，应用于所有路由
 func RequestGlobalMiddleware(r *gin.Engine) {
-
+	r.Use(requestid.New())
+	r.Use(middleware.AddTraceId())
 }
