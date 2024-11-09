@@ -1,7 +1,8 @@
-package middlewareg
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"tgwp/log/zlog"
 	"tgwp/util/snowflake"
 )
@@ -23,8 +24,7 @@ func AddTraceId() gin.HandlerFunc {
 		}
 
 		// 将 Trace ID 存入上下文中，方便后续处理使用
-		c.Set("traceId", traceID)
-
+		zlog.SetCtxFromGin(c, zlog.NewContext(c.Request.Context(), zap.String(zlog.LogKeyTraceId, traceID)))
 		// 在日志中记录 Trace ID
 		zlog.CtxInfof(c, "TraceID: %s", traceID)
 

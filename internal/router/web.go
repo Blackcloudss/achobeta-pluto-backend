@@ -3,9 +3,9 @@ package routerg
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"tgwp/global"
-	"tgwp/internal/gin/managerg"
-	"tgwp/internal/gin/middlewareg"
+	"tgwp/internal/api"
+	"tgwp/internal/manager"
+	"tgwp/internal/middleware"
 	"tgwp/log/zlog"
 )
 
@@ -16,18 +16,18 @@ func RunServer() {
 		zlog.Errorf("Listen error: %v", err)
 		panic(err.Error())
 	}
-	r.Run(fmt.Sprintf("%s:%d", global.Config.App.Host, global.Config.App.Port)) // 启动 Gin 服务器
+	r.Run(fmt.Sprintf("%s:%d", "", 8080)) // 启动 Gin 服务器
 }
 
 // listen 配置 Gin 服务器
 func listen() (*gin.Engine, error) {
 	r := gin.Default() // 创建默认的 Gin 引擎
 
-	// 创建 RouteManager 实例
-	routeManager := managerg.NewRouteManager(r)
-
 	// 注册全局中间件（录入例如或获取 Trace ID）
-	r.Use(middlewareg.AddTraceId())
+	manager.RequestGlobalMiddleware(r)
+
+	// 创建 RouteManager 实例
+	routeManager := manager.NewRouteManager(r)
 
 	// 注册各业务路由组的具体路由
 	registerRoutes(routeManager)
@@ -36,7 +36,7 @@ func listen() (*gin.Engine, error) {
 }
 
 // registerRoutes 注册各业务路由的具体处理函数
-func registerRoutes(routeManager *managerg.RouteManager) {
+func registerRoutes(routeManager *manager.RouteManager) {
 	// 登录相关路由
 	routeManager.RegisterLoginRoutes(func(rg *gin.RouterGroup) {
 		//登陆中间件
@@ -50,19 +50,20 @@ func registerRoutes(routeManager *managerg.RouteManager) {
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {
 		// example
-		rg.Use(middlewareg.AuthMiddleware()) // 认证中间件
+		rg.Use(middleware.AuthMiddleware()) // 认证中间件
 
 		// example
 		rg.GET("/info", func(c *gin.Context) {
 
 		})
+		rg.GET("test", api.Test)
 	})
 
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 		// example:认证和权限校验中间件
-		rg.Use(middlewareg.AuthMiddleware())                  // 认证中间件
-		rg.Use(middlewareg.PermissionMiddleware("view_team")) // 权限校验中间件
+		rg.Use(middleware.AuthMiddleware())                  // 认证中间件
+		rg.Use(middleware.PermissionMiddleware("view_team")) // 权限校验中间件
 		rg.GET("/list", func(c *gin.Context) {
 
 		})

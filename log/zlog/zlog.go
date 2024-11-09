@@ -3,14 +3,16 @@ package zlog
 import (
 	"context"
 	"fmt"
-
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 type logKey string
 
-const loggerKey logKey = "logger"
+const (
+	loggerKey     logKey = "logger"
+	LogKeyTraceId        = "trace-id"
+)
 
 var logger *zap.Logger
 
@@ -20,8 +22,23 @@ var logger *zap.Logger
 //	@param ctx
 //	@param fields
 //	@return context.Context
-func NewContext(ctx context.Context, fields ...zapcore.Field) context.Context {
+func NewContext(ctx context.Context, fields ...zap.Field) context.Context {
 	return context.WithValue(ctx, loggerKey, withContext(ctx).With(fields...))
+}
+func SetCtxFromGin(c *gin.Context, ctx context.Context) {
+	if ctx == nil {
+		c.Set(string(loggerKey), context.Background())
+	} else {
+		c.Set(string(loggerKey), ctx)
+	}
+}
+func GetCtxFromGin(c *gin.Context) context.Context {
+	ctx, exit := c.Get(string(loggerKey))
+	if !exit {
+		return NewContext(context.Background())
+	} else {
+		return ctx.(context.Context)
+	}
 }
 
 func InitLogger(zapLogger *zap.Logger) {

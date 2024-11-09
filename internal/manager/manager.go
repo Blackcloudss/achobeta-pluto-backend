@@ -1,4 +1,4 @@
-package managerg
+package manager
 
 import (
 	"github.com/gin-gonic/gin"
@@ -58,9 +58,5 @@ func (rm *RouteManager) RegisterMiddleware(group string, middleware Middleware) 
 
 // RequestGlobalMiddleware 注册全局中间件，应用于所有路由
 func RequestGlobalMiddleware(r *gin.Engine) {
-	r.Use(func(c *gin.Context) {
-		// 模拟生成请求唯一标识符
-		c.Set("request_id", "some-unique-id")
-		c.Next()
-	})
+
 }

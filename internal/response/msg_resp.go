@@ -1,4 +1,4 @@
-package responseg
+package response
 
 type MsgCode struct {
 	Code int

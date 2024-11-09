@@ -1,4 +1,4 @@
-package responseg
+package response
 
 import (
 	"github.com/gin-gonic/gin"
