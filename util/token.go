@@ -14,7 +14,7 @@ type MyClaims struct {
 	jwt.StandardClaims
 }
 
-var mySecret = []byte("Achoberta")
+var mySecret = []byte("Achobeta")
 
 type TokenData struct {
 	Userid string
