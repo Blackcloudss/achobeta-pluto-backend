@@ -62,4 +62,5 @@ func (rm *RouteManager) RegisterMiddleware(group string, middleware Middleware) 
 func RequestGlobalMiddleware(r *gin.Engine) {
 	r.Use(requestid.New())
 	r.Use(middleware.AddTraceId())
+	r.Use(middleware.Cors())
 }

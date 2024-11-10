@@ -20,7 +20,7 @@ func GetCode(c *gin.Context) {
 		response.NewResponse(c).Error(response.PHONE_ERROR)
 		return
 	}
-	zlog.CtxInfof(ctx, "Test request: %v", req)
+	zlog.CtxInfof(ctx, "GetCode request: %v", req)
 	_, err = logic.NewCodeLogic().CodeLogic(ctx, req)
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
@@ -28,7 +28,6 @@ func GetCode(c *gin.Context) {
 	} else {
 		response.NewResponse(c).Success(response.SUCCESS)
 	}
-
 	return
 }
 func LoginWithCode(c *gin.Context) {
@@ -37,7 +36,7 @@ func LoginWithCode(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	zlog.CtxInfof(ctx, "Test request: %v", req)
+	zlog.CtxInfof(ctx, "LoginWithCode request: %v", req)
 	//暂时处理，若验证码不为123456，则响应错误
 	if req.Code != "123456" {
 		response.NewResponse(c).Error(response.CAPTCHA_ERROR)

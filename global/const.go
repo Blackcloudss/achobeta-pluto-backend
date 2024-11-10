@@ -4,5 +4,5 @@ package global
 const (
 	DEFAULT_CONFIG_FILE_PATH = "/config.yaml"
 	REDIS_PHONE_CODE         = "Achobeta:phone.login.code:%s:string"
-	REDIS_PHONE              = "Achobeta:phone.login.effective:%s:int"
+	REDIS_PHONE              = "Achobeta:phone.login.effective:%s:string"
 )

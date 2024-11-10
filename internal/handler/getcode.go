@@ -19,11 +19,12 @@ func PostCode(ctx context.Context, phone string) error {
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Store the verification code err: %v", err)
 	}
-	//防刷处理
+	//防刷处理,还未实现，后续会做个函数
 	//数字0用作占位参数
 	err = global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE, phone), 0, time.Second*60).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Restrict multiple access err: %v", err)
+		return err
 	}
 	//发送验证码
 	if err := PostMessage(text, phone); err != nil {
