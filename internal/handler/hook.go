@@ -8,9 +8,9 @@ import (
 )
 
 // 默认节点
-const Default_User_ID = 1
-const Default_Team_ID = 2
-const Default_Node_ID = 3
+const Default_User_ID = 2
+const Default_Team_ID = 3
+const Default_Node_ID = 4
 
 // 注册 gorm 钩子
 func RegisterUser(db *gorm.DB) {

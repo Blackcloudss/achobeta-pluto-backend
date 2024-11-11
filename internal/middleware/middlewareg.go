@@ -33,26 +33,10 @@ func AddTraceId() gin.HandlerFunc {
 	}
 }
 
-// 验证用户是否登录
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// 用 header 的 token 进行认证
-		token := c.GetHeader("Authorization")
-		if token == "" {
-			return
-		}
-		// 验证 token 是否有效
-		if !ValidateToken(token) {
-			return
-		}
-		c.Next() // 继续处理请求
-	}
-}
-
 // 权限校验中间件：检查用户是否有权限访问某个资源
-func PermissionMiddleware(permission string) gin.HandlerFunc {
+func PermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 假设我们有一个函数 GetUserPermissions 检查用户权限
+		// GetUserPermissions 检查用户权限
 		userPermissions := GetUserPermissions(c)
 
 		if userPermissions == nil {
@@ -60,24 +44,6 @@ func PermissionMiddleware(permission string) gin.HandlerFunc {
 
 		c.Next() // 继续处理请求
 	}
-}
-
-// 错误处理中间件：统一处理异常
-func ErrorHandlingMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				c.JSON(500, gin.H{"message": "Internal Server Error", "error": err})
-			}
-		}()
-		c.Next() // 继续处理请求
-	}
-}
-
-// ValidateToken 来验证 token 是否有效
-func ValidateToken(token string) bool {
-	//  token 校验逻辑
-	return token == "valid-token"
 }
 
 // GetUserPermissions 获取用户权限组
