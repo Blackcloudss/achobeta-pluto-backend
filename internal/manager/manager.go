@@ -45,19 +45,6 @@ func (rm *RouteManager) RegisterTeamRoutes(handler PathHandler) {
 	handler(rm.TeamRoutes)
 }
 
-// RegisterMiddleware 根据组名为对应的路由组注册中间件
-// group 参数为 "login"、"profile" 或 "team"，分别对应不同的路由组
-func (rm *RouteManager) RegisterMiddleware(group string, middleware Middleware) {
-	switch group {
-	case "login":
-		rm.LoginRoutes.Use(middleware())
-	case "profile":
-		rm.ProfileRoutes.Use(middleware())
-	case "team":
-		rm.TeamRoutes.Use(middleware())
-	}
-}
-
 // RequestGlobalMiddleware 注册全局中间件，应用于所有路由
 func RequestGlobalMiddleware(r *gin.Engine) {
 	r.Use(requestid.New())
