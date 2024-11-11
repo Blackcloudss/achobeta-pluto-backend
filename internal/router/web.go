@@ -1,6 +1,7 @@
 package routerg
 
 import (
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/configs"
@@ -44,7 +45,12 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.Use()
 		//example
 		rg.POST("/login", api.LoginWithCode)
-		rg.POST("code", api.GetCode)
+		rg.POST("/code", api.GetCode)
+		rg.GET("/test", middleware.ReflashToken(context.Background()), func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"test": "成功进入",
+			})
+		})
 	})
 
 	// 个人信息相关路由
