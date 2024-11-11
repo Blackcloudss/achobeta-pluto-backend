@@ -19,7 +19,7 @@ func (l *CodeLogic) CodeLogic(ctx context.Context, req types.PhoneReq) (resp typ
 	defer util.RecordTime(time.Now())()
 	//..... some logic
 	//暂时不处理redis层面，直接让验证码为123456
-	resp.Atoken = "暂无"
-	resp.Rtoken = "暂无"
+	resp.Atoken, err = util.GenToken(util.FullToken("atoken"))
+	resp.Rtoken, err = util.GenToken(util.FullToken("rtoken"))
 	return
 }
