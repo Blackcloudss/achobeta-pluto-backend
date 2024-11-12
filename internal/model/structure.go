@@ -1,7 +1,7 @@
 package model
 
 // 团队架构表
-type team_structure struct {
+type Team_Structure struct {
 	CommonModel
 	TeamId     string `gorm:"column:team_id; type:char(20); index;not null; comment:'团队ID'"`
 	MyselfId   string `gorm:"column:myself_id; type:char(20); index;not null; comment:'当前节点ID'"`

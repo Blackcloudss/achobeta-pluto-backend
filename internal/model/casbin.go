@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type casbin_rule struct {
+type Casbin struct {
 	ID        uint   `gorm:"primarykey"`
 	Ptype     string `gorm:"type:varchar(100);comment:'权限类型'"`
 	V0        string `gorm:"type:char(20);index;comment:'用户ID'"`

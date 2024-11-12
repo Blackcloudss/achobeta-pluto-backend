@@ -2,7 +2,7 @@ package types
 
 // 获得权限组（入参）
 type RuleReq struct {
-	UserId string `json:"userid"`
+	UserId string `json:"user_id"`
 	TeamId string `json:"team_id"`
 }
 
