@@ -1,13 +1,13 @@
 package routerg
 
 import (
-	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/configs"
 	"tgwp/internal/api"
 	"tgwp/internal/manager"
 	"tgwp/internal/middleware"
+	"tgwp/internal/response"
 	"tgwp/log/zlog"
 )
 
@@ -41,15 +41,12 @@ func listen() (*gin.Engine, error) {
 func registerRoutes(routeManager *manager.RouteManager) {
 	// 登录相关路由
 	routeManager.RegisterLoginRoutes(func(rg *gin.RouterGroup) {
-		//登陆中间件
-		rg.Use()
-		//example
 		rg.POST("/login", api.LoginWithCode)
 		rg.POST("/code", api.GetCode)
-		rg.GET("/test", middleware.ReflashToken(context.Background()), func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"test": "成功进入",
-			})
+		rg.GET("/test", middleware.ReflashToken(), func(c *gin.Context) {
+			if token, exists := c.Get("Token"); exists {
+				response.NewResponse(c).Success(token)
+			}
 		})
 	})
 

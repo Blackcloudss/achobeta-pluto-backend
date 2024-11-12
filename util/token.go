@@ -68,7 +68,7 @@ func IdentifyToken(ctx context.Context, Token string) (TokenData, error) {
 	data.Userid = claim.Userid
 	data.Issuer = claim.Issuer
 	data.Class = claim.Type
-	if claim.Type == "rtoken" {
+	if claim.Type == global.AUTH_ENUMS_RTOKEN {
 		data.Time = global.RTOKEN_EFFECTIVE_TIME - time.Duration(time.Now().Unix()-claim.StandardClaims.NotBefore)
 	} else {
 		data.Time = global.ATOKEN_EFFECTIVE_TIME
@@ -80,12 +80,12 @@ func FullToken(class string) (data TokenData) {
 	//后期这两个都由雪花算法生成
 	data.Issuer = "Zcg"
 	data.Userid = "test_id"
-	if class == "atoken" {
+	if class == global.AUTH_ENUMS_ATOKEN {
 		data.Time = global.ATOKEN_EFFECTIVE_TIME
-		data.Class = "atoken"
+		data.Class = global.AUTH_ENUMS_ATOKEN
 	} else {
 		data.Time = global.RTOKEN_EFFECTIVE_TIME
-		data.Class = "rtoken"
+		data.Class = global.AUTH_ENUMS_RTOKEN
 	}
 	return
 }
