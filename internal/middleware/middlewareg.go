@@ -7,6 +7,7 @@ import (
 	"tgwp/util/snowflake"
 )
 
+// 该节点只有这里 需要用到
 const DEFAULTNODE = 1
 
 // AddTraceId 是一个用于生成或获取 Trace ID 的中间件
@@ -48,6 +49,8 @@ func PermissionMiddleware() gin.HandlerFunc {
 
 // GetUserPermissions 获取用户权限组
 func GetUserPermissions(c *gin.Context) []string {
-	// 权限获取逻辑
-	return []string{"view_profile", "edit_profile"}
+	//userid := c.GetInt64("user_id")
+	//teamid := c.GetInt64("team_id")
+	//data := repo.NewCasbinRepo().Getcasbin(userid,teamid)
+	//return data
 }

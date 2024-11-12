@@ -24,7 +24,7 @@ func RunServer() {
 func listen() (*gin.Engine, error) {
 	r := gin.Default() // 创建默认的 Gin 引擎
 
-	// 注册全局中间件（录入例如或获取 Trace ID）
+	// 注册全局中间件（例如获取 Trace ID）
 	manager.RequestGlobalMiddleware(r)
 
 	// 创建 RouteManager 实例
@@ -49,8 +49,6 @@ func registerRoutes(routeManager *manager.RouteManager) {
 
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {
-		// example
-		rg.Use(middleware.AuthMiddleware()) // 认证中间件
 
 		// example
 		rg.GET("/info", func(c *gin.Context) {
@@ -61,16 +59,18 @@ func registerRoutes(routeManager *manager.RouteManager) {
 
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
-		// example:认证和权限校验中间件
-		rg.Use(middleware.AuthMiddleware())                  // 认证中间件
-		rg.Use(middleware.PermissionMiddleware("view_team")) // 权限校验中间件
-		rg.GET("/list", func(c *gin.Context) {
+		//验证令牌
+		//util.IdentifyToken()
 
-		})
+		//解析 jwt，获取 user_id
+		//util.ParseToken()
+
+		//获得权限组
+		rg.GET("/power", api.GetPower())
 
 		// 团队成员管理子路由
-		memberGroup := rg.Group("/members")
-		memberGroup.Use() // 注册成员管理中间件
+		memberGroup := rg.Group("/structure")
+		memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
 		{
 			memberGroup.GET("/list", func(c *gin.Context) {
 
