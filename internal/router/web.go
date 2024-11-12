@@ -7,6 +7,7 @@ import (
 	"tgwp/internal/api"
 	"tgwp/internal/manager"
 	"tgwp/internal/middleware"
+	"tgwp/internal/response"
 	"tgwp/log/zlog"
 )
 
@@ -38,13 +39,19 @@ func listen() (*gin.Engine, error) {
 
 // registerRoutes 注册各业务路由的具体处理函数
 func registerRoutes(routeManager *manager.RouteManager) {
+	//通用功能相关路由
+	routeManager.RegisterCommonRoutes(func(rg *gin.RouterGroup) {
+		rg.POST("/rtoken", api.ReflashRtoken)
+	})
 	// 登录相关路由
 	routeManager.RegisterLoginRoutes(func(rg *gin.RouterGroup) {
-		//登陆中间件
-		rg.Use()
-		//example
 		rg.POST("/login", api.LoginWithCode)
-		rg.POST("code", api.GetCode)
+		rg.POST("/code", api.GetCode)
+		rg.GET("/test", middleware.ReflashAtoken(), func(c *gin.Context) {
+			if token, exists := c.Get("Token"); exists {
+				response.NewResponse(c).Success(token)
+			}
+		})
 	})
 
 	// 个人信息相关路由
@@ -77,4 +84,5 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			})
 		}
 	})
+
 }
