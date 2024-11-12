@@ -31,6 +31,8 @@ func ReflashToken() gin.HandlerFunc {
 		resp, err := logic.NewTokenLogic().TokenLogic(c, data)
 		if err != nil {
 			zlog.CtxErrorf(c, "ReflashToken err:%v", err)
+			c.Abort()
+			return
 		}
 		//将值传递给后面用
 		c.Set("Token", resp)
