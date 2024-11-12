@@ -5,20 +5,19 @@ import (
 	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
+	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"tgwp/util"
 )
 
 func ReflashRtoken(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
-	token := c.GetHeader("Authorization")
-	if token == "" {
-		zlog.CtxErrorf(ctx, `token is empty`)
-		c.Abort()
+	req, err := types.BindReq[types.TokenReq](c)
+	if err != nil {
 		return
 	}
 	//解析token是否有效，并取出上一次的值
-	data, err := util.IdentifyToken(ctx, token)
+	data, err := util.IdentifyToken(ctx, req.Token)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
 		response.NewResponse(c).Error(response.TOKEN_IS_EXPIRED)
@@ -31,7 +30,7 @@ func ReflashRtoken(c *gin.Context) {
 		return
 	}
 	//生成新的token
-	resp, err := logic.NewTokenLogic().RtokenLogic(ctx, data)
+	resp, err := logic.NewTokenLogic().GenRtoken(ctx, data)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
 		return

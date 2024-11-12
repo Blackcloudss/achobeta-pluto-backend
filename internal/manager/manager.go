@@ -28,7 +28,7 @@ func NewRouteManager(router *gin.Engine) *RouteManager {
 		LoginRoutes:   router.Group("/api/login"),   // 初始化登录路由组
 		ProfileRoutes: router.Group("/api/profile"), // 初始化个人信息路由组
 		TeamRoutes:    router.Group("/api/team"),    // 初始化团队信息路由组
-		CommonRoutes:  router.Group("/api/common"),  //特殊功能相关的路由组
+		CommonRoutes:  router.Group("/api/common"),  //通用功能相关的路由组
 	}
 }
 
@@ -47,7 +47,7 @@ func (rm *RouteManager) RegisterTeamRoutes(handler PathHandler) {
 	handler(rm.TeamRoutes)
 }
 
-// RegisterCommonRoutes特殊功能相关的路由组
+// RegisterCommonRoutes通用功能相关的路由组
 func (rm *RouteManager) RegisterCommonRoutes(handler PathHandler) {
 	handler(rm.CommonRoutes)
 }

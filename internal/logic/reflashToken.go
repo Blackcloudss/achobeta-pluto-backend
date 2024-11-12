@@ -16,7 +16,7 @@ func NewTokenLogic() *TokenLogic {
 	return &TokenLogic{}
 }
 
-func (l *TokenLogic) AtokenLogic(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
+func (l *TokenLogic) GenAtoken(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
 	defer util.RecordTime(time.Now())()
 	resp.Atoken, err = util.GenToken(data)
 	if err != nil {
@@ -26,7 +26,7 @@ func (l *TokenLogic) AtokenLogic(ctx context.Context, data util.TokenData) (resp
 	return
 }
 
-func (l *TokenLogic) RtokenLogic(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
+func (l *TokenLogic) GenRtoken(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
 	defer util.RecordTime(time.Now())()
 	resp.Rtoken, err = util.GenToken(data)
 	if err != nil {

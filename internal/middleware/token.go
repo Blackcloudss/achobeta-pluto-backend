@@ -35,7 +35,7 @@ func ReflashAtoken() gin.HandlerFunc {
 			return
 		}
 		//生成新的token
-		resp, err := logic.NewTokenLogic().AtokenLogic(ctx, data)
+		resp, err := logic.NewTokenLogic().GenAtoken(ctx, data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
 			c.Abort()

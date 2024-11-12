@@ -39,9 +39,9 @@ func listen() (*gin.Engine, error) {
 
 // registerRoutes 注册各业务路由的具体处理函数
 func registerRoutes(routeManager *manager.RouteManager) {
-	//特殊功能相关路由
+	//通用功能相关路由
 	routeManager.RegisterCommonRoutes(func(rg *gin.RouterGroup) {
-		rg.GET("/rtoken", api.ReflashRtoken)
+		rg.POST("/rtoken", api.ReflashRtoken)
 	})
 	// 登录相关路由
 	routeManager.RegisterLoginRoutes(func(rg *gin.RouterGroup) {
