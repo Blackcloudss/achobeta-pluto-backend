@@ -79,7 +79,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		memberGroup := rg.Group("/structure")
 		memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
 		{
-			memberGroup.GET("/get", api.GetTeamStructure())
+			memberGroup.GET("/collection", api.GetTeamStructure())
 		}
 	})
 

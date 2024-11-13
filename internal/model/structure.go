@@ -11,7 +11,7 @@ type Structure struct {
 
 type Structresq struct {
 	Structure
-	IsDeleted bool
+	IsDeleted bool `json:"is_deleted"`
 }
 
 func (t *Structure) TableName() string {

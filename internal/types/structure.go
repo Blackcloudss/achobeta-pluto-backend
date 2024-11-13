@@ -1,7 +1,7 @@
 package types
 
 // 查询团队架构(入参)
-type Team_StructReq struct {
+type TeamStructReq struct {
 	UserId int64 `json:"userid"  binding:"required"`
 	TeamId int64 `json:"team_id" binding:"required"`
 }
@@ -16,9 +16,7 @@ type TeamStructure struct {
 }
 
 // 查询团队架构（出参）
-type TeamStructResq struct {
-	Code           int             `json:"code"`
-	Message        string          `json:"msg"`
+type TeamStructResp struct {
 	TeamStructures []TeamStructure `json:"team_structures"` // 团队架构记录的数组
 }
 
@@ -30,9 +28,8 @@ type PostTeamNodeReq struct {
 }
 
 // 保存已经更改好的团队架构信息(出参）
-type PostTeamNodeResq struct {
-	Code    int    `json:"code"`
-	Message string `json:"msg"`
+type PostTeamNodeResp struct {
+	//response
 }
 
 // 把团队架构信息变回 设定好初始值的团队架构(入参）
@@ -42,8 +39,6 @@ type DeleteTeamNodeReq struct {
 }
 
 // 把团队架构信息变回 设定好初始值的团队架构(出参）
-type DeleteTeamNodeResq struct {
-	Code           int             `json:"code"`
-	Message        string          `json:"msg"`
+type DeleteTeamNodeResp struct {
 	TeamStructures []TeamStructure `json:"team_structures"` // 团队架构记录的数组
 }
