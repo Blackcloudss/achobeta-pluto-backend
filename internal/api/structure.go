@@ -2,15 +2,17 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"tgwp/internal/response"
+	"tgwp/internal/types"
 )
 
 func GetTeamStructure(c *gin.Context) {
+	var req types.Team_StructReq
+	var resq types.TeamStructResq
 
-	ts, exists := c.Get("team_id")
-	if !exists {
-		//‘teamid’的值不存在
-		response.NewResponse(c).Error(response.PARAM_IS_BLANK)
-		return
-	}
+	c.ShouldBind(&req)
+
+	//开发中
+
+	return
+
 }

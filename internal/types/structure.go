@@ -12,6 +12,7 @@ type TeamStructure struct {
 	MyselfId   int64  `json:"myself_id"`      // 当前节点 ID
 	FatherId   int64  `json:"father_id"`      // 父节点 ID
 	StructName string `json:"structure_name"` // 架构名称（职位名称等）
+	IsDeleted  bool   `json:"is_deleted"`     //查看是否被删除
 }
 
 // 查询团队架构（出参）
@@ -19,20 +20,6 @@ type TeamStructResq struct {
 	Code           int             `json:"code"`
 	Message        string          `json:"msg"`
 	TeamStructures []TeamStructure `json:"team_structures"` // 团队架构记录的数组
-}
-
-// 新职位的ID发给前端(入参）
-type GetTeamNodeReq struct {
-	UserId   int64 `json:"userid"`
-	TeamId   int64 `json:"team_id"`
-	FatherId int64 `json:"father_id"`
-}
-
-// 新职位的ID发给前端(出参）
-type GetTeamNodeResq struct {
-	Code     int    `json:"code"`
-	Message  string `json:"msg"`
-	MyselfId int64  `json:"myself_id"` // 新节点 ID
 }
 
 // 保存已经更改好的团队架构信息(入参）

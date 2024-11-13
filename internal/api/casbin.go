@@ -27,6 +27,7 @@ func GetPower(c *gin.Context) {
 	resq.Data = urls
 
 	//获取团队id
+	//不用传参
 	FTeamID, TeamID, errs := repo.NewTeamIdRepo(global.DB).GetTeamId()
 	if errs != nil {
 		response.NewResponse(c).Error(response.PARAM_IS_BLANK)
