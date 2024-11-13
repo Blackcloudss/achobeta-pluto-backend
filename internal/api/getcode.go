@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"tgwp/internal/handler"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -21,7 +22,7 @@ func GetCode(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "GetCode request: %v", req)
-	_, err = logic.NewCodeLogic().CodeLogic(ctx, req)
+	err = logic.NewCodeLogic().GenCode(ctx, req)
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
@@ -37,17 +38,18 @@ func LoginWithCode(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "LoginWithCode request: %v", req)
-	//暂时处理，若验证码不为123456，则响应错误
-	if req.Code != "123456" {
+	if !handler.CompareCode(ctx, req.Code, req.Phone) {
 		response.NewResponse(c).Error(response.CAPTCHA_ERROR)
 		return
 	}
 
-	resp, err := logic.NewCodeLogic().CodeLogic(ctx, req)
+	resp, err := logic.NewCodeLogic().GenLoginData(ctx, req)
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	} else {
+		resp.Ip = c.ClientIP()
+		resp.UserAgent = c.Request.UserAgent()
 		response.NewResponse(c).Success(resp)
 	}
 	return
