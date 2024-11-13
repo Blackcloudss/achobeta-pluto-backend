@@ -65,22 +65,23 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	})
 
 	// 团队信息相关路由
-	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
-		//验证令牌
-		//util.IdentifyToken()
-
-		//解析 jwt，获取 user_id
-		//util.ParseToken()
-
-		//获得权限组
-		rg.GET("/power", api.GetPower())
-
-		// 团队成员管理子路由
-		memberGroup := rg.Group("/structure")
-		memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
-		{
-			memberGroup.GET("/collection", api.GetTeamStructure())
-		}
-	})
+	//由于思凯未完成，影响程序运行，先注释掉
+	//routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
+	//	//验证令牌
+	//	//util.IdentifyToken()
+	//
+	//	//解析 jwt，获取 user_id
+	//	//util.ParseToken()
+	//
+	//	//获得权限组
+	//	rg.GET("/power", api.GetPower())
+	//
+	//	// 团队成员管理子路由
+	//	memberGroup := rg.Group("/structure")
+	//	memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
+	//	{
+	//		memberGroup.GET("/collection", api.GetTeamStructure())
+	//	}
+	//})
 
 }

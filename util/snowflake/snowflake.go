@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"tgwp/log/zlog"
 	"time"
 )
 
@@ -157,4 +158,12 @@ func (f ID) MarshalJSON() ([]byte, error) {
 	buff = strconv.AppendInt(buff, int64(f), 10)
 	buff = append(buff, '"')
 	return buff, nil
+}
+func GenId(point int) (id string, err error) {
+	node, err := NewNode(int64(point))
+	if err != nil {
+		zlog.Errorf("生成 Node 出错")
+	}
+	id = node.Generate().String()
+	return
 }
