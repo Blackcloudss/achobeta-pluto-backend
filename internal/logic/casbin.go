@@ -30,13 +30,14 @@ func (l *CasbinLogic) CasbinLogic(ctx context.Context, req types.RuleReq) (resp 
 
 	}
 	//把找出来的url给出参data
-	resp.Data = urls
+	resp.Url = urls
 
 	//获取团队id
 	//不用传参
 	FTeamID, TeamID, errs := repo.NewTeamIdRepo(global.DB).GetTeamId()
 	if errs != nil {
 		zlog.CtxErrorf(ctx, "%v", err)
+		return
 	}
 	resp.FirstTeamID = FTeamID
 	resp.TeamID = TeamID

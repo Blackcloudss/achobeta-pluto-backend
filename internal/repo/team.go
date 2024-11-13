@@ -2,7 +2,6 @@ package repo
 
 import (
 	"gorm.io/gorm"
-	"tgwp/global"
 )
 
 const (
@@ -20,12 +19,12 @@ func NewTeamIdRepo(db *gorm.DB) *TeamIdRepo {
 
 // 获取团队id
 func (r TeamIdRepo) GetTeamId() (fteamid int64, teamid []int64, err error) {
-	err = global.DB.Table(TeamTableName).Select(TeamId).First(&fteamid).Error
+	err = r.DB.Table(TeamTableName).Select(TeamId).First(&fteamid).Error
 	if err != nil {
 		return
 	}
 
-	err = global.DB.Table(TeamTableName).Select(TeamId).Find(&teamid).Error
+	err = r.DB.Table(TeamTableName).Select(TeamId).Find(&teamid).Error
 	if err != nil {
 		return
 	}
