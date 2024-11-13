@@ -11,4 +11,5 @@ const (
 	RTOKEN_EFFECTIVE_TIME    = time.Hour * 1
 	AUTH_ENUMS_ATOKEN        = "atoken"
 	AUTH_ENUMS_RTOKEN        = "rtoken"
+	DEFAULT_NODE_ID          = 1
 )
