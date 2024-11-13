@@ -2,12 +2,10 @@ package middlewareh
 
 import (
 	"github.com/gin-gonic/gin"
+	"tgwp/global"
 	"tgwp/log/zlog"
 	"tgwp/util/snowflake"
 )
-
-// 默认节点为 1
-const DEFAULTNODE = 1
 
 // AddTraceId 是一个用于生成或获取 Trace ID 的中间件
 // 它会将 trace ID 添加到请求的上下文中，并在日志中记录。
@@ -17,7 +15,7 @@ func AddTraceId() gin.HandlerFunc {
 		traceID := c.GetHeader("X-Request-ID")
 		if traceID == "" {
 			//如果没有 Trace ID，生成一个新的,
-			node, _ := snowflake.NewNode(DEFAULTNODE)
+			node, _ := snowflake.NewNode(global.Default_Node_ID)
 			id := node.Generate()
 			traceID = id.String()
 		}
