@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"tgwp/global"
 	"tgwp/internal/handler"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
@@ -30,26 +31,19 @@ func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error)
 func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp types.PhoneResp, err error) {
 	defer util.RecordTime(time.Now())()
 	//传入不同节点是为了生成不同的id,不设置为1是为了区分全局变量
-	resp.ServiceId, err = snowflake.GenId(2)
+	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "GenLogin err: %v", err)
+		zlog.CtxErrorf(ctx, "NewNode err: %v", err)
 		return
 	}
-	user_id, err := snowflake.GenId(3)
-	if err != nil {
-		zlog.CtxErrorf(ctx, "GenLogin err: %v", err)
-		return
-	}
-	issuer, err := snowflake.GenId(4)
-	if err != nil {
-		zlog.CtxErrorf(ctx, "GenLogin err: %v", err)
-		return
-	}
+	resp.LoginId = snowflake.GenId(node)
+	user_id := snowflake.GenId(node)
+	issuer := snowflake.GenId(node)
 	if req.AutoLogin {
-		resp.Atoken, err = util.GenToken(util.FullToken("atoken", issuer, user_id))
-		resp.Rtoken, err = util.GenToken(util.FullToken("rtoken", issuer, user_id))
+		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
+		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
 	} else {
-		resp.Atoken, err = util.GenToken(util.FullToken("atoken", issuer, user_id))
+		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 	}
 	return
 }

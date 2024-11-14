@@ -8,7 +8,7 @@ type PhoneReq struct {
 type PhoneResp struct {
 	Atoken    string `json:"atoken"`
 	Rtoken    string `json:"rtoken"`
-	ServiceId string `json:"service_id"`
+	LoginId   string `json:"login_id"`
 	UserAgent string `json:"user_agent"`
 	Ip        string `json:"ip"`
 }
