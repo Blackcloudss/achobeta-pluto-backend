@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/configs"
+	"tgwp/global"
 	"tgwp/internal/api"
 	"tgwp/internal/manager"
 	"tgwp/internal/middleware"
@@ -49,8 +50,12 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.POST("/login", api.LoginWithCode)
 		rg.POST("/code", api.GetCode)
 		rg.GET("/test", middleware.ReflashAtoken(), func(c *gin.Context) {
-			if token, exists := c.Get("Token"); exists {
+			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
+			}
+			//告诉后面的人如何拿到token里面的数据
+			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
+				response.NewResponse(c).Success(data)
 			}
 		})
 	})
@@ -66,23 +71,24 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	})
 
 	// 团队信息相关路由
-	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
-		//验证令牌
-		//util.IdentifyToken()
-
-		//解析 jwt，获取 user_id
-		//util.ParseToken()
-
-		//获得权限组
-		rg.GET("/power", api.GetPower())
-
-		// 团队成员管理子路由
-		memberGroup := rg.Group("/structure")
-		memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
-		{
-			memberGroup.GET("/collection", api.GetTeamStructure())
-		}
-	})
+	//由于思凯未完成，影响程序运行，先注释掉
+	//routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
+	//	//验证令牌
+	//	//util.IdentifyToken()
+	//
+	//	//解析 jwt，获取 user_id
+	//	//util.ParseToken()
+	//
+	//	//获得权限组
+	//	rg.GET("/power", api.GetPower())
+	//
+	//	// 团队成员管理子路由
+	//	memberGroup := rg.Group("/structure")
+	//	memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
+	//	{
+	//		memberGroup.GET("/collection", api.GetTeamStructure())
+	//	}
+	//})
 
 }
 
