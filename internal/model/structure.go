@@ -9,7 +9,7 @@ type Structure struct {
 	StructName string `gorm:"column:struct_name; type:varchar(50); index; not null; comment:'分组/职位名字'"`
 }
 
-type Structresq struct {
+type StructResp struct {
 	Structure
 	IsDeleted bool `json:"is_deleted"`
 }

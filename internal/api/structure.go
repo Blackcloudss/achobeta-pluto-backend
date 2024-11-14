@@ -12,9 +12,11 @@ func GetTeamStructure(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.TeamStructReq](c)
 	if err != nil {
+		zlog.CtxErrorf(ctx, "GetTeamStructure err:%v", err)
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
-	zlog.CtxInfof(ctx, "TeamStructure request: %v", req)
+	zlog.CtxInfof(ctx, "GetTeamStructure request: %v", req)
 	resp, err := logic.NewStructureLogic().StructureLogic(ctx, req)
 
 	if err != nil {

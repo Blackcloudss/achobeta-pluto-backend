@@ -71,25 +71,21 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	})
 
 	// 团队信息相关路由
-	//由于思凯未完成，影响程序运行，先注释掉
-	//routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
-	//	//验证令牌
-	//	//util.IdentifyToken()
-	//
-	//	//解析 jwt，获取 user_id
-	//	//util.ParseToken()
-	//
-	//	//获得权限组
-	//	rg.GET("/power", api.GetPower())
-	//
-	//	// 团队成员管理子路由
-	//	memberGroup := rg.Group("/structure")
-	//	memberGroup.Use(middleware.PermissionMiddleware()) // 权限校验中间件
-	//	{
-	//		memberGroup.GET("/collection", api.GetTeamStructure())
-	//	}
-	//})
+	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
+		//解析 jwt，获取 user_id
+		rg.Use(middleware.ReflashAtoken())
+
+		//获得权限组
+		rg.GET("/power", api.GetPower)
+
+		// 团队成员管理子路由
+		memberGroup := rg.Group("/structure")
+		{
+			// 获取 完整团队架构                         检验权限
+			memberGroup.GET("/collection", middleware.PermissionMiddleware(), api.GetTeamStructure)
+		}
+	})
 }
 
 // messageRoutes 注册消息相关路由的具体处理函数

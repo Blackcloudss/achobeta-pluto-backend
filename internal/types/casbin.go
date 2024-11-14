@@ -8,8 +8,8 @@ type RuleReq struct {
 
 // 获得权限组（出参）
 type RuleResp struct {
-	Url         []string `json:"url"`         // 包含权限 URL 的数组
-	Level       int      `json:"level"`       // 权限等级
-	FirstTeamID int64    `json:"firstteamid"` // 第一个团队 ID
-	TeamID      []int64  `json:"teamid"`      // 团队 ID 数组
+	Url         []string `json:"url"`          // 包含权限 URL 的数组
+	Level       int      `json:"level"`        // 权限等级
+	FirstTeamID int64    `json:"first_teamid"` // 第一个团队 ID
+	TeamID      []int64  `json:"teamid"`       // 团队 ID 数组
 }
