@@ -35,7 +35,7 @@ func ReflashAtoken() gin.HandlerFunc {
 			return
 		}
 		//将token内部数据传下去
-		c.Set("TokenData", data)
+		c.Set("UserId", data.Userid)
 		//生成新的token
 		resp, err := logic.NewTokenLogic().GenAtoken(ctx, data)
 		if err != nil {
