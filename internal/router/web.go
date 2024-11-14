@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/configs"
+	"tgwp/global"
 	"tgwp/internal/api"
 	"tgwp/internal/manager"
 	"tgwp/internal/middleware"
@@ -48,11 +49,11 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.POST("/login", api.LoginWithCode)
 		rg.POST("/code", api.GetCode)
 		rg.GET("/test", middleware.ReflashAtoken(), func(c *gin.Context) {
-			if token, exists := c.Get("Token"); exists {
+			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
 			}
 			//告诉后面的人如何拿到token里面的数据
-			if data, exists := c.Get("UserId"); exists {
+			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
 				response.NewResponse(c).Success(data)
 			}
 		})
