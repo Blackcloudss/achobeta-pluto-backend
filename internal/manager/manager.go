@@ -20,6 +20,7 @@ type RouteManager struct {
 	ProfileRoutes *gin.RouterGroup // 个人信息相关的路由组
 	TeamRoutes    *gin.RouterGroup // 团队信息相关的路由组
 	CommonRoutes  *gin.RouterGroup //特殊功能相关的路由组
+	MessageRoutes *gin.RouterGroup // 消息相关的路由组
 }
 
 // NewRouteManager 创建一个新的 RouteManager 实例，包含各业务功能的路由组
@@ -29,6 +30,7 @@ func NewRouteManager(router *gin.Engine) *RouteManager {
 		ProfileRoutes: router.Group("/api/profile"), // 初始化个人信息路由组
 		TeamRoutes:    router.Group("/api/team"),    // 初始化团队信息路由组
 		CommonRoutes:  router.Group("/api/common"),  //通用功能相关的路由组
+		MessageRoutes: router.Group("/api/message"), //通用功能相关的路由组
 	}
 }
 
@@ -72,4 +74,9 @@ func RequestGlobalMiddleware(r *gin.Engine) {
 	r.Use(requestid.New())
 	r.Use(middleware.AddTraceId())
 	r.Use(middleware.Cors())
+}
+
+// HandleMessageRoutes 处理消息相关的路由处理函数
+func (rm *RouteManager) HandleMessageRoutes(handler PathHandler) {
+	handler(rm.MessageRoutes)
 }
