@@ -51,6 +51,10 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			if token, exists := c.Get("Token"); exists {
 				response.NewResponse(c).Success(token)
 			}
+			//告诉后面的人如何拿到token里面的数据
+			if data, exists := c.Get("TokenData"); exists {
+				response.NewResponse(c).Success(data)
+			}
 		})
 	})
 

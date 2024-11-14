@@ -21,6 +21,8 @@ func ReflashAtoken() gin.HandlerFunc {
 		}
 		//解析token是否有效，并取出上一次的值
 		data, err := util.IdentifyToken(ctx, token)
+		//将token内部数据传下去
+		c.Set("TokenData", data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
 			response.NewResponse(c).Error(response.TOKEN_IS_EXPIRED)
