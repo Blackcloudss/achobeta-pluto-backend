@@ -9,10 +9,7 @@ type Structure struct {
 	StructName string `gorm:"column:struct_name; type:varchar(50); index; not null; comment:'分组/职位名字'"`
 }
 
-type StructResp struct {
-	Structure
-	IsDeleted bool `json:"is_deleted"`
-}
+// 出参放在 types的 TeamStructResp 中
 
 func (t *Structure) TableName() string {
 	return "structure"

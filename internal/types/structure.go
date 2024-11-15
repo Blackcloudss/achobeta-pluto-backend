@@ -2,7 +2,6 @@ package types
 
 // 查询团队架构(入参)
 type TeamStructReq struct {
-	UserId int64 `json:"userid"  binding:"required"`
 	TeamId int64 `json:"team_id" binding:"required"`
 }
 

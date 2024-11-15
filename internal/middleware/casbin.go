@@ -13,8 +13,11 @@ import (
 func PermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := zlog.GetCtxFromGin(c)
+		if userid, exists := c.Get(global.TOKEN_USER_ID); exists {
+			c.Set("user_id", userid)
+		}
 		//绑定 user_id 和 team_id
-		req, err := types.BindReq[types.RuleReq](c)
+		req, err := types.BindReq[types.RuleCheck](c)
 
 		if err != nil {
 			zlog.CtxErrorf(ctx, "PermissionMiddleware err:%v", err)

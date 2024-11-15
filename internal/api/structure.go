@@ -25,7 +25,6 @@ func GetTeamStructure(c *gin.Context) {
 	} else {
 		response.NewResponse(c).Success(resp)
 	}
-	//开发中
 
 	return
 

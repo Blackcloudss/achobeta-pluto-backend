@@ -13,3 +13,9 @@ type RuleResp struct {
 	FirstTeamID int64    `json:"first_teamid"` // 第一个团队 ID
 	TeamID      []int64  `json:"teamid"`       // 团队 ID 数组
 }
+
+// 权限验证
+type RuleCheck struct {
+	UserId int64 `json:"user_id"  binding:"required"`
+	TeamId int64 `json:"team_id"`
+}
