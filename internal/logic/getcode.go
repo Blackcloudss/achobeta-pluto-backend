@@ -4,6 +4,7 @@ import (
 	"context"
 	"tgwp/global"
 	"tgwp/internal/handler"
+	"tgwp/internal/repo"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"tgwp/util"
@@ -30,7 +31,6 @@ func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error)
 }
 func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp types.PhoneResp, err error) {
 	defer util.RecordTime(time.Now())()
-	//传入不同节点是为了生成不同的id,不设置为1是为了区分全局变量
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "NewNode err: %v", err)
@@ -38,12 +38,18 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp 
 	}
 	resp.LoginId = snowflake.GenId(node)
 	user_id := snowflake.GenId(node)
-	//进一步处理，将生成的用户信息插入签证表
-	issuer := snowflake.GenId(node)
 	if req.AutoLogin {
+		issuer := snowflake.GenId(node)
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
+		//将点了自动登录的用户的login_id,issuer插入签名表
+		err = repo.NewSignRepo(global.DB).InsertSign(resp.LoginId, issuer)
+		if err != nil {
+			zlog.CtxErrorf(ctx, "InsertSign err: %v", err)
+			return
+		}
 	} else {
+		issuer := "" //没有自动登录，做置空处理
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 	}
 	return

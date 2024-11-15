@@ -42,7 +42,6 @@ func LoginWithCode(c *gin.Context) {
 		response.NewResponse(c).Error(response.CAPTCHA_ERROR)
 		return
 	}
-
 	resp, err := logic.NewCodeLogic().GenLoginData(ctx, req)
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)

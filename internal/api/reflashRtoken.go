@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"tgwp/global"
 	"tgwp/internal/logic"
+	"tgwp/internal/repo"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
@@ -26,7 +27,16 @@ func ReflashRtoken(c *gin.Context) {
 	}
 	//判断其是否为rtoken
 	if data.Class != global.AUTH_ENUMS_RTOKEN {
+		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
 		response.NewResponse(c).Error(response.PARAM_TYPE_ERROR)
+		return
+	}
+	//判断rtoken的签名是否有效
+	err = repo.NewSignRepo(global.DB).CompareSign(data.Issuer)
+	if err != nil {
+		//表明找不到issuer相等的，即rtoken是无效的
+		zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
 	//生成新的token
