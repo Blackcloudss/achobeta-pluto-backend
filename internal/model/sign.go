@@ -2,7 +2,7 @@ package model
 
 type Sign struct {
 	CommonModel
-	LoginId string `gorm:"column:login_id;type:char(19);not null;comment:'登录id'"`
+	LoginId string `gorm:"column:login_id;type:char(19);not null;unique;comment:'登录id'"`
 	Issuer  string `gorm:"column:issuer;type:char(19);not null;comment:'签发标识'"`
 	//下面这三个是必须的，我得处理login_id唯一，且对应一台设备
 	UserId    string `gorm:"column:user_id;type:char(19);not null;comment:'用户id'"`

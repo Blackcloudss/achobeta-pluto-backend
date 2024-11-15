@@ -38,6 +38,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp 
 	}
 	resp.LoginId = snowflake.GenId(node)
 	user_id := snowflake.GenId(node)
+	//进一步处理，将生成的用户信息插入签证表
 	issuer := snowflake.GenId(node)
 	if req.AutoLogin {
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
