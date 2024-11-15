@@ -27,6 +27,9 @@ func InitDataBase(config configs.Config) {
 		// 自动迁移 team 表，确保表结构存在
 		global.DB.AutoMigrate(&model.Team{})
 
+		//自动迁移 sign 表，确保表结构存在
+		global.DB.AutoMigrate(&model.Sign{})
+
 		if err != nil {
 			zlog.Fatalf("数据库迁移失败！")
 		}
