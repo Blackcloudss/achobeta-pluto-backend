@@ -44,11 +44,11 @@ func (l *StructureLogic) getStructure(ctx context.Context, fatherid, teamid int6
 
 	for _, child := range children {
 		node := types.TeamStructure{
-			TeamId:     teamid,
-			MyselfId:   child.MyselfId,
-			FatherId:   fatherid,
-			StructName: child.StructName,
-			IsDeleted:  false, // 假设在查询时过滤了已删除的节点
+			TeamId:    teamid,
+			MyselfId:  child.MyselfId,
+			FatherId:  fatherid,
+			NodeName:  child.NodeName,
+			IsDeleted: false, // 假设在查询时过滤了已删除的节点
 		}
 
 		*result = append(*result, node)
@@ -61,4 +61,36 @@ func (l *StructureLogic) getStructure(ctx context.Context, fatherid, teamid int6
 		}
 	}
 	return nil
+}
+
+type TeamNodeLogic struct {
+}
+
+func NewTeamNodeLogic() *TeamNodeLogic {
+	return &TeamNodeLogic{}
+}
+
+// 保存新增的节点，删除被删除的节点
+func (l *TeamNodeLogic) TeamNodeLogic(ctx context.Context, req types.PutTeamNodeReq) (types.PutTeamNodeResp, error) {
+	defer util.RecordTime(time.Now())()
+
+	for _, Node := range req.TeamStructures {
+		if Node.IsDeleted == false {
+			// 没被删除且没有自身节点值 ：新增节点
+			err := repo.NewStructureRepo(global.DB).InsertNode(Node)
+			if err != nil {
+				zlog.CtxErrorf(ctx, "%v", err)
+				return types.PutTeamNodeResp{}, err
+			}
+		} else {
+			// true ：被删除的节点
+			err := repo.NewStructureRepo(global.DB).DeleteNode(Node)
+			if err != nil {
+				zlog.CtxErrorf(ctx, "%v", err)
+				return types.PutTeamNodeResp{}, err
+			}
+		}
+	}
+
+	return types.PutTeamNodeResp{}, nil
 }

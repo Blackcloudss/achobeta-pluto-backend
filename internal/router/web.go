@@ -82,8 +82,13 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		// 团队成员管理子路由
 		memberGroup := rg.Group("/structure")
 		{
-			// 获取 完整团队架构                         检验权限
-			memberGroup.GET("/collection", middleware.PermissionMiddleware(), api.GetTeamStructure)
+			//检验权限
+			memberGroup.Use(middleware.PermissionMiddleware())
+			// 获取 完整团队架构
+			memberGroup.GET("/collection", api.GetTeamStructure)
+
+			//保存 更改了的节点信息
+			memberGroup.PUT("/change", api.PutTeamNode)
 		}
 	})
 }

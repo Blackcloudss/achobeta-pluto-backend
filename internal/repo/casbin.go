@@ -21,7 +21,7 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) ([]string, error) {
 	var roles int64
 	err := r.DB.Table(CasbinTableName).
 		Select(RoleOrUrl). // 获取 g 规则中的 roleid
-		Where(fmt.Sprintf("%s = 'g' AND %s = ? AND %s = ?", Type, User, Team), userid, teamid).
+		Where(fmt.Sprintf("%s = 'g' AND %s = ? AND %s = ?", C_Type, C_User, C_Team), userid, teamid).
 		First(&roles).Error
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) ([]string, error) {
 	var urls []string
 	err = r.DB.Table(CasbinTableName).
 		Select(RoleOrUrl). // 获取 p 规则中的 url
-		Where(fmt.Sprintf("%s = 'p' AND %s = ? AND %s = ?", Type, User, Team), roles, teamid).
+		Where(fmt.Sprintf("%s = 'p' AND %s = ? AND %s = ?", C_Type, C_User, C_Team), roles, teamid).
 		Find(&urls).Error
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func NewLevelRepo(db *gorm.DB) *LevelRepo {
 func (r LevelRepo) GetLevel(userid, teamid int64) (int, error) {
 	var level int
 	err := r.DB.Table(UPTableName).
-		Select(Level).
-		Where(fmt.Sprintf("%s = ? AND %s = ?", MemberId, TeamId), userid, teamid).
+		Select(C_Level).
+		Where(fmt.Sprintf("%s = ? AND %s = ?", C_MemberId, C_TeamId), userid, teamid).
 		First(&level).Error
 	if err != nil {
 		return 0, err
@@ -76,7 +76,7 @@ func (r PermissionRepo) CheckUserPermission(url string, userId, teamId int64) er
 	defer util.RecordTime(time.Now())()
 	err := r.DB.Table(CasbinTableName).
 		Select(RoleOrUrl).
-		Where(fmt.Sprintf("%s = ? AND %s = ? AND %s = ?", User, Team, RoleOrUrl), userId, teamId, url).
+		Where(fmt.Sprintf("%s = ? AND %s = ? AND %s = ?", C_User, C_Team, RoleOrUrl), userId, teamId, url).
 		Error
 	return err
 }
