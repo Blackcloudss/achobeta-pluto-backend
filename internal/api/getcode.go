@@ -10,6 +10,10 @@ import (
 	"tgwp/util"
 )
 
+// GetCode
+//
+//	@Description: 获取验证码
+//	@param c
 func GetCode(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.PhoneReq](c)
@@ -31,6 +35,11 @@ func GetCode(c *gin.Context) {
 	}
 	return
 }
+
+// LoginWithCode
+//
+//	@Description: 用验证码登录
+//	@param c
 func LoginWithCode(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.PhoneReq](c)

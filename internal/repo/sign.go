@@ -28,7 +28,12 @@ type CommonData struct {
 	OnlineTime time.Time `json:"online_time"`
 }
 
-// 插入数据
+// InsertSign
+//
+//	@Description: 插入数据到sign表中
+//	@receiver r
+//	@param data
+//	@return error
 func (r SignRepo) InsertSign(data CommonData) error {
 	temp := model.Sign{
 		LoginId:    data.LoginId,
@@ -42,7 +47,12 @@ func (r SignRepo) InsertSign(data CommonData) error {
 		Create(&temp).Error
 }
 
-// 对比issuer是否有效
+// CompareSign
+//
+//	@Description: 对比issuer是否有效
+//	@receiver r
+//	@param issuer
+//	@return error
 func (r SignRepo) CompareSign(issuer string) error {
 	var data model.Sign
 	return global.DB.Where(&model.Sign{Issuer: issuer}).First(&data).Error

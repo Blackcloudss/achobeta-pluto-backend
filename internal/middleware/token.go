@@ -10,7 +10,10 @@ import (
 	"tgwp/util"
 )
 
-// 用于刷新token
+// ReflashAtoken
+//
+//	@Description: 用于刷新token
+//	@return gin.HandlerFunc
 func ReflashAtoken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := zlog.GetCtxFromGin(c)

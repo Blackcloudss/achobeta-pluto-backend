@@ -19,6 +19,13 @@ func NewCodeLogic() *CodeLogic {
 	return &CodeLogic{}
 }
 
+// GenCode
+//
+//	@Description: 生成验证码，发送到用户手机
+//	@receiver l
+//	@param ctx
+//	@param req
+//	@return err
 func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error) {
 	defer util.RecordTime(time.Now())()
 	//生成随机验证码并发送到对应用户
@@ -29,6 +36,15 @@ func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error)
 	}
 	return
 }
+
+// GenLoginData
+//
+//	@Description: 为登陆后的用户授予一些个人信息
+//	@receiver l
+//	@param ctx
+//	@param AutoLogin
+//	@param resp
+//	@return err
 func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *types.PhoneResp) (err error) {
 	defer util.RecordTime(time.Now())()
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
@@ -62,6 +78,13 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *type
 	}
 	return
 }
+
+// InsertData
+//
+//	@Description: 获取用户的ip和useragent
+//	@param resp
+//	@param ip
+//	@param user_agent
 func InsertData(resp *types.PhoneResp, ip, user_agent string) {
 	resp.Ip = ip
 	resp.UserAgent = user_agent

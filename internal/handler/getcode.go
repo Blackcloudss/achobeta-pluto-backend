@@ -10,7 +10,12 @@ import (
 	"time"
 )
 
-// 用作验证码处理
+// PostCode
+//
+//	@Description: 用作验证码处理
+//	@param ctx
+//	@param phone
+//	@return error
 func PostCode(ctx context.Context, phone string) error {
 	if !AccessCode(ctx, phone) {
 		zlog.CtxErrorf(ctx, "Access code error")
@@ -36,12 +41,34 @@ func PostCode(ctx context.Context, phone string) error {
 	}
 	return nil
 }
+
+// PostMessage
+//
+//	@Description: 发送验证码到用户手机
+//	@param text
+//	@param phone
+//	@return error
 func PostMessage(text string, phone string) error {
 	return nil
 }
+
+// CompareCode
+//
+//	@Description: 对比验证码是否有效
+//	@param ctx
+//	@param code
+//	@param phone
+//	@return bool
 func CompareCode(ctx context.Context, code, phone string) bool {
 	return code == global.Rdb.Get(ctx, fmt.Sprintf(global.REDIS_PHONE_CODE, phone)).Val()
 }
+
+// AccessCode
+//
+//	@Description: 判断手机是否在一分钟内已经发过验证码
+//	@param ctx
+//	@param phone
+//	@return bool
 func AccessCode(ctx context.Context, phone string) bool {
 	//存在，即手机号一分钟内被记录
 	if exist := global.Rdb.Exists(ctx, fmt.Sprintf(global.REDIS_PHONE, phone)).Val(); exist == 1 {

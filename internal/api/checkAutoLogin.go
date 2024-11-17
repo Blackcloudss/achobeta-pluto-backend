@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"tgwp/global"
-	"tgwp/internal/logic"
 	"tgwp/internal/repo"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -11,22 +10,21 @@ import (
 	"tgwp/util"
 )
 
-// ReflashRtoken
+// CheckAutoLogin
 //
-//	@Description: 前端用rtoken刷新token
+//	@Description: 验证是否可以自动登录
 //	@param c
-func ReflashRtoken(c *gin.Context) {
+func CheckAutoLogin(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.TokenReq](c)
 	if err != nil {
 		return
 	}
-	zlog.CtxInfof(ctx, "ReflashRtoken request: %v", req)
-	//解析token是否有效，并取出上一次的值
+	zlog.CtxInfof(ctx, "CheckAutoLogin request: %v", req)
 	data, err := util.IdentifyToken(ctx, req.Token)
 	if err != nil {
-		response.NewResponse(c).Error(response.TOKEN_IS_EXPIRED)
 		//对应token无效，直接让他返回
+		response.NewResponse(c).Error(response.TOKEN_IS_EXPIRED)
 		return
 	}
 	//判断其是否为rtoken
@@ -34,18 +32,11 @@ func ReflashRtoken(c *gin.Context) {
 		response.NewResponse(c).Error(response.PARAM_TYPE_ERROR)
 		return
 	}
-	//判断rtoken的签名是否有效
 	err = repo.NewSignRepo(global.DB).CompareSign(data.Issuer)
 	if err != nil {
 		//表明找不到issuer相等的，即rtoken是无效的
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
-	//生成新的token
-	resp, err := logic.NewTokenLogic().GenRtoken(ctx, data)
-	if err != nil {
-		response.NewResponse(c).Error(response.COMMON_FAIL)
-		return
-	}
-	response.NewResponse(c).Success(resp)
+	response.NewResponse(c).Success(response.SUCCESS)
 }
