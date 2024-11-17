@@ -6,24 +6,16 @@ import (
 	"tgwp/internal/model"
 )
 
-type SetMessageRepo struct {
+type MessageRepo struct {
 	DB *gorm.DB
 }
 
-type JoinMessageRepo struct {
-	DB *gorm.DB
-}
-
-func NewSetMessageRepo(db *gorm.DB) *SetMessageRepo {
-	return &SetMessageRepo{DB: db}
-}
-
-func NewJoinMessageRepo(db *gorm.DB) *JoinMessageRepo {
-	return &JoinMessageRepo{DB: db}
+func NewMessageRepo(db *gorm.DB) *MessageRepo {
+	return &MessageRepo{DB: db}
 }
 
 // CreateMessage 创建一条消息
-func (r SetMessageRepo) CreateMessage(id int64, messageText string, messageType int) (message model.Message, err error) {
+func (r MessageRepo) CreateMessage(id int64, messageText string, messageType int) (message model.Message, err error) {
 	message = model.Message{
 		CommonModel: model.CommonModel{
 			ID: id,
@@ -39,7 +31,7 @@ func (r SetMessageRepo) CreateMessage(id int64, messageText string, messageType 
 }
 
 // CreateUserMessage 连接一条用户消息
-func (r JoinMessageRepo) CreateUserMessage(id int64, message_id int64, user_id string) (user_message model.UserMessage, err error) {
+func (r MessageRepo) CreateUserMessage(id int64, message_id int64, user_id string) (user_message model.UserMessage, err error) {
 	user_message = model.UserMessage{
 		CommonModel: model.CommonModel{
 			ID: id,

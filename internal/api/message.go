@@ -19,7 +19,7 @@ func SetMessage(c *gin.Context) {
 	zlog.CtxInfof(ctx, "Casbin request: %v", req)
 
 	// logic 层处理
-	resp, err := logic.NewSetMessageLogic().SetMessage(c, req)
+	resp, err := logic.NewMessageLogic().SetMessage(c, req)
 
 	// 响应
 	if err != nil {
@@ -43,7 +43,7 @@ func JoinMessage(c *gin.Context) {
 	//fmt.Println(util.GenToken(util.TokenData{Userid: "114514", Class: "1", Issuer: "1", Time: time.Hour * 24 * 365}))
 
 	// logic 层处理
-	resp, err := logic.NewJoinMessageLogic().JoinMessage(c, req)
+	resp, err := logic.NewMessageLogic().JoinMessage(c, req)
 
 	// 响应
 	if err != nil {

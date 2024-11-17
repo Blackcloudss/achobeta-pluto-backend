@@ -10,21 +10,14 @@ import (
 	"tgwp/util/snowflake"
 )
 
-type SetMessageLogic struct {
+type MessageLogic struct {
 }
 
-type JoinMessageLogic struct {
+func NewMessageLogic() *MessageLogic {
+	return &MessageLogic{}
 }
 
-func NewSetMessageLogic() *SetMessageLogic {
-	return &SetMessageLogic{}
-}
-
-func NewJoinMessageLogic() *JoinMessageLogic {
-	return &JoinMessageLogic{}
-}
-
-func (l *SetMessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (resp types.SetMessageResp, err error) {
+func (l *MessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (resp types.SetMessageResp, err error) {
 	// 生成雪花ID生成器
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
@@ -34,7 +27,7 @@ func (l *SetMessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (r
 	// 生成雪花ID
 	id := node.Generate().Int64()
 
-	message, err := repo.NewSetMessageRepo(global.DB).CreateMessage(id, req.Content, req.Type)
+	message, err := repo.NewMessageRepo(global.DB).CreateMessage(id, req.Content, req.Type)
 	if err != nil {
 		zlog.Errorf("create message error:%v", err)
 	} else {
@@ -46,7 +39,7 @@ func (l *SetMessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (r
 	return
 }
 
-func (l *JoinMessageLogic) JoinMessage(c *gin.Context, req types.JoinMessageReq) (resp types.JoinMessageResp, err error) {
+func (l *MessageLogic) JoinMessage(c *gin.Context, req types.JoinMessageReq) (resp types.JoinMessageResp, err error) {
 	// 解析token
 	data, err := util.ParseToken(req.Atoken)
 	if err != nil {
@@ -72,7 +65,7 @@ func (l *JoinMessageLogic) JoinMessage(c *gin.Context, req types.JoinMessageReq)
 	// 生成雪花ID
 	id := node.Generate().Int64()
 
-	user_message, err := repo.NewJoinMessageRepo(global.DB).CreateUserMessage(id, req.MessageID, data.Userid)
+	user_message, err := repo.NewMessageRepo(global.DB).CreateUserMessage(id, req.MessageID, data.Userid)
 	// 更新数据库
 	if err != nil {
 		zlog.Errorf("create message error:%v", err)
