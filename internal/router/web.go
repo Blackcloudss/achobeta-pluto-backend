@@ -91,5 +91,7 @@ func messageRoutes(routeManager *manager.RouteManager) {
 	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
 		rg.POST("/set", api.SetMessage)
 		rg.POST("/join", api.JoinMessage)
+		rg.GET("/get", api.GetMessage)
+		rg.POST("/markread", api.MarkReadMessage)
 	})
 }

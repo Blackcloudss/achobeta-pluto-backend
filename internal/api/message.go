@@ -55,3 +55,51 @@ func JoinMessage(c *gin.Context) {
 
 	return
 }
+
+// GetMessage 获取消息, 从 [消息表] 获取
+func GetMessage(c *gin.Context) {
+	// 解析请求参数
+	ctx := zlog.GetCtxFromGin(c)
+	atoken := c.DefaultQuery("atoken", "")
+	pageStr := c.DefaultQuery("page", "1")
+	timestampStr := c.DefaultQuery("timestamp", "0")
+
+	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", atoken, pageStr, timestampStr)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().GetMessage(c, atoken, pageStr, timestampStr)
+
+	// 响应
+	if err != nil {
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	} else {
+		response.NewResponse(c).Success(resp)
+	}
+
+	return
+}
+
+// MarkReadMessage 标记已读, 更新 [用户-消息表] 的 read_at 字段
+func MarkReadMessage(c *gin.Context) {
+	// 解析请求参数
+	ctx := zlog.GetCtxFromGin(c)
+	req, err := types.BindReq[types.MarkReadMessageReq](c)
+	if err != nil {
+		return
+	}
+	zlog.CtxInfof(ctx, "Casbin request: %v", req)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().MarkReadMessage(c, req)
+
+	// 响应
+	if err != nil {
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	} else {
+		response.NewResponse(c).Success(resp)
+	}
+
+	return
+}
