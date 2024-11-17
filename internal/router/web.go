@@ -74,7 +74,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
 		//解析 jwt，获取 user_id
-		rg.Use(middleware.ReflashAtoken())
+		//rg.Use(middleware.ReflashAtoken())
 
 		//获得权限组
 		rg.GET("/power", api.GetPower)
@@ -83,7 +83,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		memberGroup := rg.Group("/structure")
 		{
 			//检验权限
-			memberGroup.Use(middleware.PermissionMiddleware())
+			//memberGroup.Use(middleware.PermissionMiddleware())
 			// 获取 完整团队架构
 			memberGroup.GET("/collection", api.GetTeamStructure)
 			//保存 更改了的节点信息

@@ -3,6 +3,7 @@ package initalize
 import (
 	"tgwp/configs"
 	"tgwp/global"
+	"tgwp/internal/handler"
 	"tgwp/internal/pkg/database"
 	"tgwp/internal/pkg/mysqlx"
 	"tgwp/internal/pkg/redisx"
@@ -28,6 +29,9 @@ func InitDataBase(config configs.Config) {
 		}
 	}
 	zlog.Infof("数据库初始化成功！")
+
+	//对该数据库注册 hook
+	handler.RegisterHook(global.DB)
 }
 func InitRedis(config configs.Config) {
 	if config.Redis.Enable {
