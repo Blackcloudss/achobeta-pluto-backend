@@ -8,6 +8,10 @@ import (
 	"tgwp/log/zlog"
 )
 
+// GetTeamStructure
+//
+//	@Description:
+//	@param c
 func GetTeamStructure(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.TeamStructReq](c)
@@ -18,27 +22,6 @@ func GetTeamStructure(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "GetTeamStructure request: %v", req)
 	resp, err := logic.NewStructureLogic().StructureLogic(ctx, req)
-
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
-
-	return
-}
-
-func PutTeamNode(c *gin.Context) {
-	ctx := zlog.GetCtxFromGin(c)
-	req, err := types.BindReq[types.PutTeamNodeReq](c)
-	if err != nil {
-		zlog.CtxErrorf(ctx, "PutTeamNode err:%v", err)
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	}
-	zlog.CtxInfof(ctx, "PutTeamNode request: %v", req)
-	resp, err := logic.NewTeamNodeLogic().TeamNodeLogic(ctx, req)
 
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)

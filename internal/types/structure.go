@@ -29,13 +29,11 @@ type PutTeamNodeResp struct {
 	// msg,code
 }
 
-// 把团队架构信息变回 设定好初始值的团队架构(入参）
-type DeleteTeamNodeReq struct {
-	UserId int64 `json:"userid"`
-	TeamId int64 `json:"team_id"`
+// 新增团队，初始化团队架构（入参）
+type PostTeamReq struct {
+	Name string `json:"team_structures" binding:"required"`
 }
 
-// 把团队架构信息变回 设定好初始值的团队架构(出参）
-type DeleteTeamNodeResp struct {
-	TeamStructures []TeamStructure `json:"team_structures"` // 团队架构记录的数组
+// 新增团队，初始化团队架构(出参）
+type PostTeamResp struct {
 }

@@ -13,4 +13,7 @@ const (
 	AUTH_ENUMS_RTOKEN        = "rtoken"
 	DEFAULT_NODE_ID          = 1
 	TOKEN_USER_ID            = "UserId"
+	ROOT_ID                  = 1     // 根节点 ID
+	NORMAL_ADMINISTRATOR     = 22222 //普通管理员
+	SUPERL_ADMINISTRATOR     = 33333 //超级管理员
 )

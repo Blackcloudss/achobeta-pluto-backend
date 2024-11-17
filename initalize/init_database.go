@@ -3,7 +3,6 @@ package initalize
 import (
 	"tgwp/configs"
 	"tgwp/global"
-	"tgwp/internal/model"
 	"tgwp/internal/pkg/database"
 	"tgwp/internal/pkg/mysqlx"
 	"tgwp/internal/pkg/redisx"
@@ -21,26 +20,8 @@ func InitDataBase(config configs.Config) {
 	if config.App.Env != "pro" {
 		err := global.DB.AutoMigrate()
 
-		// 自动迁移 casbin 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Casbin{})
-
-		// 自动迁移 team 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Team{})
-
-		// 自动迁移 member 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Member{})
-
-		// 自动迁移 like_status 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Like_Status{})
-
-		// 自动迁移 structure 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Structure{})
-
-		// 自动迁移 team_member_structure 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Team_Member_Structure{})
-
-		// 自动迁移 user_power 表，确保表结构存在
-		global.DB.AutoMigrate(&model.User_Power{})
+		//迁移数据库所有的表
+		MigrateTables()
 
 		if err != nil {
 			zlog.Fatalf("数据库迁移失败！")

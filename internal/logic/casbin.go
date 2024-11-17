@@ -17,6 +17,15 @@ func NewCasbinLogic() *CasbinLogic {
 	return &CasbinLogic{}
 }
 
+// CasbinLogic
+//
+//	@Description:
+//	@receiver l
+//	@param ctx
+//	@param req
+//	@return resp
+//	@return err
+//
 // CasbinLogic  获取权限组
 func (l *CasbinLogic) CasbinLogic(ctx context.Context, req types.RuleReq) (resp types.RuleResp, err error) {
 	defer util.RecordTime(time.Now())()
@@ -26,16 +35,15 @@ func (l *CasbinLogic) CasbinLogic(ctx context.Context, req types.RuleReq) (resp 
 		urls, err := repo.NewCasbinRepo(global.DB).GetCasbin(req.UserId, req.TeamId)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "%v", err)
-			return
 		}
 		//把找出来的url给出参 Url
 		resp.Url = urls
 
+		//上面和下面这两个 查询权限的 repo 所查询的表不一样，多表联查比较麻烦
 		//获取 该用户在该团队所拥有的 权限级别
 		Level, err := repo.NewLevelRepo(global.DB).GetLevel(req.UserId, req.TeamId)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "%v", err)
-			return
 		}
 		resp.Level = Level
 	}
@@ -44,7 +52,6 @@ func (l *CasbinLogic) CasbinLogic(ctx context.Context, req types.RuleReq) (resp 
 	FTeamID, TeamID, err := repo.NewTeamIdRepo(global.DB).GetTeamId(req.UserId)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "%v", err)
-		return
 	}
 	resp.FirstTeamID = FTeamID
 	resp.TeamID = TeamID

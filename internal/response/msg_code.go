@@ -15,7 +15,7 @@ type JsonMsgResult struct {
 }
 type nilStruct struct{}
 
-const SUCCESS_CODE = 200
+const SUCCESS_CODE = 20000
 const SUCCESS_MSG = "成功"
 const ERROR_MSG = "错误"
 

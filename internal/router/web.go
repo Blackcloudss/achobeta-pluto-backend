@@ -86,9 +86,10 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			memberGroup.Use(middleware.PermissionMiddleware())
 			// 获取 完整团队架构
 			memberGroup.GET("/collection", api.GetTeamStructure)
-
 			//保存 更改了的节点信息
 			memberGroup.PUT("/change", api.PutTeamNode)
+			//新增团队
+			memberGroup.POST("/add", api.PostTeam)
 		}
 	})
 }

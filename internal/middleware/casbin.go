@@ -9,6 +9,11 @@ import (
 	"tgwp/log/zlog"
 )
 
+// PermissionMiddleware
+//
+//	@Description:
+//	@return gin.HandlerFunc
+//
 // 权限校验中间件：检查用户是否有权限访问某个资源
 func PermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -30,9 +35,14 @@ func PermissionMiddleware() gin.HandlerFunc {
 		Url := c.Request.URL.Path
 
 		// CheckUserPermissions 检查用户权限
-		err = repo.NewPermissionRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId)
+		exist, err := repo.NewPermissionRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId)
 
 		if err != nil {
+			response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+			c.Abort()
+			return
+		}
+		if exist == false {
 			response.NewResponse(c).Error(response.INSUFFICENT_PERMISSIONS)
 			c.Abort()
 			return
