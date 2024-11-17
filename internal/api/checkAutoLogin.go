@@ -38,5 +38,7 @@ func CheckAutoLogin(c *gin.Context) {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
+	//到这里时，issuer一定有效，且唯一
+	repo.NewSignRepo(global.DB).ReflashOnlineTime(data.Issuer)
 	response.NewResponse(c).Success(response.SUCCESS)
 }
