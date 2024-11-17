@@ -17,17 +17,16 @@ func ReflashRtoken(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	zlog.CtxInfof(ctx, "ReflashRtoken request: %v", req)
 	//解析token是否有效，并取出上一次的值
 	data, err := util.IdentifyToken(ctx, req.Token)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
 		response.NewResponse(c).Error(response.TOKEN_IS_EXPIRED)
 		//对应token无效，直接让他返回
 		return
 	}
 	//判断其是否为rtoken
 	if data.Class != global.AUTH_ENUMS_RTOKEN {
-		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
 		response.NewResponse(c).Error(response.PARAM_TYPE_ERROR)
 		return
 	}
@@ -35,14 +34,13 @@ func ReflashRtoken(c *gin.Context) {
 	err = repo.NewSignRepo(global.DB).CompareSign(data.Issuer)
 	if err != nil {
 		//表明找不到issuer相等的，即rtoken是无效的
-		zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
 	//生成新的token
 	resp, err := logic.NewTokenLogic().GenRtoken(ctx, data)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "ReflashRtoken err:%v", err)
+		response.NewResponse(c).Error(response.COMMON_FAIL)
 		return
 	}
 	response.NewResponse(c).Success(resp)

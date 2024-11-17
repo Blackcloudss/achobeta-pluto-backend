@@ -29,7 +29,7 @@ func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error)
 	}
 	return
 }
-func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp types.PhoneResp, err error) {
+func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *types.PhoneResp) (err error) {
 	defer util.RecordTime(time.Now())()
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
@@ -38,12 +38,20 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp 
 	}
 	resp.LoginId = snowflake.GenId(node)
 	user_id := snowflake.GenId(node)
-	if req.AutoLogin {
+	if AutoLogin {
 		issuer := snowflake.GenId(node)
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
 		//将点了自动登录的用户的login_id,issuer插入签名表
-		err = repo.NewSignRepo(global.DB).InsertSign(resp.LoginId, issuer)
+		data := repo.CommonData{
+			UserId:     user_id,
+			Issuer:     issuer,
+			OnlineTime: time.Now(),
+			LoginId:    resp.LoginId,
+			IP:         resp.Ip,
+			UserAgent:  resp.UserAgent,
+		}
+		err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "InsertSign err: %v", err)
 			return
@@ -53,4 +61,8 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp 
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 	}
 	return
+}
+func InsertData(resp *types.PhoneResp, ip, user_agent string) {
+	resp.Ip = ip
+	resp.UserAgent = user_agent
 }

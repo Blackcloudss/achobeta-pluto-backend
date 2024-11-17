@@ -42,13 +42,13 @@ func LoginWithCode(c *gin.Context) {
 		response.NewResponse(c).Error(response.CAPTCHA_ERROR)
 		return
 	}
-	resp, err := logic.NewCodeLogic().GenLoginData(ctx, req)
+	var resp types.PhoneResp
+	logic.InsertData(&resp, c.ClientIP(), c.Request.UserAgent())
+	err = logic.NewCodeLogic().GenLoginData(ctx, req.AutoLogin, &resp)
 	if err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	} else {
-		resp.Ip = c.ClientIP()
-		resp.UserAgent = c.Request.UserAgent()
 		response.NewResponse(c).Success(resp)
 	}
 	return

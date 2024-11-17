@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/model"
+	"time"
 )
 
 const (
@@ -18,14 +19,27 @@ func NewSignRepo(db *gorm.DB) *SignRepo {
 	return &SignRepo{DB: db}
 }
 
+type CommonData struct {
+	LoginId    string    `json:"login_id"`
+	Issuer     string    `json:"issuer"`
+	UserId     string    `json:"user_id"`
+	IP         string    `json:"ip"`
+	UserAgent  string    `json:"user_agent"`
+	OnlineTime time.Time `json:"online_time"`
+}
+
 // 插入数据
-func (r SignRepo) InsertSign(login_id, issuer string) error {
-	data := model.Sign{
-		LoginId: login_id,
-		Issuer:  issuer,
+func (r SignRepo) InsertSign(data CommonData) error {
+	temp := model.Sign{
+		LoginId:    data.LoginId,
+		Issuer:     data.Issuer,
+		UserId:     data.UserId,
+		IP:         data.IP,
+		UserAgent:  data.UserAgent,
+		OnlineTime: data.OnlineTime,
 	}
 	return global.DB.Table(SignTableName).
-		Create(&data).Error
+		Create(&temp).Error
 }
 
 // 对比issuer是否有效
