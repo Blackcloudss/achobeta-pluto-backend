@@ -50,7 +50,6 @@ func (r PostTeamRepo) PostTeam(TeamName string) (types.PostTeamResp, error) {
 	err = r.DB.Model(&model.Structure{}).
 		Create(&model.Structure{
 			CommonModel: model.CommonModel{
-				ID:        global.ROOT_ID,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},

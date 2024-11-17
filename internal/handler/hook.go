@@ -10,23 +10,35 @@ import (
 
 // 注册 gorm 钩子
 func RegisterHook(db *gorm.DB) {
+	zlog.Infof("Registering GORM hooks...")
 	db.Callback().Create().Before("gorm:Create").Register("before_create_Node", BeforeCreateNode)
 }
 
 // 在操作数据库前 创建 用户 ID
 func BeforeCreateNode(db *gorm.DB) {
-	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
-	if err != nil {
-		zlog.Errorf("生成 Node 出错")
-		return
+	// 检查是否是切片
+	if db.Statement.ReflectValue.Kind() == reflect.Slice {
+		for i := 0; i < db.Statement.ReflectValue.Len(); i++ {
+			elem := db.Statement.ReflectValue.Index(i)
+			elem = reflect.Indirect(elem) // 取指针指向的值
+			setIDForElem(elem)
+		}
+	} else {
+		elem := reflect.Indirect(db.Statement.ReflectValue)
+		setIDForElem(elem)
 	}
+}
 
-	// 如果是指针，返回指针指向的值；如果是非指针，直接返回
-	db.Statement.ReflectValue = reflect.Indirect(db.Statement.ReflectValue)
-
-	// 确认 id 字段是否存在，并且是 int64 类型
-	if field := db.Statement.ReflectValue.FieldByName("id"); field.IsValid() && field.CanSet() {
-		// 设置生成的唯一 ID
-		field.SetInt(node.Generate().Int64())
+func setIDForElem(elem reflect.Value) {
+	// 确认 ID 字段存在并可设置
+	if field := elem.FieldByName("ID"); field.IsValid() && field.CanSet() && field.Kind() == reflect.Int64 {
+		node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
+		if err != nil {
+			zlog.Errorf("生成 Snowflake 节点失败: %v", err)
+			return
+		}
+		newID := node.Generate().Int64()
+		field.SetInt(newID)
+		zlog.Infof("生成的 ID: %d", newID)
 	}
 }
