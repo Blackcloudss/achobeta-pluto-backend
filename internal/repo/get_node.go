@@ -22,7 +22,6 @@ type MyNode struct {
 func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 
 	var mynode []MyNode
-
 	err := r.DB.Model(&model.Structure{}).
 		Select(C_Id, C_NodeName).
 		Where(&model.Structure{

@@ -32,10 +32,17 @@ func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStruc
 
 	teamStructures := []types.TeamStructure{}
 
-	// 递归获取节点信息
-	err := l.getStructure(ctx, global.ROOT_ID, req.TeamId, &teamStructures)
+	//找到该团队的根节点
+	root, err := repo.NewStructureRepo(global.DB).GetNode(global.ROOT_ID, req.TeamId)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "Failed to get children for fatherid: %d, teamid: %d, error: %v", global.ROOT_ID, req.TeamId, err)
+		return types.TeamStructResp{}, err
+	}
+	Root := root[0].MyselfId
+
+	// 递归获取节点信息
+	err = l.getStructure(ctx, Root, req.TeamId, &teamStructures)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "Failed to get children for fatherid: %d, teamid: %d, error: %v", Root, req.TeamId, err)
 		return types.TeamStructResp{}, err
 	}
 

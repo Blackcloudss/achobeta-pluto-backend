@@ -1,6 +1,9 @@
 package global
 
-import "time"
+import (
+	"tgwp/util/snowflake"
+	"time"
+)
 
 // 所有常量文件读取位置
 const (
@@ -17,3 +20,5 @@ const (
 	NORMAL_ADMINISTRATOR     = 22222 //普通管理员
 	SUPERL_ADMINISTRATOR     = 33333 //超级管理员
 )
+
+var Node, _ = snowflake.NewNode(DEFAULT_NODE_ID)

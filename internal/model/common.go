@@ -2,6 +2,7 @@ package model
 
 import (
 	"gorm.io/gorm"
+	"tgwp/global"
 	"time"
 )
 
@@ -11,4 +12,11 @@ type CommonModel struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+func (b *CommonModel) BeforeCreate() error {
+	// 生成雪花ID
+	b.ID = global.Node.Generate().Int64()
+
+	return nil
 }

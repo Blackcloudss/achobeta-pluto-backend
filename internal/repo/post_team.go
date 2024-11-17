@@ -128,9 +128,12 @@ func (r PostTeamRepo) PostTeam(TeamName string) (types.PostTeamResp, error) {
 		},
 	}
 
-	err = r.DB.Model(&model.Casbin{}).
-		Create(Rules).
-		Error
+	for _, Rule := range Rules {
+		err = r.DB.Model(&model.Casbin{}).
+			Create(Rule).
+			Error
+	}
+
 	if err != nil {
 		return types.PostTeamResp{}, err
 	}
