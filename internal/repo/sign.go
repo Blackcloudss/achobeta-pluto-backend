@@ -42,7 +42,7 @@ func (r SignRepo) InsertSign(data model.Sign) error {
 //	@return error
 func (r SignRepo) CompareSign(issuer string) error {
 	var data model.Sign
-	return r.DB.Where(&model.Sign{Issuer: issuer}).First(&data).Error
+	return r.DB.Where(&model.Sign{Issuer: issuer}).Take(&data).Error
 }
 
 // ReflashOnlineTime
