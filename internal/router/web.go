@@ -34,6 +34,7 @@ func listen() (*gin.Engine, error) {
 
 	// 注册各业务路由组的具体路由
 	registerRoutes(routeManager)
+	messageRoutes(routeManager)
 
 	return r, nil
 }
@@ -91,4 +92,11 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	//	}
 	//})
 
+}
+
+// messageRoutes 注册消息相关路由的具体处理函数
+func messageRoutes(routeManager *manager.RouteManager) {
+	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
+		rg.POST("/send", api.SendMessage)
+	})
 }
