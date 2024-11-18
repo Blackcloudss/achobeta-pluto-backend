@@ -22,32 +22,15 @@ func NewSignRepo(db *gorm.DB) *SignRepo {
 	return &SignRepo{DB: db}
 }
 
-type CommonData struct {
-	LoginId    string    `json:"login_id"`
-	Issuer     string    `json:"issuer"`
-	UserId     string    `json:"user_id"`
-	IP         string    `json:"ip"`
-	UserAgent  string    `json:"user_agent"`
-	OnlineTime time.Time `json:"online_time"`
-}
-
 // InsertSign
 //
 //	@Description: 插入数据到sign表中
 //	@receiver r
 //	@param data
 //	@return error
-func (r SignRepo) InsertSign(data CommonData) error {
-	temp := model.Sign{
-		LoginId:    data.LoginId,
-		Issuer:     data.Issuer,
-		UserId:     data.UserId,
-		IP:         data.IP,
-		UserAgent:  data.UserAgent,
-		OnlineTime: data.OnlineTime,
-	}
+func (r SignRepo) InsertSign(data model.Sign) error {
 	return global.DB.Table(SignTableName).
-		Create(&temp).Error
+		Create(&data).Error
 }
 
 // CompareSign

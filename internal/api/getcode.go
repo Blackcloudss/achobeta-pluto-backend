@@ -31,7 +31,7 @@ func GetCode(c *gin.Context) {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	} else {
-		response.NewResponse(c).Success(response.SUCCESS)
+		response.NewResponse(c).Success(nil)
 	}
 	return
 }

@@ -40,5 +40,5 @@ func CheckAutoLogin(c *gin.Context) {
 	}
 	//到这里时，issuer一定有效，且唯一
 	repo.NewSignRepo(global.DB).ReflashOnlineTime(data.Issuer)
-	response.NewResponse(c).Success(response.SUCCESS)
+	response.NewResponse(c).Success(nil)
 }

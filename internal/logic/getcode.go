@@ -4,6 +4,7 @@ import (
 	"context"
 	"tgwp/global"
 	"tgwp/internal/handler"
+	"tgwp/internal/model"
 	"tgwp/internal/repo"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
@@ -59,7 +60,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *type
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
 		//将点了自动登录的用户的login_id,issuer插入签名表
-		data := repo.CommonData{
+		data := model.Sign{
 			UserId:     user_id,
 			Issuer:     issuer,
 			OnlineTime: time.Now(),
