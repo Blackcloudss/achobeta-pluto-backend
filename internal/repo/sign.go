@@ -3,7 +3,6 @@ package repo
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"tgwp/global"
 	"tgwp/internal/model"
 	"time"
 )
@@ -12,6 +11,8 @@ const (
 	SignTableName = "sign"
 	OnlineTime    = "online_time"
 	Issuer        = "issuer"
+	Phone         = "phone"
+	UserId        = "user_id"
 )
 
 type SignRepo struct {
@@ -29,7 +30,7 @@ func NewSignRepo(db *gorm.DB) *SignRepo {
 //	@param data
 //	@return error
 func (r SignRepo) InsertSign(data model.Sign) error {
-	return global.DB.Table(SignTableName).
+	return r.DB.Table(SignTableName).
 		Create(&data).Error
 }
 
@@ -41,7 +42,7 @@ func (r SignRepo) InsertSign(data model.Sign) error {
 //	@return error
 func (r SignRepo) CompareSign(issuer string) error {
 	var data model.Sign
-	return global.DB.Where(&model.Sign{Issuer: issuer}).First(&data).Error
+	return r.DB.Where(&model.Sign{Issuer: issuer}).First(&data).Error
 }
 
 // ReflashOnlineTime
@@ -50,7 +51,27 @@ func (r SignRepo) CompareSign(issuer string) error {
 //	@receiver r
 //	@param issuer
 func (r SignRepo) ReflashOnlineTime(issuer string) {
-	global.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).UpdateColumn(OnlineTime, time.Now())
+	r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).UpdateColumn(OnlineTime, time.Now())
+}
+
+// CheckUserId
+//
+//	@Description: 根据手机号查找用户是否已经有过userid，确保userid唯一
+//	@receiver r
+//	@param phone
+func (r SignRepo) CheckUserId(phone string) (string, error) {
+	//建立一个临时结构体
+	var Temp struct {
+		UserId string `gorm:"column:user_id"` // 假设你的数据库列名是 user_id
+	}
+	err := r.DB.Table(SignTableName).Select(UserId).
+		Where(fmt.Sprintf("%s=?", Phone), phone).
+		Take(&Temp).Error
+	if err != nil {
+		return "", err
+	}
+	// 返回检索到的 user_id
+	return Temp.UserId, nil
 }
 
 //查找对应的Issuer并修改，自己退出登录

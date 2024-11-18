@@ -11,7 +11,7 @@ type Sign struct {
 	UserAgent  string    `gorm:"column:user_agent;type:varchar(50);not null;comment:'用户代理'"`
 	IP         string    `gorm:"column:ip;type:VARCHAR(45);not null;comment:'ip地址'"`
 	Device     string    `gorm:"column:device;type:VARCHAR(50);comment:'设备名称''"`
-	ShowOption int       `gorm:"column:show_option;type:tinyint;default 0;comment:'下线操作栏'"`
+	Phone      string    `gorm:"column:phone;type:char(11);not null;comment:'下线操作栏'"`
 }
 
 func (t *Sign) TableName() string {

@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/handler"
 	"tgwp/internal/model"
@@ -46,16 +48,33 @@ func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error)
 //	@param AutoLogin
 //	@param resp
 //	@return err
-func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *types.PhoneResp) (err error) {
+func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, user_agent string) (resp types.PhoneResp, err error) {
 	defer util.RecordTime(time.Now())()
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "NewNode err: %v", err)
 		return
 	}
+	if !handler.CompareCode(ctx, req.Code, req.Phone) {
+		return resp, errors.New("验证码错误")
+	}
+	resp.Ip = ip
+	resp.UserAgent = user_agent
 	resp.LoginId = snowflake.GenId(node)
-	user_id := snowflake.GenId(node)
-	if AutoLogin {
+	//这里做关于团队成员的判断，思凯会设计一个函数，我传手机号，看看他团队表内有么有
+	resp.IsTeam = true //暂时认定都是团队成员
+	//一个手机号对应的user_id是一样的
+	user_id, err := repo.NewSignRepo(global.DB).CheckUserId(req.Phone)
+	if err != nil {
+		//这里的err是代表找不到对应的user_id,所以生成一个新的id
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			user_id = snowflake.GenId(node)
+		} else {
+			zlog.CtxErrorf(ctx, "CheckUserId err: %v", err)
+			return
+		}
+	}
+	if req.AutoLogin {
 		issuer := snowflake.GenId(node)
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
@@ -67,6 +86,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *type
 			LoginId:    resp.LoginId,
 			IP:         resp.Ip,
 			UserAgent:  resp.UserAgent,
+			Phone:      req.Phone,
 		}
 		err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {
@@ -78,15 +98,4 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, AutoLogin bool, resp *type
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 	}
 	return
-}
-
-// InsertData
-//
-//	@Description: 获取用户的ip和useragent
-//	@param resp
-//	@param ip
-//	@param user_agent
-func InsertData(resp *types.PhoneResp, ip, user_agent string) {
-	resp.Ip = ip
-	resp.UserAgent = user_agent
 }
