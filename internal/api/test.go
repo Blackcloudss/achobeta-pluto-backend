@@ -19,13 +19,8 @@ func Test(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "Test request: %v", req)
 	resp, err := logic.NewTestLogic().TestLogic(ctx, req)
-
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	// 更加人性化的response返回，这样减少重复代码的书写
+	response.Response(c, resp, err)
 
 	return
 }
