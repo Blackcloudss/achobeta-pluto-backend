@@ -13,19 +13,11 @@ type SetMessageResp struct {
 
 // JoinMessageReq 连接消息请求（入参）
 type JoinMessageReq struct {
-	Atoken    string `json:"atoken"`
-	MessageID int64  `json:"message_id"`
+	MessageID int64 `json:"message_id"`
 }
 
 // JoinMessageResp 连接消息请求（出参）
 type JoinMessageResp struct {
-}
-
-// GetMessageReq 获取消息请求（入参）
-type GetMessageReq struct {
-	Atoken    string `json:"atoken"`
-	Page      int    `json:"page"`
-	Timestamp int64  `json:"timestamp"`
 }
 
 // Message 消息

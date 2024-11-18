@@ -4,7 +4,7 @@ package model
 type Message struct {
 	CommonModel
 	Content string `json:"content" ;gorm:"type:varchar(2048);null;comment:'消息具体内容'"`
-	Type    int    `json:"type" ;gorm:"type:varchar(2048);null;comment:'消息类型'"`
+	Type    int    `json:"type" ;gorm:"type:int;null;comment:'消息类型'"`
 }
 
 type UserMessage struct {

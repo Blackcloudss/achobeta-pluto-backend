@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -39,11 +40,11 @@ func JoinMessage(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	UserID, _ := c.Get(global.TOKEN_USER_ID)
 	zlog.CtxInfof(ctx, "Casbin request: %v", req)
-	//fmt.Println(util.GenToken(util.TokenData{Userid: "114514", Class: "1", Issuer: "1", Time: time.Hour * 24 * 365}))
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().JoinMessage(c, req)
+	resp, err := logic.NewMessageLogic().JoinMessage(c, req, UserID.(string))
 
 	// 响应
 	if err != nil {
@@ -58,16 +59,19 @@ func JoinMessage(c *gin.Context) {
 
 // GetMessage 获取消息, 从 [消息表] 获取
 func GetMessage(c *gin.Context) {
+	//fmt.Println(util.GenToken(util.TokenData{Userid: "114514", Class: "atoken", Issuer: "1", Time: time.Hour * 24 * 365}))
+
 	// 解析请求参数
 	ctx := zlog.GetCtxFromGin(c)
-	atoken := c.DefaultQuery("atoken", "")
+	UserID, _ := c.Get(global.TOKEN_USER_ID)
+
 	pageStr := c.DefaultQuery("page", "1")
 	timestampStr := c.DefaultQuery("timestamp", "0")
 
-	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", atoken, pageStr, timestampStr)
+	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", UserID.(string), pageStr, timestampStr)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().GetMessage(c, atoken, pageStr, timestampStr)
+	resp, err := logic.NewMessageLogic().GetMessage(c, UserID.(string), pageStr, timestampStr)
 
 	// 响应
 	if err != nil {
