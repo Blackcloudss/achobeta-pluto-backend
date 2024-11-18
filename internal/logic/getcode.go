@@ -2,8 +2,12 @@ package logic
 
 import (
 	"context"
+	"tgwp/global"
+	"tgwp/internal/handler"
 	"tgwp/internal/types"
+	"tgwp/log/zlog"
 	"tgwp/util"
+	"tgwp/util/snowflake"
 	"time"
 )
 
@@ -14,16 +18,32 @@ func NewCodeLogic() *CodeLogic {
 	return &CodeLogic{}
 }
 
-func (l *CodeLogic) CodeLogic(ctx context.Context, req types.PhoneReq) (resp types.PhoneResp, err error) {
+func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error) {
 	defer util.RecordTime(time.Now())()
-	//..... some logic
-	//暂时不处理redis层面，直接让验证码为123456
-	//这里只是做了简单处理，后期得改进FullToken函数
+	//生成随机验证码并发送到对应用户
+	err = handler.PostCode(ctx, req.Phone)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "GenCode err: %v", err)
+		return
+	}
+	return
+}
+func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq) (resp types.PhoneResp, err error) {
+	defer util.RecordTime(time.Now())()
+	//传入不同节点是为了生成不同的id,不设置为1是为了区分全局变量
+	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "NewNode err: %v", err)
+		return
+	}
+	resp.LoginId = snowflake.GenId(node)
+	user_id := snowflake.GenId(node)
+	issuer := snowflake.GenId(node)
 	if req.AutoLogin {
-		resp.Atoken, err = util.GenToken(util.FullToken("atoken"))
-		resp.Rtoken, err = util.GenToken(util.FullToken("rtoken"))
+		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
+		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
 	} else {
-		resp.Atoken, err = util.GenToken(util.FullToken("atoken"))
+		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 	}
 	return
 }

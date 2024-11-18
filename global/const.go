@@ -12,4 +12,5 @@ const (
 	AUTH_ENUMS_ATOKEN        = "atoken"
 	AUTH_ENUMS_RTOKEN        = "rtoken"
 	DEFAULT_NODE_ID          = 1
+	TOKEN_USER_ID            = "UserId"
 )

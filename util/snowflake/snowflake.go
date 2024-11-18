@@ -158,3 +158,6 @@ func (f ID) MarshalJSON() ([]byte, error) {
 	buff = append(buff, '"')
 	return buff, nil
 }
+func GenId(node *Node) string {
+	return node.Generate().String()
+}

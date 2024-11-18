@@ -76,10 +76,10 @@ func IdentifyToken(ctx context.Context, Token string) (TokenData, error) {
 	return data, nil
 }
 
-func FullToken(class string) (data TokenData) {
+func FullToken(class, issuer, user_id string) (data TokenData) {
 	//后期这两个都由雪花算法生成
-	data.Issuer = "Zcg"
-	data.Userid = "test_id"
+	data.Issuer = issuer
+	data.Userid = user_id
 	if class == global.AUTH_ENUMS_ATOKEN {
 		data.Time = global.ATOKEN_EFFECTIVE_TIME
 		data.Class = global.AUTH_ENUMS_ATOKEN
