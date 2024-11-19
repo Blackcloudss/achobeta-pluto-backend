@@ -107,3 +107,32 @@ func MarkReadMessage(c *gin.Context) {
 
 	return
 }
+
+// SendMessage 一键发送消息，SetMessage 和 JoinMessage 合并运用
+func SendMessage(c *gin.Context) {
+	// 解析请求参数
+	ctx := zlog.GetCtxFromGin(c)
+	req, err := types.BindReq[types.SendMessageReq](c)
+	if err != nil {
+		return
+	}
+	UserID, _ := c.Get(global.TOKEN_USER_ID)
+	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
+	if err != nil {
+		return
+	}
+	zlog.CtxInfof(ctx, "Casbin request: %v", req)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().SendMessage(req, user_id)
+
+	// 响应
+	if err != nil {
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	} else {
+		response.NewResponse(c).Success(resp)
+	}
+
+	return
+}

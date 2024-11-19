@@ -122,3 +122,25 @@ func (l *MessageLogic) MarkReadMessage(c *gin.Context, req types.MarkReadMessage
 
 	return
 }
+
+func (l *MessageLogic) SendMessage(req types.SendMessageReq, UserID int64) (resp types.SendMessageResp, err error) {
+	// 使用 SetMessage 方法
+	respSet, err := l.SetMessage(types.SetMessageReq{
+		Content: req.Content,
+		Type:    req.Type,
+	})
+	if err != nil {
+		return
+	}
+	// 使用 JoinMessage 方法
+	respJoin, err := l.JoinMessage(types.JoinMessageReq{
+		MessageID: respSet.MessageID,
+	}, UserID)
+	if err != nil {
+		return
+	}
+
+	resp.MessageID = respSet.MessageID
+	resp.UserMessageID = respJoin.UserMessageID
+	return
+}

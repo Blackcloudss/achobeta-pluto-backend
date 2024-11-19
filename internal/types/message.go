@@ -18,6 +18,7 @@ type JoinMessageReq struct {
 
 // JoinMessageResp 连接消息请求（出参）
 type JoinMessageResp struct {
+	UserMessageID int64 `json:"user_message_id"` // 用户消息ID
 }
 
 // Message 消息
@@ -44,4 +45,16 @@ type MarkReadMessageReq struct {
 
 // MarkReadMessageResp 标记已读消息请求（出参）
 type MarkReadMessageResp struct {
+}
+
+// SendMessageReq 发送消息请求（入参）
+type SendMessageReq struct {
+	Type    int    `json:"type"`
+	Content string `json:"content"`
+}
+
+// SendMessageResp 发送消息请求（出参）
+type SendMessageResp struct {
+	MessageID     int64 `json:"message_id"`      // 消息ID
+	UserMessageID int64 `json:"user_message_id"` // 用户消息ID
 }
