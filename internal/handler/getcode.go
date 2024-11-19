@@ -2,12 +2,16 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"tgwp/global"
+	"tgwp/internal/response"
 	"tgwp/log/zlog"
 	"tgwp/util"
 	"time"
+)
+
+var (
+	codeHasSend = response.MsgCode{Code: 20007, Msg: "该手机号在一分钟内已经发送给验证码"}
 )
 
 // PostCode
@@ -16,30 +20,32 @@ import (
 //	@param ctx
 //	@param phone
 //	@return error
-func PostCode(ctx context.Context, phone string) error {
+func PostCode(ctx context.Context, phone string) (err error) {
 	if !AccessCode(ctx, phone) {
 		zlog.CtxErrorf(ctx, "Access code error")
-		return errors.New("该手机号在一分钟内已经发送给验证码")
+		return response.ErrResp(err, codeHasSend)
 	}
 	//生成6位数字的验证码
 	code := util.RandomCode()
 	text := fmt.Sprintf("你的验证码是%s", code)
 	//将验证码放入redis5分钟
-	err := global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE_CODE, phone), code, time.Second*300).Err()
+	err = global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE_CODE, phone), code, time.Second*300).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Store the verification code err: %v", err)
+		return response.ErrResp(err, response.COMMON_FAIL)
 	}
 	//防刷处理
 	err = global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE, phone), 0, time.Second*60).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Restrict multiple access err: %v", err)
-		return err
+		return response.ErrResp(err, response.COMMON_FAIL)
 	}
 	//发送验证码到用户手机
 	if err := PostMessage(text, phone); err != nil {
 		zlog.CtxErrorf(ctx, "PostMessage err: %v", err)
+		return response.ErrResp(err, response.CONNECT_PHONE_ERROR)
 	}
-	return nil
+	return
 }
 
 // PostMessage

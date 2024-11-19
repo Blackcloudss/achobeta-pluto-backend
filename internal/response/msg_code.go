@@ -1,7 +1,6 @@
 package response
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,29 +24,26 @@ const code200 = 200
 // Response 更加通用的返回方法 以后不用直接使用gin的返回方法
 func Response(c *gin.Context, data interface{}, err error) {
 	if err != nil {
-		// 如果出现错误，判断是否是RespError类型
-		var respErr *RespError
-		// 判断响应是否含有RespError ，如果有则返回错误信息
-		if ok := errors.As(err, respErr); ok {
+		// 尝试将错误断言为*RespError类型
+		if respErr, ok := err.(*RespError); ok {
+			// 如果断言成功，返回RespError的Code和消息
 			c.JSON(respErr.Code, respErr)
 			return
-		} else {
-			// 更加通用的类型错误返回
-			c.JSON(code200, JsonMsgResult{
-				Code:    COMMON_FAIL.Code,
-				Message: COMMON_FAIL.Msg,
-				Data:    err.Error(),
-			})
-			return
 		}
-	} else {
-		// 正常返回
+		// 如果错误不是*RespError类型，返回通用错误
 		c.JSON(code200, JsonMsgResult{
-			Code:    SUCCESS_CODE,
-			Message: SUCCESS_MSG,
-			Data:    data,
+			Code:    COMMON_FAIL.Code,
+			Message: COMMON_FAIL.Msg,
+			Data:    err.Error(),
 		})
+		return
 	}
+	// 如果没有错误，正常返回
+	c.JSON(code200, JsonMsgResult{
+		Code:    SUCCESS_CODE,
+		Message: SUCCESS_MSG,
+		Data:    data,
+	})
 }
 
 func NewResponse(c *gin.Context) *JsonMsgResponse {

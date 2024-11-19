@@ -8,6 +8,7 @@ import (
 	"tgwp/internal/handler"
 	"tgwp/internal/model"
 	"tgwp/internal/repo"
+	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"tgwp/util"
@@ -31,6 +32,10 @@ func NewCodeLogic() *CodeLogic {
 //	@return err
 func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error) {
 	defer util.RecordTime(time.Now())()
+	//校验手机号
+	if flag := util.IndetifyPhone(req.Phone); !flag {
+		return response.ErrResp(err, response.PHONE_ERROR)
+	}
 	//生成随机验证码并发送到对应用户
 	err = handler.PostCode(ctx, req.Phone)
 	if err != nil {
@@ -53,10 +58,10 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "NewNode err: %v", err)
-		return
+		return resp, response.ErrResp(err, response.COMMON_FAIL)
 	}
 	if !handler.CompareCode(ctx, req.Code, req.Phone) {
-		return resp, errors.New("验证码错误")
+		return resp, response.ErrResp(err, response.CAPTCHA_ERROR)
 	}
 	resp.Ip = ip
 	resp.UserAgent = user_agent
@@ -73,7 +78,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 			user_id = node.Generate().Int64()
 		} else {
 			zlog.CtxErrorf(ctx, "CheckUserId err: %v", err)
-			return
+			return resp, response.ErrResp(err, response.COMMON_FAIL)
 		}
 	}
 	if req.AutoLogin {
@@ -93,7 +98,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 		err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "InsertSign err: %v", err)
-			return
+			return resp, response.ErrResp(err, response.COMMON_FAIL)
 		}
 	} else {
 		issuer := "" //没有自动登录，做置空处理
