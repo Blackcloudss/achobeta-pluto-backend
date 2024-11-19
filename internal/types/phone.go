@@ -11,4 +11,5 @@ type PhoneResp struct {
 	LoginId   string `json:"login_id"`
 	UserAgent string `json:"user_agent"`
 	Ip        string `json:"ip"`
+	IsTeam    bool   `json:"is_team"`
 }

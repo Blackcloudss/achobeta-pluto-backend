@@ -11,7 +11,7 @@ import (
 
 // GetPower
 //
-//	@Description:
+//	@Description: 获得权限组
 //	@param c
 func GetPower(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)

@@ -10,10 +10,8 @@ import (
 	"time"
 )
 
-//	TeamLogic
-//	@Description:
-//
-// 新增团队 ，初始化团队架构
+// TeamLogic
+// @Description: 新增团队 ，初始化团队架构
 type TeamLogic struct {
 }
 

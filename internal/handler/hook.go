@@ -8,7 +8,7 @@ import (
 
 // RegisterHook 注册 GORM 钩子
 func RegisterHook(db *gorm.DB) {
-	zlog.Infof("Registering GORM hooks...")
+	zlog.Infof("注册 GORM hooks...")
 	db.Callback().Create().Before("gorm:Create").Register("before_create_BaseModel", BeforeCreateBaseModel)
 }
 

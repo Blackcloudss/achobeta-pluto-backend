@@ -10,7 +10,7 @@ import (
 
 // GetTeamStructure
 //
-//	@Description:
+//	@Description: 获取 完整团队架构
 //	@param c
 func GetTeamStructure(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
@@ -23,12 +23,7 @@ func GetTeamStructure(c *gin.Context) {
 	zlog.CtxInfof(ctx, "GetTeamStructure request: %v", req)
 	resp, err := logic.NewStructureLogic().StructureLogic(ctx, req)
 
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 
 	return
 }

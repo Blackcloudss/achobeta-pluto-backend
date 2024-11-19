@@ -8,10 +8,10 @@ import (
 	"tgwp/log/zlog"
 )
 
-//	 PostTeam
+// CreateTeam
 //
-//		@Description:
-//		@param c
+//	@Description: 新增团队
+//	@param c
 func CreateTeam(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.CreateTeamReq](c)
@@ -23,12 +23,7 @@ func CreateTeam(c *gin.Context) {
 	zlog.CtxInfof(ctx, "PostTeam request: %v", req)
 	resp, err := logic.NewTeamLogic().TeamLogic(ctx, req)
 
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 
 	return
 

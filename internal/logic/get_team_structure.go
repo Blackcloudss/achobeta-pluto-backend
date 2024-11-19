@@ -2,8 +2,11 @@ package logic
 
 import (
 	"context"
+	"errors"
+	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/repo"
+	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"tgwp/util"
@@ -17,16 +20,21 @@ func NewStructureLogic() *StructureLogic {
 	return &StructureLogic{}
 }
 
+var (
+	rootFoundField    = response.MsgCode{Code: 40023, Msg: "根节点查询失败"}
+	rootNotFound      = response.MsgCode{Code: 40024, Msg: "根节点不存在"}
+	childFoundField   = response.MsgCode{Code: 40025, Msg: "孩子节点查询失败"}
+	childrootNotFound = response.MsgCode{Code: 40026, Msg: "孩子节点不存在"}
+)
+
 // StructureLogic
 //
-//	@Description:
+//	@Description:  获取 完整团队架构
 //	@receiver l
 //	@param ctx
 //	@param req
 //	@return types.TeamStructResp
 //	@return error
-//
-// 获取完整团队架构
 func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStructReq) (types.TeamStructResp, error) {
 	defer util.RecordTime(time.Now())()
 
@@ -35,7 +43,13 @@ func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStruc
 	//找到该团队的根节点
 	root, err := repo.NewStructureRepo(global.DB).GetNode(global.ROOT_ID, req.TeamId)
 	if err != nil {
-		return types.TeamStructResp{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.CtxWarnf(ctx, "root not found: %v", err)
+			return types.TeamStructResp{}, response.ErrResp(err, rootFoundField)
+		} else {
+			zlog.Errorf("get root error: %v", err)
+			return types.TeamStructResp{}, response.ErrResp(err, rootNotFound)
+		}
 	}
 	Root := root[0].MyselfId
 
@@ -51,20 +65,24 @@ func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStruc
 
 // getStructure
 //
-//	@Description:
+//	@Description:  递归获取节点信息
 //	@receiver l
 //	@param ctx
 //	@param fatherid
 //	@param teamid
 //	@param result
 //	@return error
-//
-// 递归获取节点的所有子节点
 func (l *StructureLogic) getStructure(ctx context.Context, fatherid, teamid int64, result *[]types.TeamStructure) error {
 	// 获取当前节点的所有子节点
 	children, err := repo.NewStructureRepo(global.DB).GetNode(fatherid, teamid)
 	if err != nil {
-		return err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.CtxWarnf(ctx, "child not found: %v", err)
+			return response.ErrResp(err, childFoundField)
+		} else {
+			zlog.Errorf("get child error: %v", err)
+			return response.ErrResp(err, childrootNotFound)
+		}
 	}
 
 	for _, child := range children {

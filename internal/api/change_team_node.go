@@ -10,7 +10,7 @@ import (
 
 // PutTeamNode
 //
-//	@Description:
+//	@Description: 保存 更改了的节点信息
 //	@param c
 func PutTeamNode(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
@@ -23,12 +23,6 @@ func PutTeamNode(c *gin.Context) {
 	zlog.CtxInfof(ctx, "PutTeamNode request: %v", req)
 	resp, err := logic.NewTeamNodeLogic().TeamNodeLogic(ctx, req)
 
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
-
+	response.Response(c, resp, err)
 	return
 }

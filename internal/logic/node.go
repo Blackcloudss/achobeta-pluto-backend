@@ -19,14 +19,12 @@ func NewTeamNodeLogic() *TeamNodeLogic {
 
 // TeamNodeLogic
 //
-//	@Description:
+//	@Description:  保存新增的节点，删除被删除的节点
 //	@receiver l
 //	@param ctx
 //	@param req
 //	@return types.PutTeamNodeResp
 //	@return error
-//
-// 保存新增的节点，删除被删除的节点
 func (l *TeamNodeLogic) TeamNodeLogic(ctx context.Context, req types.PutTeamNodeReq) (types.PutTeamNodeResp, error) {
 	defer util.RecordTime(time.Now())()
 

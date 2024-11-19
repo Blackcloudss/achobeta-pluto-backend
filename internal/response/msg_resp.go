@@ -33,7 +33,8 @@ var (
 	USER_ACCOUNT_NOT_EXIST     = MsgCode{20003, "账号不存在"}
 	USER_CREDENTIALS_ERROR     = MsgCode{20004, "密码错误"}
 	PHONE_ERROR                = MsgCode{20005, "手机号格式错误"}
-	USER_ACCOUNT_ALREADY_EXIST = MsgCode{20008, "账号已存在"}
+	CONNECT_PHONE_ERROR        = MsgCode{20006, "连接不到用户手机"}
+	USER_ACCOUNT_ALREADY_EXIST = MsgCode{20007, "账号已存在"}
 	CAPTCHA_ERROR              = MsgCode{20500, "验证码错误"}
 	INSUFFICENT_PERMISSIONS    = MsgCode{20403, "权限不足"}
 

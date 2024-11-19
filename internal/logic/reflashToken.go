@@ -16,6 +16,14 @@ func NewTokenLogic() *TokenLogic {
 	return &TokenLogic{}
 }
 
+// GenAtoken
+//
+//	@Description: 生成atoken
+//	@receiver l
+//	@param ctx
+//	@param data
+//	@return resp
+//	@return err
 func (l *TokenLogic) GenAtoken(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
 	defer util.RecordTime(time.Now())()
 	resp.Atoken, err = util.GenToken(data)
@@ -26,6 +34,14 @@ func (l *TokenLogic) GenAtoken(ctx context.Context, data util.TokenData) (resp t
 	return
 }
 
+// GenRtoken
+//
+//	@Description: 生成rtoken
+//	@receiver l
+//	@param ctx
+//	@param data
+//	@return resp
+//	@return err
 func (l *TokenLogic) GenRtoken(ctx context.Context, data util.TokenData) (resp types.TokenResp, err error) {
 	defer util.RecordTime(time.Now())()
 	resp.Rtoken, err = util.GenToken(data)

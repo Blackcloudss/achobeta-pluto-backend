@@ -19,14 +19,12 @@ func NewCasbinLogic() *CasbinLogic {
 
 // CasbinLogic
 //
-//	@Description:
+//	@Description:获取权限组
 //	@receiver l
 //	@param ctx
 //	@param req
 //	@return resp
 //	@return err
-//
-// CasbinLogic  获取权限组
 func (l *CasbinLogic) CasbinLogic(ctx context.Context, UserId, TeamId int64) (resp types.RuleResp, err error) {
 	defer util.RecordTime(time.Now())()
 	// 前端没有传团队id 时 仅返回第一个团队ID，所有的团队ID，状态码code，信息获取（成功/失败）msg
@@ -41,12 +39,14 @@ func (l *CasbinLogic) CasbinLogic(ctx context.Context, UserId, TeamId int64) (re
 		resp.Level = Level
 	}
 
-	//获取 第一个团队ID，所有的团队ID
-	FTeamID, TeamID, err := repo.NewTeamIdRepo(global.DB).GetTeamId(UserId)
+	//获取 第一个团队ID 和 名称，所有的团队ID 和名称
+	FirstTeam, Team, err := repo.NewTeamIdRepo(global.DB).GetTeamId(UserId)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "%v", err)
 	}
-	resp.FirstTeamID = FTeamID
-	resp.TeamID = TeamID
+	resp.FirstTeamID = FirstTeam.TeamId
+	resp.FirstTeamName = FirstTeam.TeamName
+	resp.Team = Team
+
 	return
 }
