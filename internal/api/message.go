@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
@@ -20,7 +21,7 @@ func SetMessage(c *gin.Context) {
 	zlog.CtxInfof(ctx, "Casbin request: %v", req)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().SetMessage(c, req)
+	resp, err := logic.NewMessageLogic().SetMessage(req)
 
 	// 响应
 	if err != nil {
@@ -41,10 +42,14 @@ func JoinMessage(c *gin.Context) {
 		return
 	}
 	UserID, _ := c.Get(global.TOKEN_USER_ID)
+	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
+	if err != nil {
+		return
+	}
 	zlog.CtxInfof(ctx, "Casbin request: %v", req)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().JoinMessage(c, req, UserID.(string))
+	resp, err := logic.NewMessageLogic().JoinMessage(req, user_id)
 
 	// 响应
 	if err != nil {
@@ -64,14 +69,18 @@ func GetMessage(c *gin.Context) {
 	// 解析请求参数
 	ctx := zlog.GetCtxFromGin(c)
 	UserID, _ := c.Get(global.TOKEN_USER_ID)
+	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
+	if err != nil {
+		return
+	}
 
 	pageStr := c.DefaultQuery("page", "1")
 	timestampStr := c.DefaultQuery("timestamp", "0")
 
-	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", UserID.(string), pageStr, timestampStr)
+	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", user_id, pageStr, timestampStr)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().GetMessage(c, UserID.(string), pageStr, timestampStr)
+	resp, err := logic.NewMessageLogic().GetMessage(user_id, pageStr, timestampStr)
 
 	// 响应
 	if err != nil {
@@ -95,7 +104,7 @@ func MarkReadMessage(c *gin.Context) {
 	zlog.CtxInfof(ctx, "Casbin request: %v", req)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().MarkReadMessage(c, req)
+	resp, err := logic.NewMessageLogic().MarkReadMessage(req)
 
 	// 响应
 	if err != nil {
