@@ -58,6 +58,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 				response.NewResponse(c).Success(data)
 			}
 		})
+		//是否可以自动登录
+		rg.POST("/auto", api.CheckAutoLogin)
 	})
 
 	// 个人信息相关路由
