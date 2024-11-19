@@ -30,10 +30,10 @@ type PutTeamNodeResp struct {
 }
 
 // 新增团队，初始化团队架构（入参）
-type PostTeamReq struct {
+type CreateTeamReq struct {
 	Name string `json:"team_name" binding:"required"`
 }
 
 // 新增团队，初始化团队架构(出参）
-type PostTeamResp struct {
+type CreateTeamResp struct {
 }

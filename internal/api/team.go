@@ -12,9 +12,9 @@ import (
 //
 //		@Description:
 //		@param c
-func PostTeam(c *gin.Context) {
+func CreateTeam(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
-	req, err := types.BindReq[types.PostTeamReq](c)
+	req, err := types.BindReq[types.CreateTeamReq](c)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "PostTeam err:%v", err)
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)

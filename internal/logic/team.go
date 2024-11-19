@@ -21,11 +21,11 @@ func NewTeamLogic() *TeamLogic {
 	return &TeamLogic{}
 }
 
-func (l *TeamLogic) TeamLogic(ctx context.Context, req types.PostTeamReq) (resp types.PostTeamResp, err error) {
+func (l *TeamLogic) TeamLogic(ctx context.Context, req types.CreateTeamReq) (resp types.CreateTeamResp, err error) {
 	defer util.RecordTime(time.Now())()
-	resp, err = repo.NewPostTeamRepo(global.DB).PostTeam(req.Name)
+	resp, err = repo.NewCreateTeamRepo(global.DB).CreateTeam(req.Name)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "v", err)
+		zlog.CtxErrorf(ctx, "新增团队失败：%v", err)
 	}
 	return
 }

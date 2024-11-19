@@ -58,6 +58,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 				response.NewResponse(c).Success(data)
 			}
 		})
+		//是否可以自动登录
+		rg.POST("/auto", api.CheckAutoLogin)
 	})
 
 	// 个人信息相关路由
@@ -74,22 +76,44 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
 		//解析 jwt，获取 user_id
-		//rg.Use(middleware.ReflashAtoken())
+		rg.Use(middleware.ReflashAtoken())
 
 		//获得权限组
 		rg.GET("/power", api.GetPower)
 
-		// 团队成员管理子路由
-		memberGroup := rg.Group("/structure")
+		// 团队架构管理子路由
+		TeamStructure := rg.Group("/structure")
 		{
 			//检验权限
-			//memberGroup.Use(middleware.PermissionMiddleware())
+			TeamStructure.Use(middleware.PermissionMiddleware())
 			// 获取 完整团队架构
-			memberGroup.GET("/collection", api.GetTeamStructure)
+			TeamStructure.GET("/collection", api.GetTeamStructure)
 			//保存 更改了的节点信息
-			memberGroup.PUT("/change", api.PutTeamNode)
+			TeamStructure.PUT("/change", api.PutTeamNode)
 			//新增团队
-			memberGroup.POST("/add", api.PostTeam)
+			TeamStructure.POST("/add", api.CreateTeam)
+		}
+
+		// 团队成员列表管理子路由
+		MemberList := rg.Group("/memberlist")
+		{
+			//查询用户列表
+			MemberList.GET("/get", api.GetTeamMemberlist)
+			//新增用户
+			MemberList.POST("/post", middleware.PermissionMiddleware(), api.CreateTeamMember)
+			//删除用户
+			MemberList.DELETE("/delete", middleware.PermissionMiddleware(), api.DeleteTeamMember)
+		}
+
+		// 团队成员信息管理子路由
+		MemberMsg := rg.Group("/membermsg")
+		{
+			//查询用户详细信息
+			MemberMsg.GET("/details", api.GetMemberDetail)
+			//给用户点赞/取消赞
+			MemberMsg.PUT("/like", api.PutLikeCount)
+			//编辑用户信息
+			MemberMsg.PUT("/save", middleware.PermissionMiddleware(), api.PutTeamMember)
 		}
 	})
 }
@@ -97,6 +121,9 @@ func registerRoutes(routeManager *manager.RouteManager) {
 // messageRoutes 注册消息相关路由的具体处理函数
 func messageRoutes(routeManager *manager.RouteManager) {
 	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
-		rg.POST("/send", api.SendMessage)
+		rg.POST("/set", api.SetMessage)
+		rg.POST("/join", middleware.ReflashAtoken(), api.JoinMessage)
+		rg.GET("/get", middleware.ReflashAtoken(), api.GetMessage)
+		rg.POST("/markread", api.MarkReadMessage)
 	})
 }
