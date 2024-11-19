@@ -64,11 +64,12 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	//这里做关于团队成员的判断，思凯会设计一个函数，我传手机号，看看他团队表内有么有
 	resp.IsTeam = true //暂时认定都是团队成员
 	//一个手机号对应的user_id是一样的
+	//这里到时候外键关联用户表，userid就是逻辑外键，手机号也可以删掉了，但是现在不处理
 	user_id, err := repo.NewSignRepo(global.DB).CheckUserId(req.Phone)
 	if err != nil {
 		//这里的err是代表找不到对应的user_id,所以生成一个新的id
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			user_id = snowflake.GenId(node)
+			user_id = node.Generate().Int64()
 		} else {
 			zlog.CtxErrorf(ctx, "CheckUserId err: %v", err)
 			return
