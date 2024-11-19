@@ -6,7 +6,6 @@ import (
 	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
-	"tgwp/util"
 )
 
 // GetCode
@@ -19,19 +18,9 @@ func GetCode(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	//校验手机号
-	if flag := util.IndetifyPhone(req.Phone); !flag {
-		response.NewResponse(c).Error(response.PHONE_ERROR)
-		return
-	}
 	zlog.CtxInfof(ctx, "GetCode request: %v", req)
-	err = logic.NewCodeLogic().GenCode(ctx, req)
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(nil)
-	}
+	err = logic.NewCodeLogic().GenCode(c, req)
+	response.Response(c, nil, err)
 	return
 }
 
@@ -47,11 +36,6 @@ func LoginWithCode(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "LoginWithCode request: %v", req)
 	resp, err := logic.NewCodeLogic().GenLoginData(ctx, req, c.ClientIP(), c.Request.UserAgent())
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 	return
 }

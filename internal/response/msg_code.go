@@ -26,9 +26,9 @@ const code200 = 200
 func Response(c *gin.Context, data interface{}, err error) {
 	if err != nil {
 		// 如果出现错误，判断是否是RespError类型
-		var respErr *RespError
+		respErr := &RespError{}
 		// 判断响应是否含有RespError ，如果有则返回错误信息
-		if ok := errors.As(err, respErr); ok {
+		if ok := errors.As(err, &respErr); ok {
 			c.JSON(respErr.Code, respErr)
 			return
 		} else {

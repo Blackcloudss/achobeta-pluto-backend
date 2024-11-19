@@ -59,16 +59,16 @@ func (r SignRepo) ReflashOnlineTime(issuer string) {
 //	@Description: 根据手机号查找用户是否已经有过userid，确保userid唯一
 //	@receiver r
 //	@param phone
-func (r SignRepo) CheckUserId(phone string) (string, error) {
+func (r SignRepo) CheckUserId(phone string) (int64, error) {
 	//建立一个临时结构体
 	var Temp struct {
-		UserId string `gorm:"column:user_id"` // 假设你的数据库列名是 user_id
+		UserId int64 `gorm:"column:user_id"` // 假设你的数据库列名是 user_id
 	}
 	err := r.DB.Table(SignTableName).Select(UserId).
 		Where(fmt.Sprintf("%s=?", Phone), phone).
 		Take(&Temp).Error
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	// 返回检索到的 user_id
 	return Temp.UserId, nil

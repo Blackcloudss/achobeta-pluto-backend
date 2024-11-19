@@ -10,7 +10,7 @@ import (
 )
 
 type MyClaims struct {
-	Userid string `json:"userid"`
+	Userid int64  `json:"userid"`
 	Type   string `json:"type"`
 	jwt.StandardClaims
 }
@@ -18,7 +18,7 @@ type MyClaims struct {
 var mySecret = []byte("AchoBeta")
 
 type TokenData struct {
-	Userid string
+	Userid int64
 	Class  string
 	Issuer string
 	Time   time.Duration
@@ -76,7 +76,7 @@ func IdentifyToken(ctx context.Context, Token string) (TokenData, error) {
 	return data, nil
 }
 
-func FullToken(class, issuer, user_id string) (data TokenData) {
+func FullToken(class, issuer string, user_id int64) (data TokenData) {
 	//后期这两个都由雪花算法生成
 	data.Issuer = issuer
 	data.Userid = user_id
