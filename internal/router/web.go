@@ -97,6 +97,9 @@ func registerRoutes(routeManager *manager.RouteManager) {
 // messageRoutes 注册消息相关路由的具体处理函数
 func messageRoutes(routeManager *manager.RouteManager) {
 	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
-		rg.POST("/send", api.SendMessage)
+		rg.POST("/set", api.SetMessage)
+		rg.POST("/join", middleware.ReflashAtoken(), api.JoinMessage)
+		rg.GET("/get", middleware.ReflashAtoken(), api.GetMessage)
+		rg.POST("/markread", api.MarkReadMessage)
 	})
 }
