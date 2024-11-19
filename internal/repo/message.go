@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-type messageRepo struct {
-	DB *gorm.DB
+type MessageRepo struct {
+	db *gorm.DB
 }
 
-func NewMessageRepo(db *gorm.DB) *messageRepo {
-	return &messageRepo{DB: db}
+func NewMessageRepo(db *gorm.DB) *MessageRepo {
+	return &MessageRepo{db: db}
 }
 
 // CheckMessageExists 检查消息是否存在
 //func (r MessageRepo) CheckMessageExist(message_id int64) bool {
 //	var count int64
-//	r.DB.Model(&model.Message{}).Where("id =?", message_id).Count(&count)
+//	r.db.Model(&model.Message{}).Where("id =?", message_id).Count(&count)
 //	if count > 0 {
 //		return true
 //	} else {
@@ -29,7 +29,7 @@ func NewMessageRepo(db *gorm.DB) *messageRepo {
 // CheckUserMessageExists 检查用户消息是否存在
 //func (r MessageRepo) CheckUserMessageExist(user_message_id int64) bool {
 //	var count int64
-//	r.DB.Model(&model.UserMessage{}).Where("user_message_id =?", user_message_id).Count(&count)
+//	r.db.Model(&model.UserMessage{}).Where("user_message_id =?", user_message_id).Count(&count)
 //	if count > 0 {
 //		return true
 //	} else {
@@ -38,7 +38,7 @@ func NewMessageRepo(db *gorm.DB) *messageRepo {
 //}
 
 // CreateMessage 创建一条消息
-func (r messageRepo) CreateMessage(id int64, messageText string, messageType int) (message model.Message, err error) {
+func (r MessageRepo) CreateMessage(id int64, messageText string, messageType int) (message model.Message, err error) {
 	message = model.Message{
 		CommonModel: model.CommonModel{
 			ID: id,
@@ -47,14 +47,14 @@ func (r messageRepo) CreateMessage(id int64, messageText string, messageType int
 		Type:    messageType,
 	}
 
-	result := r.DB.Create(&message)
+	result := r.db.Create(&message)
 	err = result.Error
 
 	return
 }
 
 // CreateUserMessage 连接一条用户消息
-func (r messageRepo) CreateUserMessage(id int64, message_id int64, user_id string) (user_message model.UserMessage, err error) {
+func (r MessageRepo) CreateUserMessage(id int64, message_id int64, user_id int64) (user_message model.UserMessage, err error) {
 	user_message = model.UserMessage{
 		CommonModel: model.CommonModel{
 			ID: id,
@@ -64,15 +64,15 @@ func (r messageRepo) CreateUserMessage(id int64, message_id int64, user_id strin
 		IsRead:    0,
 	}
 
-	result := r.DB.Create(&user_message)
+	result := r.db.Create(&user_message)
 	err = result.Error
 
 	return
 }
 
-func (r messageRepo) CheckUpdate(user_id string, timestamp int64) bool {
+func (r MessageRepo) CheckUpdate(user_id int64, timestamp int64) bool {
 	FirstMessage := model.UserMessage{}
-	r.DB.Model(&model.UserMessage{}).Where("user_id =?", user_id).Order("created_at desc").First(&FirstMessage)
+	r.db.Model(&model.UserMessage{}).Where("user_id =?", user_id).Order("created_at desc").First(&FirstMessage)
 	if FirstMessage.UpdatedAt.Unix() > timestamp {
 		return true
 	} else {
@@ -81,16 +81,16 @@ func (r messageRepo) CheckUpdate(user_id string, timestamp int64) bool {
 }
 
 // GetMessage 获取用户消息
-func (r messageRepo) GetMessage(user_id string, page int, pageSize int) (resp types.GetMessageResp, err error) {
+func (r MessageRepo) GetMessage(user_id int64, page int, pageSize int) (resp types.GetMessageResp, err error) {
 	// 获取对应页面用户的消息id列表
 	UserMessages := make([]model.UserMessage, pageSize)
 	resp.Messages = make([]types.Message, pageSize)
-	result := r.DB.Model(&model.UserMessage{}).Where("user_id =?", user_id).Order("created_at desc").Offset((page - 1) * pageSize).Limit(pageSize).Find(&UserMessages)
+	result := r.db.Model(&model.UserMessage{}).Where("user_id =?", user_id).Order("created_at desc").Offset((page - 1) * pageSize).Limit(pageSize).Find(&UserMessages)
 	err = result.Error
 
 	// 获取总页数
 	var total int64
-	r.DB.Model(&model.UserMessage{}).Where("user_id =?", user_id).Count(&total)
+	r.db.Model(&model.UserMessage{}).Where("user_id =?", user_id).Count(&total)
 	resp.TotalPages = int(total / int64(pageSize))
 	if total%int64(pageSize) != 0 {
 		resp.TotalPages += 1
@@ -111,7 +111,7 @@ func (r messageRepo) GetMessage(user_id string, page int, pageSize int) (resp ty
 		} else {
 			// 获取消息内容
 			Message := model.Message{}
-			r.DB.Model(&model.Message{}).Where("id =?", UserMessages[i].MessageID).Find(&Message)
+			r.db.Model(&model.Message{}).Where("id =?", UserMessages[i].MessageID).Find(&Message)
 			resp.Messages[i] = types.Message{
 				UserMessageID: UserMessages[i].ID,
 				MessageID:     Message.ID,
@@ -126,8 +126,8 @@ func (r messageRepo) GetMessage(user_id string, page int, pageSize int) (resp ty
 	return
 }
 
-func (r messageRepo) MarkReadMessage(UserMessageID int64) (err error) {
-	result := r.DB.Model(&model.UserMessage{}).Where("id =?", UserMessageID).Update("is_read", 1)
+func (r MessageRepo) MarkReadMessage(UserMessageID int64) (err error) {
+	result := r.db.Model(&model.UserMessage{}).Where("id =?", UserMessageID).Update("is_read", 1)
 	err = result.Error
 	return
 }

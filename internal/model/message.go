@@ -7,9 +7,12 @@ type Message struct {
 	Type    int    `json:"type" ;gorm:"type:int;null;comment:'消息类型'"`
 }
 
+// UserMessage [用户消息表]
 type UserMessage struct {
 	CommonModel
-	MessageID int64  `json:"message_id"`
-	UserID    string `json:"user_id"`
-	IsRead    int    `json:"is_read"`
+	MessageID int64 `json:"message_id"`
+	UserID    int64 `json:"user_id"`
+	IsRead    int   `json:"is_read"`
+
+	Message Message `gorm:"foreignKey:MessageID;references:ID;"`
 }

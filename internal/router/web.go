@@ -101,5 +101,6 @@ func messageRoutes(routeManager *manager.RouteManager) {
 		rg.POST("/join", middleware.ReflashAtoken(), api.JoinMessage)
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetMessage)
 		rg.POST("/markread", api.MarkReadMessage)
+		rg.POST("/send", middleware.ReflashAtoken(), api.SendMessage)
 	})
 }
