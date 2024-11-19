@@ -65,6 +65,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	resp.IsTeam = true //暂时认定都是团队成员
 	//一个手机号对应的user_id是一样的
 	//这里到时候外键关联用户表，userid就是逻辑外键，手机号也可以删掉了，但是现在不处理
+	//这里生成的id现阶段是方便测试用
 	user_id, err := repo.NewSignRepo(global.DB).CheckUserId(req.Phone)
 	if err != nil {
 		//这里的err是代表找不到对应的user_id,所以生成一个新的id
