@@ -386,7 +386,7 @@ func (r *DeleteMemberRepo) DeleteMember(MemberId, TeamId int64) error {
 		Delete(&model.Like_Status{}).
 		Error
 	if err != nil {
-		zlog.Errorf("删除当前成员相关点赞信息信息失败: %v", err)
+		zlog.Errorf("删除当前成员相关点赞信息失败: %v", err)
 		return err
 	}
 
@@ -516,7 +516,7 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 	return nil
 }
 
-// 留给淳桂                    //
+// 留给淳桂 //
 type JudgeUserRepo struct {
 	DB *gorm.DB
 }
@@ -547,9 +547,55 @@ func (r JudgeUserRepo) JudgeUser(Phone uint64) (int64, bool, error) {
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Errorf("未找到该记录：: %v", err)
 			return 0, false, nil
 		}
+		zlog.Errorf("查询失败：: %v", err)
 		return 0, false, err
 	}
 	return UserID, true, nil
+}
+
+// 留给小帅哥 //
+const PHONENUM = "phone_num"
+
+type GetPhoneRepo struct {
+	DB *gorm.DB
+}
+
+func NewGetPhoneRepo(db *gorm.DB) *GetPhoneRepo {
+	return &GetPhoneRepo{DB: db}
+}
+
+// GetPhone
+//
+//	@Description:  飞书 -- 获取登录用户的手机号
+//	@receiver r
+//	@param UserId
+//	@return int64
+//	@return bool
+//	@return error
+func (r GetPhoneRepo) GetPhone(UserId int64) (uint64, bool, error) {
+	defer util.RecordTime(time.Now())()
+
+	var PhoneNum uint64
+
+	err := r.DB.Model(&model.Member{}).
+		Select(PHONENUM).
+		Where(&model.Member{
+			CommonModel: model.CommonModel{
+				ID: UserId,
+			},
+		}).
+		First(&PhoneNum).
+		Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Errorf("未找到该记录：: %v", err)
+			return 0, false, nil
+		}
+		zlog.Errorf("查询失败：: %v", err)
+		return 0, false, err
+	}
+	return PhoneNum, true, nil
 }
