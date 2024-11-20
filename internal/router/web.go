@@ -64,6 +64,10 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.POST("/exit", api.ExitSystem)
 	})
 
+	// 展示常用设备页面相关操作路由
+	routeManager.RegisterDevicesRoutes(func(rg *gin.RouterGroup) {
+
+	})
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {
 
