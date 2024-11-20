@@ -60,6 +60,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		})
 		//是否可以自动登录
 		rg.POST("/auto", api.CheckAutoLogin)
+		//用户自行退出登录
+		rg.POST("/exit", api.ExitSystem)
 	})
 
 	// 个人信息相关路由
