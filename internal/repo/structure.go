@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"tgwp/internal/model"
 	"tgwp/internal/types"
+	"tgwp/log/zlog"
 	"time"
 )
 
@@ -43,6 +44,7 @@ func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 		Find(&mynode).
 		Error
 	if err != nil {
+		zlog.Errorf("获取当前节点失败：%v", err)
 		return nil, err
 	}
 	return mynode, nil
@@ -54,7 +56,7 @@ func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 //	@receiver r
 //	@param Node
 //	@return error
-func (r StructureRepo) InsertNode(Node types.TeamStructure) error {
+func (r StructureRepo) CreateNode(Node types.TeamStructure) error {
 
 	var node = model.Structure{
 		CommonModel: model.CommonModel{

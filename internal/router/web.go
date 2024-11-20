@@ -94,7 +94,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			TeamStructure.POST("/add", api.CreateTeam)
 		}
 
-		// 团队成员列表管理子路由
+		// 团队成员列表子路由
 		MemberList := rg.Group("/memberlist")
 		{
 			//查询团队列表--用户基础信息
