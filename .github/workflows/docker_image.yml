@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: |
-          echo ${{ secrets.CONFIG_YAML }} >> config.yaml
+          echo "${{ secrets.CONFIG_YAML }}" >> config.yaml
           docker login -u yjddb -p ${{ secrets.DOCKER_HUB_PASSWORD }}
           docker buildx create --use
           docker buildx build .   --push --tag yjddb/pluto:test
