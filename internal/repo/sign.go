@@ -82,8 +82,7 @@ func (r SignRepo) CheckUserId(phone string) (int64, error) {
 //	@return err
 func (r SignRepo) DeleteSign(issuer string) (err error) {
 	var Temp model.Sign
-	r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).Take(&Temp)
-	err = r.DB.Table(SignTableName).Delete(&Temp).Error
+	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).Delete(&Temp).Error
 	return
 }
 

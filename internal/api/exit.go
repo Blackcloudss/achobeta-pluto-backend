@@ -14,7 +14,7 @@ import (
 //	@param c
 func ExitSystem(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
-	req, err := types.BindReq[types.TokenReq](c)
+	req, err := types.BindJson[types.TokenReq](c)
 	if err != nil {
 		return
 	}
