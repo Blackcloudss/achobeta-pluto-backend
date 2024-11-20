@@ -119,7 +119,7 @@ func (l *LikeCountLogic) PutLikeCount(ctx context.Context, UserId, MemberId int6
 	}
 	if !locked {
 		// 未获取到锁，说明该操作正在被其他请求处理
-		zlog.CtxInfof(ctx, "Operation is locked for user: %d, member: %d", UserId, MemberId)
+		zlog.CtxInfof(ctx, "点赞/取消赞操作正被 user: %d, member: %d  使用，请稍等 5 s", UserId, MemberId)
 		return nil, response.ErrResp(err, codeOperationLocked)
 	}
 	//释放锁
@@ -128,10 +128,10 @@ func (l *LikeCountLogic) PutLikeCount(ctx context.Context, UserId, MemberId int6
 	resp, err = repo.NewLikeCountRepo(global.DB).PutLikeCount(UserId, MemberId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			zlog.CtxWarnf(ctx, "user not found: %v", err)
+			zlog.CtxWarnf(ctx, "找不到用户: %v", err)
 			return nil, response.ErrResp(err, codeUserNotFound)
 		} else {
-			zlog.Errorf("get user error: %v", err)
+			zlog.Errorf("用户查询失败: %v", err)
 			return nil, response.ErrResp(err, codeUserFoundField)
 		}
 	}

@@ -414,6 +414,9 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 	//更改基本信息
 	err := r.DB.Model(&model.Member{}).Updates(&model.Member{
+		CommonModel: model.CommonModel{
+			UpdatedAt: time.Now(),
+		},
 		Name:       req.Name,
 		Sex:        req.Sex,
 		CreateDate: req.CreateDate,
@@ -461,7 +464,12 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 		//更新 user_power权限表
 		err = r.DB.Model(&model.User_Power{}).
-			Update("level", position.Level).
+			Updates(&model.User_Power{
+				CommonModel: model.CommonModel{
+					UpdatedAt: time.Now(),
+				},
+				Level: position.Level,
+			}).
 			Where(&model.User_Power{
 				MemberId: req.ID,
 				TeamId:   position.TeamId,
@@ -488,6 +496,10 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 		if position.Level >= 2 {
 			err = r.DB.Model(&model.Casbin{}).
 				Create(&model.Casbin{
+					CommonModel: model.CommonModel{
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
 					Ptype: "g",
 					V0:    req.ID,
 					V1:    position.TeamId,
@@ -501,6 +513,10 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 		if position.Level == 3 {
 			err = r.DB.Model(&model.Casbin{}).
 				Create(&model.Casbin{
+					CommonModel: model.CommonModel{
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
 					Ptype: "g",
 					V0:    req.ID,
 					V1:    position.TeamId,

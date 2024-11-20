@@ -31,7 +31,13 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 
 	//创建新团队
 	err := r.DB.Model(&model.Team{}).
-		Create(&model.Team{Name: TeamName}).
+		Create(&model.Team{
+			CommonModel: model.CommonModel{
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			Name: TeamName,
+		}).
 		Error
 	if err != nil {
 		zlog.Errorf("生成新团队id 失败：%v", err)
@@ -125,7 +131,7 @@ func NewTeamIdRepo(db *gorm.DB) *TeamIdRepo {
 
 // GetTeamId
 //
-//	@Description:
+//	@Description:  获得团队id
 //	@receiver r
 //	@param userid
 //	@return first_team

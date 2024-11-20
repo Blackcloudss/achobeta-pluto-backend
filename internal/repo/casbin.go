@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"tgwp/internal/model"
+	"tgwp/log/zlog"
 	"tgwp/util"
 	"time"
 )
@@ -46,6 +47,10 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 		}).
 		Find(&Power).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return Nothing, nil, nil
+		}
+		zlog.Errorf("查询用户对应的用户组失败：%v", err)
 		return Nothing, nil, err
 	}
 	Level := Power[0].level
@@ -62,6 +67,7 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 		Where(fmt.Sprintf("%s = 'p' AND %s in (?) AND %s = ?", C_Type, C_User, C_Team), roles, teamid).
 		Find(&urls).Error
 	if err != nil {
+		zlog.Errorf("查询管理员拥有的urls失败：%v", err)
 		return Nothing, nil, err
 	}
 
@@ -99,6 +105,10 @@ func (r PermissionRepo) CheckUserPermission(url string, userId, teamId int64) (b
 		}).
 		Find(&roles).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		zlog.Errorf("查询用户对应的用户组失败：%v", err)
 		return false, err
 	}
 

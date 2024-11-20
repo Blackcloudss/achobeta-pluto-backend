@@ -14,7 +14,7 @@ type CommonModel struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (b *CommonModel) BeforeCreate() error {
+func (b *CommonModel) BeforeCreate(db *gorm.DB) error {
 	// 生成雪花ID
 	b.ID = global.Node.Generate().Int64()
 

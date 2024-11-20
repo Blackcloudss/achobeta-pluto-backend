@@ -50,7 +50,7 @@ func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 	return mynode, nil
 }
 
-// InsertNode
+// CreateNode
 //
 //	@Description: 新增架构节点
 //	@receiver r
