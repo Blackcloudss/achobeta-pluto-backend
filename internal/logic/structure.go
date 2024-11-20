@@ -13,6 +13,13 @@ import (
 	"time"
 )
 
+var (
+	rootNotFound    = response.MsgCode{Code: 40023, Msg: "根节点不存在"}
+	rootFoundField  = response.MsgCode{Code: 40024, Msg: "根节点查询失败"}
+	childNotFound   = response.MsgCode{Code: 40025, Msg: "孩子节点不存在"}
+	childFoundField = response.MsgCode{Code: 40026, Msg: "孩子节点查询失败"}
+)
+
 type StructureLogic struct {
 }
 
@@ -20,16 +27,9 @@ func NewStructureLogic() *StructureLogic {
 	return &StructureLogic{}
 }
 
-var (
-	rootFoundField    = response.MsgCode{Code: 40023, Msg: "根节点查询失败"}
-	rootNotFound      = response.MsgCode{Code: 40024, Msg: "根节点不存在"}
-	childFoundField   = response.MsgCode{Code: 40025, Msg: "孩子节点查询失败"}
-	childrootNotFound = response.MsgCode{Code: 40026, Msg: "孩子节点不存在"}
-)
-
 // StructureLogic
 //
-//	@Description:  获取 完整团队架构
+//	@Description:  通过getStructure实现递归  获取 完整团队架构
 //	@receiver l
 //	@param ctx
 //	@param req
@@ -45,10 +45,10 @@ func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStruc
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "root not found: %v", err)
-			return types.TeamStructResp{}, response.ErrResp(err, rootFoundField)
-		} else {
-			zlog.Errorf("get root error: %v", err)
 			return types.TeamStructResp{}, response.ErrResp(err, rootNotFound)
+		} else {
+			zlog.CtxErrorf(ctx, "get root error: %v", err)
+			return types.TeamStructResp{}, response.ErrResp(err, rootFoundField)
 		}
 	}
 	Root := root[0].MyselfId
@@ -56,8 +56,13 @@ func (l *StructureLogic) StructureLogic(ctx context.Context, req types.TeamStruc
 	// 递归获取节点信息
 	err = l.getStructure(ctx, Root, req.TeamId, &teamStructures)
 	if err != nil {
-		zlog.CtxErrorf(ctx, "Failed to get children for fatherid: %d, teamid: %d, error: %v", Root, req.TeamId, err)
-		return types.TeamStructResp{}, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.CtxWarnf(ctx, "child not found: %v", err)
+			return types.TeamStructResp{}, response.ErrResp(err, childNotFound)
+		} else {
+			zlog.CtxErrorf(ctx, "get child error: %v", err)
+			return types.TeamStructResp{}, response.ErrResp(err, childFoundField)
+		}
 	}
 
 	return types.TeamStructResp{TeamStructures: teamStructures}, nil
@@ -78,10 +83,10 @@ func (l *StructureLogic) getStructure(ctx context.Context, fatherid, teamid int6
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "child not found: %v", err)
-			return response.ErrResp(err, childFoundField)
+			return response.ErrResp(err, childNotFound)
 		} else {
-			zlog.Errorf("get child error: %v", err)
-			return response.ErrResp(err, childrootNotFound)
+			zlog.CtxErrorf(ctx, "get child error: %v", err)
+			return response.ErrResp(err, childFoundField)
 		}
 	}
 
@@ -99,8 +104,13 @@ func (l *StructureLogic) getStructure(ctx context.Context, fatherid, teamid int6
 		// 递归获取子节点的子节点
 		err = l.getStructure(ctx, child.MyselfId, teamid, result)
 		if err != nil {
-			zlog.CtxErrorf(ctx, "Failed to get children for fatherid: %d, teamid: %d, error: %v", fatherid, teamid, err)
-			return err
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				zlog.CtxWarnf(ctx, "child not found: %v", err)
+				return response.ErrResp(err, childNotFound)
+			} else {
+				zlog.CtxErrorf(ctx, "get child error: %v", err)
+				return response.ErrResp(err, childFoundField)
+			}
 		}
 	}
 	return nil

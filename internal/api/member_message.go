@@ -64,7 +64,7 @@ func PutTeamMember(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	zlog.CtxInfof(ctx, "Test request: %v", req)
+	zlog.CtxInfof(ctx, "PutTeamMember request: %v", req)
 	resp, err := logic.NewPutMemberLogic().PutMember(ctx, req)
 	response.Response(c, resp, err)
 
