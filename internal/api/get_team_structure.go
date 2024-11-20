@@ -8,23 +8,22 @@ import (
 	"tgwp/log/zlog"
 )
 
+// GetTeamStructure
+//
+//	@Description: 获取 完整团队架构
+//	@param c
 func GetTeamStructure(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.TeamStructReq](c)
 	if err != nil {
-		return
-	}
-	zlog.CtxInfof(ctx, "TeamStructure request: %v", req)
-	resp, err := logic.NewStructureLogic().StructureLogic(ctx, req)
-
-	if err != nil {
+		zlog.CtxErrorf(ctx, "GetTeamStructure err:%v", err)
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
-	} else {
-		response.NewResponse(c).Success(resp)
 	}
-	//开发中
+	zlog.CtxInfof(ctx, "GetTeamStructure request: %v", req)
+	resp, err := logic.NewStructureLogic().StructureLogic(ctx, req)
+
+	response.Response(c, resp, err)
 
 	return
-
 }
