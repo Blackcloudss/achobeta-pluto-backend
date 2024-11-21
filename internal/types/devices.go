@@ -13,6 +13,7 @@ type DevicesReq struct {
 }
 type DevicesResp struct {
 	Token   string   `json:"token"`
+	Total   int64    `json:"total"`
 	Devices []Device `json:"devices"`
 }
 type RemoveDeviceReq struct {
