@@ -46,6 +46,7 @@ func ReflashAtoken() gin.HandlerFunc {
 			if err != nil {
 				//表明找不到issuer相等的，即atoken是无效的
 				zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
+				response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 				c.Abort()
 				return
 			}

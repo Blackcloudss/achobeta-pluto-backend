@@ -43,7 +43,6 @@ func (l *DevicesLogic) RemoveDevices(ctx context.Context, req types.RemoveDevice
 	defer util.RecordTime(time.Now())()
 	err = repo.NewSignRepo(global.DB).DeleteSignByLoginId(req.LoginId)
 	if err != nil {
-		//表明找不到login_id相等的
 		zlog.CtxErrorf(ctx, "error deleting sign by loginId: %v", err)
 		return response.ErrResp(err, response.COMMON_FAIL)
 	}
