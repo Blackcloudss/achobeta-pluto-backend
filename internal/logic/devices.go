@@ -28,6 +28,11 @@ func NewDevicesLogic() *DevicesLogic {
 //	@return err
 func (l *DevicesLogic) ShowDevices(ctx context.Context, req types.DevicesReq) (resp types.DevicesResp, err error) {
 	defer util.RecordTime(time.Now())()
+	resp, err = repo.NewSignRepo(global.DB).ShowDevices(req)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "ShowDevices err: %v", err)
+		return resp, response.ErrResp(err, response.COMMON_FAIL)
+	}
 	return
 }
 

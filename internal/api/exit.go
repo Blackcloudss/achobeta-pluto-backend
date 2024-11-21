@@ -24,6 +24,10 @@ func ExitSystem(c *gin.Context) {
 	response.Response(c, nil, err)
 }
 
+// RemoveDevice
+//
+//	@Description: 踢别人的设备下线
+//	@param c
 func RemoveDevice(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindJson[types.RemoveDeviceReq](c)

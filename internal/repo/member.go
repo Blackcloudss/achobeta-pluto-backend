@@ -527,7 +527,7 @@ func NewJudgeUserRepo(db *gorm.DB) *JudgeUserRepo {
 
 // JudgeUser
 //
-//	@Description: 通过手机号判断是游客还是团队成员
+//	@Description: 通过手机号判断是不是团队成员
 //	@receiver r
 //	@param Phone
 //	@return int64

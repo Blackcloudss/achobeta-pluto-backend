@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"tgwp/internal/model"
+	"tgwp/internal/types"
 	"time"
 )
 
@@ -96,5 +97,21 @@ func (r SignRepo) DeleteSignByIssuer(issuer string) (err error) {
 func (r SignRepo) DeleteSignByLoginId(login_id string) (err error) {
 	var Temp model.Sign
 	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", LoginId), login_id).Delete(&Temp).Error
+	return
+}
+
+// ShowDevices
+//
+//	@Description: 展示常用设备
+//	@receiver r
+//	@param user_id
+//	@return err
+func (r SignRepo) ShowDevices(req types.DevicesReq) (resq types.DevicesResp, err error) {
+	offset := (req.PageNumber - 1) * req.LineNumber
+	err = r.DB.Table(SignTableName).
+		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
+		Offset(offset).
+		Limit(req.LineNumber).
+		Find(&resq.Devices).Error
 	return
 }

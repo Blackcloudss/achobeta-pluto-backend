@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -20,6 +21,12 @@ func ShowDevices(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
 	resp, err := logic.NewDevicesLogic().ShowDevices(ctx, req)
-	response.Response(c, resp, err)
+	if err != nil {
+		response.Response(c, nil, err)
+	}
+	if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
+		resp.Token = token.(string)
+		response.Response(c, resp, err)
+	}
 	return
 }

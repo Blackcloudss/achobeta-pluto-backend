@@ -69,6 +69,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.Use(middleware.ReflashAtoken())
 		//移除常用设备
 		rg.DELETE("/remove", api.RemoveDevice)
+		//展示常用设备
+		rg.POST("show", api.ShowDevices)
 	})
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {
