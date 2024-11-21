@@ -79,7 +79,8 @@ func (r StructureRepo) DeleteNode(Node types.TeamStructure) error {
 
 	var node = model.Structure{
 		CommonModel: model.CommonModel{
-			ID: Node.MyselfId},
+			ID: Node.MyselfId,
+		},
 		TeamId:   Node.TeamId,
 		FatherId: Node.FatherId,
 		NodeName: Node.NodeName,
