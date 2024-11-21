@@ -16,6 +16,9 @@ import (
 func ShowDevices(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.DevicesReq](c)
+	if user_id, exists := c.Get(global.TOKEN_USER_ID); exists {
+		req.UserId = user_id.(int64)
+	}
 	if err != nil {
 		return
 	}
