@@ -22,11 +22,11 @@ var (
 	codeMemberChangeField = response.MsgCode{40034, "团队成员修改失败"}
 )
 
-type MemberListLogic struct {
+type MemberLogic struct {
 }
 
-func NewMemberListic() *MemberListLogic {
-	return &MemberListLogic{}
+func NewMemberLogic() *MemberLogic {
+	return &MemberLogic{}
 }
 
 // GetMemberList
@@ -37,10 +37,10 @@ func NewMemberListic() *MemberListLogic {
 //	@param req
 //	@return *types.MemberlistResp
 //	@return error
-func (l *MemberListLogic) GetMemberList(ctx context.Context, req types.MemberlistReq) (*types.MemberlistResp, error) {
+func (l *MemberLogic) GetMemberList(ctx context.Context, req types.MemberlistReq) (*types.MemberlistResp, error) {
 	defer util.RecordTime(time.Now())()
 
-	users, err := repo.NewMemberlistRepo(global.DB).MemberlistRepo(req.TeamID, req.Page, req.Perpage)
+	users, err := repo.NewMemberRepo(global.DB).GetMemberlistRepo(req.TeamID, req.Page, req.Perpage)
 	if err != nil {
 		if errors.Is(err, gorm.ErrInvalidData) {
 			zlog.CtxWarnf(ctx, "无效数据: %v", err)
@@ -55,12 +55,6 @@ func (l *MemberListLogic) GetMemberList(ctx context.Context, req types.Memberlis
 	return &users, nil
 }
 
-type MemberDetailLogic struct{}
-
-func NewMemberDetailLogic() *MemberDetailLogic {
-	return &MemberDetailLogic{}
-}
-
 // GetMemberDetail
 //
 //	@Description: 查看用户详细信息
@@ -69,10 +63,10 @@ func NewMemberDetailLogic() *MemberDetailLogic {
 //	@param req
 //	@return resp
 //	@return err
-func (l *MemberDetailLogic) GetMemberDetail(ctx context.Context, req types.GetMemberDetailReq) (resp *types.GetMemberDetailResp, err error) {
+func (l *MemberLogic) GetMemberDetail(ctx context.Context, req types.GetMemberDetailReq) (resp *types.GetMemberDetailResp, err error) {
 	defer util.RecordTime(time.Now())()
 
-	resp, err = repo.NewMemberDetailRepo(global.DB).GetMemberDetail(req.UserID)
+	resp, err = repo.NewMemberRepo(global.DB).GetMemberDetail(req.UserID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "user not found: %v", err)
@@ -112,14 +106,14 @@ func (l *LikeCountLogic) PutLikeCount(ctx context.Context, UserId, MemberId int6
 	// 用 redis 加锁
 	lockKey := fmt.Sprintf("like:lock:user:%d:member:%d", UserId, MemberId)
 	// 尝试获取锁   返回布尔值 true:成功获取锁  false:上锁失败
-	locked, err := global.Rdb.SetNX(ctx, lockKey, 1, 5*time.Second).Result()
+	locked, err := global.Rdb.SetNX(ctx, lockKey, 1, 1*time.Second).Result()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Redis 上锁失败: %v", err)
 		return nil, response.ErrResp(err, codeServerError)
 	}
 	if !locked {
 		// 未获取到锁，说明该操作正在被其他请求处理
-		zlog.CtxInfof(ctx, "点赞/取消赞操作正被 user: %d, member: %d  使用，请稍等 5 s", UserId, MemberId)
+		zlog.CtxInfof(ctx, "点赞/取消赞操作正被 user: %d, member: %d  使用，请稍等 1 s", UserId, MemberId)
 		return nil, response.ErrResp(err, codeOperationLocked)
 	}
 	//释放锁
@@ -138,12 +132,6 @@ func (l *LikeCountLogic) PutLikeCount(ctx context.Context, UserId, MemberId int6
 	return
 }
 
-type CreateMemberLogic struct{}
-
-func NewCreateMemberLogic() *CreateMemberLogic {
-	return &CreateMemberLogic{}
-}
-
 // CreateMember
 //
 //	@Description: 新增团队成员
@@ -152,10 +140,10 @@ func NewCreateMemberLogic() *CreateMemberLogic {
 //	@param req
 //	@return *types.CreateMembersResp
 //	@return error
-func (l *CreateMemberLogic) CreateMember(ctx context.Context, req types.CreateMemberReq) (*types.CreateMembersResp, error) {
+func (l *MemberLogic) CreateMember(ctx context.Context, req types.CreateMemberReq) (*types.CreateMembersResp, error) {
 	defer util.RecordTime(time.Now())()
 
-	err := repo.NewCreateMemberRepo(global.DB).CreateMember(req)
+	err := repo.NewMemberRepo(global.DB).CreateMember(req)
 	if err != nil {
 		if errors.Is(err, gorm.ErrInvalidData) {
 			zlog.CtxWarnf(ctx, "无效数据: %v", err)
@@ -170,12 +158,6 @@ func (l *CreateMemberLogic) CreateMember(ctx context.Context, req types.CreateMe
 
 }
 
-type DeleteMemberLogic struct{}
-
-func NewDeleteMemberLogic() *DeleteMemberLogic {
-	return &DeleteMemberLogic{}
-}
-
 // DeleteMember
 //
 //	@Description: 删除该成员在这个团队的关系
@@ -184,10 +166,10 @@ func NewDeleteMemberLogic() *DeleteMemberLogic {
 //	@param req
 //	@return *types.DeleteMembersResp
 //	@return error
-func (l *DeleteMemberLogic) DeleteMember(ctx context.Context, req types.DeleteMemberReq) (*types.DeleteMembersResp, error) {
+func (l *MemberLogic) DeleteMember(ctx context.Context, req types.DeleteMemberReq) (*types.DeleteMembersResp, error) {
 	defer util.RecordTime(time.Now())()
 
-	err := repo.NewDeleteMemberRepo(global.DB).DeleteMember(req.MemberId, req.TeamId)
+	err := repo.NewMemberRepo(global.DB).DeleteMember(req.MemberId, req.TeamId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrInvalidData) {
 			zlog.CtxWarnf(ctx, "无效数据: %v", err)
@@ -202,13 +184,6 @@ func (l *DeleteMemberLogic) DeleteMember(ctx context.Context, req types.DeleteMe
 
 }
 
-// 编辑成员信息
-type PutMemberLogic struct{}
-
-func NewPutMemberLogic() *PutMemberLogic {
-	return &PutMemberLogic{}
-}
-
 // PutMember
 //
 //	@Description: 更改成员信息
@@ -217,10 +192,10 @@ func NewPutMemberLogic() *PutMemberLogic {
 //	@param req
 //	@return *types.PutTeamMemberResp
 //	@return error
-func (l *PutMemberLogic) PutMember(ctx context.Context, req types.PutTeamMemberReq) (*types.PutTeamMemberResp, error) {
+func (l *MemberLogic) PutMember(ctx context.Context, req types.PutTeamMemberReq) (*types.PutTeamMemberResp, error) {
 	defer util.RecordTime(time.Now())()
 
-	err := repo.NewPutMemberRepo(global.DB).PutMember(req)
+	err := repo.NewMemberRepo(global.DB).PutMember(req)
 	if err != nil {
 		if errors.Is(err, gorm.ErrInvalidData) {
 			zlog.CtxWarnf(ctx, "无效数据: %v", err)

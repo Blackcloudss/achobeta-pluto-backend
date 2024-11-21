@@ -91,7 +91,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			//保存 更改了的节点信息
 			TeamStructure.PUT("/change", api.PutTeamNode)
 			//新增团队
-			TeamStructure.POST("/add", api.CreateTeam)
+			TeamStructure.POST("/create", api.CreateTeam)
 		}
 
 		// 团队成员列表子路由
@@ -100,7 +100,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			//查询团队列表--用户基础信息
 			MemberList.GET("/get", api.GetTeamMemberlist)
 			//新增用户
-			MemberList.POST("/post", middleware.PermissionMiddleware(), api.CreateTeamMember)
+			MemberList.POST("/create", middleware.PermissionMiddleware(), api.CreateTeamMember)
 			//删除用户
 			MemberList.DELETE("/delete", middleware.PermissionMiddleware(), api.DeleteTeamMember)
 		}
@@ -113,7 +113,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			//给用户点赞/取消赞
 			MemberMsg.PUT("/like", api.PutLikeCount)
 			//编辑用户信息
-			MemberMsg.PUT("/save", middleware.PermissionMiddleware(), api.PutTeamMember)
+			MemberMsg.PUT("/change", middleware.PermissionMiddleware(), api.PutTeamMember)
 		}
 	})
 }

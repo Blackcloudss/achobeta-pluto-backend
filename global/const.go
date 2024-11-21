@@ -25,13 +25,13 @@ var Node, _ = snowflake.NewNode(DEFAULT_NODE_ID)
 
 var NORMAL_ADMIN_URLS = []string{
 	"/api/team/memberlist/delete",
-	"/api/team/memberlist/put",
-	"/api/team/membermsg/save",
+	"/api/team/memberlist/create",
+	"/api/team/membermsg/change",
 	"/api/team/structure/collection",
 }
 
 // global 包中的定义
 var SUPER_ADMIN_URLS = []string{
 	"/api/team/structure/change",
-	"/api/team/structure/add",
+	"/api/team/structure/create",
 }

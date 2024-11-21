@@ -6,7 +6,6 @@ import (
 	"tgwp/internal/model"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
-	"time"
 )
 
 type LikeCountRepo struct {
@@ -27,6 +26,7 @@ func NewLikeCountRepo(db *gorm.DB) *LikeCountRepo {
 //	@param MemberId
 //	@return *types.LikeCountResp
 //	@return error
+
 func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountResp, error) {
 	var IsLiked bool
 	//查询 用户对该成员的点赞情况
@@ -43,10 +43,6 @@ func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountRe
 			// 创建数据
 			err = r.DB.Model(&model.Like_Status{}).
 				Create(&model.Like_Status{
-					CommonModel: model.CommonModel{
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					},
 					MemberId_Like:   UserId,
 					MemberId_BeLike: MemberId,
 					IsLiked:         false,
@@ -81,9 +77,6 @@ func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountRe
 		//用户还没有给该成员点赞
 		err = r.DB.Model(&model.Like_Status{}).
 			Updates(&model.Like_Status{
-				CommonModel: model.CommonModel{
-					UpdatedAt: time.Now(),
-				},
 				IsLiked: true,
 			}).
 			Where(&model.Like_Status{
@@ -99,9 +92,6 @@ func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountRe
 
 		err = r.DB.Model(&model.Member{}).
 			Updates(&model.Member{
-				CommonModel: model.CommonModel{
-					UpdatedAt: time.Now(),
-				},
 				LikeCount: likecount,
 			}).
 			Where(&model.Member{
@@ -117,9 +107,6 @@ func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountRe
 		//用户已经给该成员点赞
 		err = r.DB.Model(&model.Like_Status{}).
 			Updates(&model.Like_Status{
-				CommonModel: model.CommonModel{
-					UpdatedAt: time.Now(),
-				},
 				IsLiked: false,
 			}).
 			Where(&model.Like_Status{
@@ -135,9 +122,6 @@ func (r *LikeCountRepo) PutLikeCount(UserId, MemberId int64) (*types.LikeCountRe
 
 		err = r.DB.Model(&model.Member{}).
 			Updates(&model.Member{
-				CommonModel: model.CommonModel{
-					UpdatedAt: time.Now(),
-				},
 				LikeCount: likecount,
 			},
 			).

@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-type CreateTeamRepo struct {
+type TeamRepo struct {
 	DB *gorm.DB
 }
 
-func NewCreateTeamRepo(db *gorm.DB) *CreateTeamRepo {
-	return &CreateTeamRepo{
+func NewTeamRepo(db *gorm.DB) *TeamRepo {
+	return &TeamRepo{
 		DB: db,
 	}
 }
@@ -27,15 +27,12 @@ func NewCreateTeamRepo(db *gorm.DB) *CreateTeamRepo {
 //	@param TeamName
 //	@return types.CreateTeamResp
 //	@return error
-func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
+
+func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
 	//创建新团队
 	err := r.DB.Model(&model.Team{}).
 		Create(&model.Team{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Name: TeamName,
 		}).
 		Error
@@ -59,10 +56,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	//初始化团队架构
 	err = r.DB.Model(&model.Structure{}).
 		Create(&model.Structure{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			FatherId: global.ROOT_ID,
 			NodeName: TeamName,
 			TeamId:   TeamId,
@@ -79,10 +72,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	// 普通管理员
 	for _, url := range global.NORMAL_ADMIN_URLS {
 		rule := &model.Casbin{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Ptype: "p",
 			V0:    global.NORMAL_ADMINISTRATOR,
 			V1:    TeamId,
@@ -93,10 +82,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	// 超级管理员
 	for _, url := range global.SUPER_ADMIN_URLS {
 		rule := &model.Casbin{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Ptype: "p",
 			V0:    global.SUPERL_ADMINISTRATOR, // 超级管理员
 			V1:    TeamId,
@@ -118,17 +103,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	return &types.CreateTeamResp{}, nil
 }
 
-type TeamIdRepo struct {
-	DB *gorm.DB
-}
-
-const c_teamid = "team_id"
-const c_teamname = "name"
-
-func NewTeamIdRepo(db *gorm.DB) *TeamIdRepo {
-	return &TeamIdRepo{DB: db}
-}
-
 // GetTeamId
 //
 //	@Description:  获得团队id
@@ -137,7 +111,10 @@ func NewTeamIdRepo(db *gorm.DB) *TeamIdRepo {
 //	@return first_team
 //	@return team
 //	@return err
-func (r TeamIdRepo) GetTeamId(userid int64) (first_team types.Team, team []types.Team, err error) {
+const c_teamid = "team_id"
+const c_teamname = "name"
+
+func (r TeamRepo) GetTeamId(userid int64) (first_team types.Team, team []types.Team, err error) {
 	defer util.RecordTime(time.Now())()
 	err = r.DB.Model(&model.Team_Member_Structure{}).
 		Select(c_teamid, c_teamname).

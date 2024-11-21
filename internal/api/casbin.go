@@ -31,13 +31,7 @@ func GetPower(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "GetPower request: %v", req)
 	//获取出参
-	resp, err := logic.NewCasbinLogic().CasbinLogic(ctx, UserId, req.TeamId)
-
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	resp, err := logic.NewCasbinLogic().GetCasbin(ctx, UserId, req.TeamId)
+	response.Response(c, resp, err)
 	return
 }

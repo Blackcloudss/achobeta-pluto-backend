@@ -22,7 +22,7 @@ func GetTeamMemberlist(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "GetTeamMemberlist request: %v", req)
-	resp, err := logic.NewMemberListic().GetMemberList(ctx, req)
+	resp, err := logic.NewMemberLogic().GetMemberList(ctx, req)
 	response.Response(c, resp, err)
 
 	return
@@ -42,7 +42,7 @@ func CreateTeamMember(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "Create TeamMember request: %v", req)
-	resp, err := logic.NewCreateMemberLogic().CreateMember(ctx, req)
+	resp, err := logic.NewMemberLogic().CreateMember(ctx, req)
 	response.Response(c, resp, err)
 
 	return
@@ -62,7 +62,7 @@ func DeleteTeamMember(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "Delete TeamMember request: %v", req)
-	resp, err := logic.NewDeleteMemberLogic().DeleteMember(ctx, req)
+	resp, err := logic.NewMemberLogic().DeleteMember(ctx, req)
 	response.Response(c, resp, err)
 
 	return

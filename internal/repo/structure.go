@@ -6,7 +6,6 @@ import (
 	"tgwp/internal/model"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
-	"time"
 )
 
 const c_NodeName = "node_name"
@@ -19,11 +18,6 @@ func NewStructureRepo(db *gorm.DB) *StructureRepo {
 	return &StructureRepo{DB: db}
 }
 
-type MyNode struct {
-	MyselfId int64  `gorm:"column:id"`
-	NodeName string `gorm:"column:node_name"`
-}
-
 // GetNode
 //
 //	@Description:  获取架构节点
@@ -32,6 +26,11 @@ type MyNode struct {
 //	@param teamid
 //	@return []MyNode
 //	@return error
+type MyNode struct {
+	MyselfId int64  `gorm:"column:id"`
+	NodeName string `gorm:"column:node_name"`
+}
+
 func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 
 	var mynode []MyNode
@@ -59,10 +58,6 @@ func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 func (r StructureRepo) CreateNode(Node types.TeamStructure) error {
 
 	var node = model.Structure{
-		CommonModel: model.CommonModel{
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
 		TeamId:   Node.TeamId,
 		FatherId: Node.FatherId,
 		NodeName: Node.NodeName,

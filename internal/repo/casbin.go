@@ -15,8 +15,6 @@ type CasbinRepo struct {
 	DB *gorm.DB
 }
 
-const Nothing = 0
-
 func NewCasbinRepo(db *gorm.DB) *CasbinRepo {
 	return &CasbinRepo{DB: db}
 }
@@ -29,6 +27,8 @@ func NewCasbinRepo(db *gorm.DB) *CasbinRepo {
 //	@param teamid
 //	@return []string
 //	@return error
+const Nothing = 0
+
 func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 	// 根据 UserId 查询用户对应的角色
 	var Power []struct {
@@ -74,15 +74,6 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 	return Level, urls, nil
 }
 
-// 查询用户权限
-type PermissionRepo struct {
-	DB *gorm.DB
-}
-
-func NewPermissionRepo(db *gorm.DB) *PermissionRepo {
-	return &PermissionRepo{DB: db}
-}
-
 // CheckUserPermission
 //
 //	@Description: 检查用户权限
@@ -92,7 +83,7 @@ func NewPermissionRepo(db *gorm.DB) *PermissionRepo {
 //	@param teamId
 //	@return bool
 //	@return error
-func (r PermissionRepo) CheckUserPermission(url string, userId, teamId int64) (bool, error) {
+func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool, error) {
 	defer util.RecordTime(time.Now())()
 
 	var roles []string
@@ -135,7 +126,7 @@ func (r PermissionRepo) CheckUserPermission(url string, userId, teamId int64) (b
 			// 查询不到记录，无权限
 			return false, nil
 		}
-		// 查询出错，返回错误
+		zlog.Errorf("权限验证出错：%v", err)
 		return false, err
 	}
 

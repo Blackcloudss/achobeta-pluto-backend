@@ -21,7 +21,7 @@ func GetMemberDetail(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "GetMemberDetail request: %v", req)
-	resp, err := logic.NewMemberDetailLogic().GetMemberDetail(ctx, req)
+	resp, err := logic.NewMemberLogic().GetMemberDetail(ctx, req)
 	// 更加人性化的response返回，这样减少重复代码的书写
 	response.Response(c, resp, err)
 
@@ -65,7 +65,7 @@ func PutTeamMember(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "PutTeamMember request: %v", req)
-	resp, err := logic.NewPutMemberLogic().PutMember(ctx, req)
+	resp, err := logic.NewMemberLogic().PutMember(ctx, req)
 	response.Response(c, resp, err)
 
 	return
