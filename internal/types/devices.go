@@ -14,3 +14,6 @@ type DevicesResp struct {
 	Token   string   `json:"token"`
 	Devices []Device `json:"devices"`
 }
+type RemoveDeviceReq struct {
+	LoginId string `json:"login_id"`
+}

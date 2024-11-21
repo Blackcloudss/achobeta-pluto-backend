@@ -8,6 +8,10 @@ import (
 	"tgwp/log/zlog"
 )
 
+// ShowDevices
+//
+//	@Description: 展示常用设备
+//	@param c
 func ShowDevices(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.DevicesReq](c)

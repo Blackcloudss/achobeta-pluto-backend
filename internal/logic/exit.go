@@ -6,6 +6,7 @@ import (
 	"tgwp/internal/repo"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
+	"tgwp/log/zlog"
 	"tgwp/util"
 )
 
@@ -28,6 +29,7 @@ func (l *ExitLogic) ExitSystem(ctx context.Context, req types.TokenReq) (err err
 	data, err := util.IdentifyToken(ctx, req.Token)
 	if err != nil {
 		//对应token无效，直接让他返回
+		zlog.CtxErrorf(ctx, "identify token failed: %v", err)
 		return response.ErrResp(err, response.TOKEN_IS_EXPIRED)
 	}
 	//判断token的签名
@@ -36,9 +38,10 @@ func (l *ExitLogic) ExitSystem(ctx context.Context, req types.TokenReq) (err err
 		return nil
 	} else {
 		//自动登录的用户就去签名表删除对应数据
-		err = repo.NewSignRepo(global.DB).DeleteSign(data.Issuer)
+		err = repo.NewSignRepo(global.DB).DeleteSignByIssuer(data.Issuer)
 		if err != nil {
 			//表明找不到issuer相等的，即rtoken是无效的
+			zlog.CtxErrorf(ctx, "delete sign by issuer failed: %v", err)
 			return response.ErrResp(err, response.COMMON_FAIL)
 		}
 	}
