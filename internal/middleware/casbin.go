@@ -35,7 +35,7 @@ func PermissionMiddleware() gin.HandlerFunc {
 		Url := c.Request.URL.Path
 
 		// CheckUserPermissions 检查用户权限
-		exist, err := repo.NewPermissionRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId)
+		exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId)
 
 		if err != nil {
 			response.NewResponse(c).Error(response.PARAM_NOT_VALID)
