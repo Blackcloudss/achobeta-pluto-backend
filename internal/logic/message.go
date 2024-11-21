@@ -2,7 +2,6 @@ package logic
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"tgwp/global"
 	"tgwp/internal/repo"
@@ -18,7 +17,7 @@ func NewMessageLogic() *MessageLogic {
 	return &MessageLogic{}
 }
 
-func (l *MessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (resp types.SetMessageResp, err error) {
+func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessageResp, err error) {
 	// 生成雪花ID生成器
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
@@ -41,7 +40,7 @@ func (l *MessageLogic) SetMessage(c *gin.Context, req types.SetMessageReq) (resp
 	return
 }
 
-func (l *MessageLogic) JoinMessage(c *gin.Context, req types.JoinMessageReq, UserID string) (resp types.JoinMessageResp, err error) {
+func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp types.JoinMessageResp, err error) {
 	// 生成雪花ID生成器
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
 	if err != nil {
@@ -69,10 +68,12 @@ func (l *MessageLogic) JoinMessage(c *gin.Context, req types.JoinMessageReq, Use
 		zlog.Infof("create message success, user_id:%d, message_id:%d", user_message.UserID, user_message.MessageID)
 	}
 
+	resp.UserMessageID = id
+
 	return
 }
 
-func (l *MessageLogic) GetMessage(c *gin.Context, UserID string, pageStr string, timestampStr string) (resp types.GetMessageResp, err error) {
+func (l *MessageLogic) GetMessage(UserID int64, pageStr string, timestampStr string) (resp types.GetMessageResp, err error) {
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		return
@@ -101,7 +102,7 @@ func (l *MessageLogic) GetMessage(c *gin.Context, UserID string, pageStr string,
 	return
 }
 
-func (l *MessageLogic) MarkReadMessage(c *gin.Context, req types.MarkReadMessageReq) (resp types.JoinMessageResp, err error) {
+func (l *MessageLogic) MarkReadMessage(req types.MarkReadMessageReq) (resp types.JoinMessageResp, err error) {
 	// 判断信息是否存在
 	//is_exist := repo.NewMessageRepo(global.DB).CheckUserMessageExist(req.UserMessageID)
 	//if is_exist == false {
@@ -120,5 +121,27 @@ func (l *MessageLogic) MarkReadMessage(c *gin.Context, req types.MarkReadMessage
 		zlog.Infof("mark read success, user_message_id:%d", req.UserMessageID)
 	}
 
+	return
+}
+
+func (l *MessageLogic) SendMessage(req types.SendMessageReq, UserID int64) (resp types.SendMessageResp, err error) {
+	// 使用 SetMessage 方法
+	respSet, err := l.SetMessage(types.SetMessageReq{
+		Content: req.Content,
+		Type:    req.Type,
+	})
+	if err != nil {
+		return
+	}
+	// 使用 JoinMessage 方法
+	respJoin, err := l.JoinMessage(types.JoinMessageReq{
+		MessageID: respSet.MessageID,
+	}, UserID)
+	if err != nil {
+		return
+	}
+
+	resp.MessageID = respSet.MessageID
+	resp.UserMessageID = respJoin.UserMessageID
 	return
 }
