@@ -20,6 +20,7 @@ func ReflashAtoken() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			zlog.CtxErrorf(ctx, `token is empty`)
+			response.NewResponse(c).Error(response.PARAM_IS_BLANK)
 			c.Abort()
 			return
 		}
