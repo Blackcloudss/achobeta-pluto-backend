@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/internal/response"
 )
@@ -29,6 +30,7 @@ func BindQuery[T any](c *gin.Context) (req T, err error) {
 	if err = c.ShouldBindQuery(&req); err != nil {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 	}
+	fmt.Println(req)
 	return req, err
 }
 

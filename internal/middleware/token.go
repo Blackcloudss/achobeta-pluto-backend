@@ -60,8 +60,8 @@ func ReflashAtoken() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		//将值传递给后面用
-		c.Set(global.AUTH_ENUMS_ATOKEN, resp.Atoken)
+		//将token放到响应头
+		c.Header("Authorization", resp.Atoken)
 		c.Next()
 	}
 }

@@ -70,7 +70,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		//移除常用设备
 		rg.DELETE("/remove", api.RemoveDevice)
 		//展示常用设备
-		rg.POST("show", api.ShowDevices)
+		rg.GET("show", api.ShowDevices)
 	})
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {

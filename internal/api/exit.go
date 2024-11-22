@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -39,7 +38,5 @@ func RemoveDevice(c *gin.Context) {
 	if err != nil {
 		response.Response(c, nil, err)
 	}
-	if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
-		response.NewResponse(c).Success(token)
-	}
+	response.NewResponse(c).Success(nil)
 }
