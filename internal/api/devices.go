@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"tgwp/global"
+	"tgwp/internal/handler"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -21,9 +21,7 @@ func ShowDevices(c *gin.Context) {
 		return
 	}
 	fmt.Println(req.LineNumber, req.PageNumber)
-	if user_id, exists := c.Get(global.TOKEN_USER_ID); exists {
-		req.UserId = user_id.(int64)
-	}
+	req.UserId = handler.GetUserId(c)
 	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
 	resp, err := logic.NewDevicesLogic().ShowDevices(ctx, req)
 	if err != nil {

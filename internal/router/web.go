@@ -53,10 +53,6 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
 			}
-			//告诉后面的人如何拿到token里面的数据
-			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
-				response.NewResponse(c).Success(data)
-			}
 		})
 		//是否可以自动登录
 		rg.POST("/auto", api.CheckAutoLogin)
