@@ -2,12 +2,13 @@ package types
 
 // 获得权限组（入参）
 type RuleReq struct {
-	TeamId int64 `json:"team_id"`
+	//UserId int64 `form:"user_id"` // 仅为了测试使用，之后删除
+	TeamId int64 `form:"team_id"`
 }
 
 type Team struct {
-	TeamId   int64  `json:"team_id"`
-	TeamName string `json:"team_name"`
+	TeamId   int64  `gorm:"column:id" json:"id"`
+	TeamName string `gorm:"column:name" json:"name"`
 }
 
 // 获得权限组（出参）

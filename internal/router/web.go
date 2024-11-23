@@ -81,7 +81,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
-		//解析 jwt，获取 user_id
+		//正式使用，测试时需注释掉
+		//解析 jwt
 		rg.Use(middleware.ReflashAtoken())
 
 		//获得权限组
@@ -90,9 +91,9 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		// 团队架构管理子路由
 		TeamStructure := rg.Group("/structure")
 		{
-			//检验权限
+			//检验权限  //正式使用，测试时需注释掉
 			TeamStructure.Use(middleware.PermissionMiddleware())
-			// 获取 完整团队架构
+			// 获取 该团队架构全部节点
 			TeamStructure.GET("/collection", api.GetTeamStructure)
 			//保存 更改了的节点信息
 			TeamStructure.PUT("/change", api.PutTeamNode)
@@ -103,22 +104,22 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		// 团队成员列表子路由
 		MemberList := rg.Group("/memberlist")
 		{
-			//查询团队列表--用户基础信息
+			//查询团队内成员列表--成员简单信息
 			MemberList.GET("/get", api.GetTeamMemberlist)
-			//新增用户
+			//新增成员    //middleware.PermissionMiddleware()   正式使用时需要把该中间件加入下面的路由中  测试时则要拿走
 			MemberList.POST("/create", middleware.PermissionMiddleware(), api.CreateTeamMember)
-			//删除用户
-			MemberList.DELETE("/delete", middleware.PermissionMiddleware(), api.DeleteTeamMember)
+			//删除成员   //middleware.PermissionMiddleware()    正式使用时需要把该中间件加入下面的路由中  测试时则要拿走
+			MemberList.DELETE("/delete/:team_id/:member_id", middleware.PermissionMiddleware(), api.DeleteTeamMember)
 		}
 
 		// 团队成员信息管理子路由
 		MemberMsg := rg.Group("/membermsg")
 		{
-			//查询用户详细信息
+			//查询成员详细信息
 			MemberMsg.GET("/details", api.GetMemberDetail)
-			//给用户点赞/取消赞
+			//给成员点赞/取消赞
 			MemberMsg.PUT("/like", api.PutLikeCount)
-			//编辑用户信息
+			//编辑成员信息    //middleware.PermissionMiddleware() 正式使用时需要把该中间件加入下面的路由中  测试时则要拿走
 			MemberMsg.PUT("/change", middleware.PermissionMiddleware(), api.PutTeamMember)
 		}
 	})

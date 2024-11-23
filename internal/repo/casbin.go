@@ -19,33 +19,30 @@ func NewCasbinRepo(db *gorm.DB) *CasbinRepo {
 	return &CasbinRepo{DB: db}
 }
 
-// GetCasbin
-//
-//	@Description:  获取权限组
-//	@receiver r
-//	@param userid
-//	@param teamid
-//	@return []string
-//	@return error
 const Nothing = 0
 
+// GetCasbin
+// @Description: 获取权限组
+// @receiver r
+// @param userid 用户ID
+// @param teamid 团队ID
+// @return level 用户权限等级
+// @return urls 用户拥有的URL列表
+// @return error
 func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 	// 根据 UserId 查询用户对应的角色
-	var Power []struct {
-		role  int64
-		level int
+	var rolesWithLevels []struct {
+		Role  int64
+		Level int
 	}
 
+	// 修复 JOIN 表别名冲突
 	err := r.DB.Model(&model.Casbin{}).
-		Joins("JOIN user_power ON user_power.member_id = casbin.v0").
-		Joins("JOIN user_power ON user_power.team_id = casbin.v1").
-		Select(RoleOrUrl, C_Level). // 获取 g 规则中的 roleid
-		Where(&model.Casbin{
-			Ptype: "g",
-			V0:    userid,
-			V1:    teamid,
-		}).
-		Find(&Power).Error
+		Joins("JOIN user_power AS up1 ON up1.member_id = casbin.v0").
+		Joins("JOIN user_power AS up2 ON up2.team_id = casbin.v1").
+		Select("casbin.v2 AS role, up2.level").
+		Where("casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?", "g", userid, teamid).
+		Find(&rolesWithLevels).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return Nothing, nil, nil
@@ -53,25 +50,29 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 		zlog.Errorf("查询用户对应的用户组失败：%v", err)
 		return Nothing, nil, err
 	}
-	Level := Power[0].level
 
-	var roles []int64
-	for _, power := range Power {
-		roles = append(roles, power.role)
+	if len(rolesWithLevels) == 0 {
+		return Nothing, nil, nil
 	}
 
-	// 使用 roleid 和 teamid 查询拥有的 URL
+	level := rolesWithLevels[0].Level
+	var roles []int64
+	for _, r := range rolesWithLevels {
+		roles = append(roles, r.Role)
+	}
+
+	// 使用角色ID和团队ID查询拥有的URL
 	var urls []string
 	err = r.DB.Model(&model.Casbin{}).
-		Select(RoleOrUrl). // 获取 p 规则中的 url
-		Where(fmt.Sprintf("%s = 'p' AND %s in (?) AND %s = ?", C_Type, C_User, C_Team), roles, teamid).
+		Select("casbin.v2").
+		Where("casbin.ptype = ? AND casbin.v0 IN ? AND casbin.v1 = ?", "p", roles, teamid).
 		Find(&urls).Error
 	if err != nil {
-		zlog.Errorf("查询管理员拥有的urls失败：%v", err)
+		zlog.Errorf("查询管理员拥有的 URLs 失败：%v", err)
 		return Nothing, nil, err
 	}
 
-	return Level, urls, nil
+	return level, urls, nil
 }
 
 // CheckUserPermission

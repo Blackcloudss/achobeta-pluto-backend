@@ -16,6 +16,7 @@ import (
 func GetPower(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
+	//正式使用，测试时需注释掉
 	userid, exists := c.Get(global.TOKEN_USER_ID)
 	if !exists {
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
@@ -31,7 +32,8 @@ func GetPower(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "GetPower request: %v", req)
 	//获取出参
-	resp, err := logic.NewCasbinLogic().GetCasbin(ctx, UserId, req.TeamId)
+	resp, err := logic.NewCasbinLogic().GetCasbin(ctx, UserId, req.TeamId) //正式使用
+	//resp, err := logic.NewCasbinLogic().GetCasbin(ctx, req.UserId, req.TeamId)   测试时使用
 	response.Response(c, resp, err)
 	return
 }
