@@ -23,6 +23,7 @@ var (
 	SNOWFLAKE_ID_GENERATE_ERROR = MsgCode{60003, "snowflake id生成失败"}
 	DATABASE_ERROR              = MsgCode{60004, "数据库错误"}
 	REDIS_ERROR                 = MsgCode{60005, "redis错误"}
+	FEISHU_ERROR                = MsgCode{60006, "飞书API错误"}
 
 	/* 参数错误：10000 ~ 19999 */
 	PARAM_NOT_VALID    = MsgCode{10001, "参数无效"}

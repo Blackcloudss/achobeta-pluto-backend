@@ -2,8 +2,10 @@ package logic
 
 import (
 	"context"
-	"fmt"
+	"tgwp/global"
 	"tgwp/internal/handler"
+	"tgwp/internal/repo"
+	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 )
@@ -18,21 +20,26 @@ func NewFeiShuLogic() *FeiShuLogic {
 // GetFeiShuList 获取飞书多维表格
 func (l *FeiShuLogic) GetFeiShuList(ctx context.Context, UserID int64, ForceUpdate bool) (resp types.GetFeiShuListResp, err error) {
 	// 获取用户飞书open_id
-	openID, err := handler.GetFeiShuUserOpenID("18300156621") // 由于通过UserID获取手机号需要个人信息模块那边的函数，此处暂时使用测试手机号
+	openID, err := repo.NewFeiShuRepo(global.DB).GetFeiShuOpenID(UserID)
 	if err != nil {
 		zlog.Errorf("get feishu open_id error:%v", err)
 		return
 	}
-	fmt.Println(openID)
+	//fmt.Println(openID)
 
 	// 获取多维表格数据
 	resp, err = handler.GetFeiShuList(ctx, openID, ForceUpdate)
+	if err != nil {
+		zlog.Errorf("get feishu list error:%v", err)
+		err = response.ErrResp(err, response.FEISHU_ERROR)
+		return
+	}
 
 	if err != nil {
-		zlog.Errorf("get message error:%v", err)
+		zlog.Errorf("get feishulist error:%v", err)
 		return
 	} else {
-		zlog.Infof("get message success")
+		zlog.Infof("get feishulist success")
 	}
 
 	return
