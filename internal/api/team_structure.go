@@ -17,7 +17,6 @@ func GetTeamStructure(c *gin.Context) {
 	req, err := types.BindReq[types.TeamStructReq](c)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "GetTeamStructure err:%v", err)
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
 	zlog.CtxInfof(ctx, "GetTeamStructure request: %v", req)
@@ -35,11 +34,6 @@ func GetTeamStructure(c *gin.Context) {
 func PutTeamNode(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.PutTeamNodeReq](c)
-	if err != nil {
-		zlog.CtxErrorf(ctx, "PutTeamNode err:%v", err)
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	}
 	zlog.CtxInfof(ctx, "PutTeamNode request: %v", req)
 	resp, err := logic.NewStructureLogic().PutStructureNode(ctx, req)
 

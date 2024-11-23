@@ -20,6 +20,10 @@ var (
 	childFoundField = response.MsgCode{Code: 40026, Msg: "孩子节点查询失败"}
 )
 
+const (
+	FALSE = 0
+)
+
 type StructureLogic struct {
 }
 
@@ -35,7 +39,7 @@ func NewStructureLogic() *StructureLogic {
 //	@param req
 //	@return types.TeamStructResp
 //	@return error
-func (l *StructureLogic) GetStructure(ctx context.Context, req types.TeamStructReq) (types.TeamStructResp, error) {
+func (l *StructureLogic) GetStructure(ctx context.Context, req types.TeamStructReq) (*types.TeamStructResp, error) {
 	defer util.RecordTime(time.Now())()
 
 	teamStructures := []types.TeamStructure{}
@@ -45,10 +49,10 @@ func (l *StructureLogic) GetStructure(ctx context.Context, req types.TeamStructR
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "root not found: %v", err)
-			return types.TeamStructResp{}, response.ErrResp(err, rootNotFound)
+			return &types.TeamStructResp{}, response.ErrResp(err, rootNotFound)
 		} else {
 			zlog.CtxErrorf(ctx, "get root error: %v", err)
-			return types.TeamStructResp{}, response.ErrResp(err, rootFoundField)
+			return &types.TeamStructResp{}, response.ErrResp(err, rootFoundField)
 		}
 	}
 	Root := root[0].MyselfId
@@ -58,14 +62,14 @@ func (l *StructureLogic) GetStructure(ctx context.Context, req types.TeamStructR
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "child not found: %v", err)
-			return types.TeamStructResp{}, response.ErrResp(err, childNotFound)
+			return &types.TeamStructResp{}, response.ErrResp(err, childNotFound)
 		} else {
 			zlog.CtxErrorf(ctx, "get child error: %v", err)
-			return types.TeamStructResp{}, response.ErrResp(err, childFoundField)
+			return &types.TeamStructResp{}, response.ErrResp(err, childFoundField)
 		}
 	}
 
-	return types.TeamStructResp{TeamStructures: teamStructures}, nil
+	return &types.TeamStructResp{TeamStructures: teamStructures}, nil
 }
 
 // GetStructure
@@ -96,7 +100,7 @@ func (l *StructureLogic) GetStructureNode(ctx context.Context, fatherid, teamid 
 			MyselfId:  child.MyselfId,
 			FatherId:  fatherid,
 			NodeName:  child.NodeName,
-			IsDeleted: false, // 假设在查询时过滤了已删除的节点
+			IsDeleted: FALSE, // 假设在查询时过滤了已删除的节点
 		}
 
 		*result = append(*result, node)
@@ -134,7 +138,7 @@ func (l *StructureLogic) PutStructureNode(ctx context.Context, req types.PutTeam
 	defer util.RecordTime(time.Now())()
 
 	for _, Node := range req.TeamStructures {
-		if Node.IsDeleted == false {
+		if Node.IsDeleted == FALSE {
 			// 没被删除且没有自身节点值 ：新增节点
 			err := repo.NewStructureRepo(global.DB).CreateNode(Node)
 			if err != nil {
