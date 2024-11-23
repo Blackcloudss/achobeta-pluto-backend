@@ -36,8 +36,8 @@ func (t *User_Power) TableName() string {
 // 点赞表
 type Like_Status struct {
 	CommonModel
-	IsLiked         bool  `gorm:"column:is_liked; type:boolean; index; comment:'点赞情况'"`
-	MemberId_Like   int64 `gorm:"column:memberid_like; type:int unsigned ; index:idx_like_beliked; comment:'点赞的用户id'"`
+	IsLiked         int8  `gorm:"column:is_liked;     type:boolean; index; comment:'点赞情况'"`
+	MemberId_Like   int64 `gorm:"column:memberid_like;  type:int unsigned ; index:idx_like_beliked; comment:'点赞的用户id'"`
 	MemberId_BeLike int64 `gorm:"column:memberid_belike; type:int unsigned; index:idx_like_beliked; comment:'被点赞的用户id'"`
 
 	Member_Like   Member `gorm:"foreignKey:MemberId_Like;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

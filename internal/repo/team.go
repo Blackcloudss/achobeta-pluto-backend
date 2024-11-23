@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/model"
@@ -111,32 +112,37 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 //	@return first_team
 //	@return team
 //	@return err
+const c_id = "id"
 const c_teamid = "team_id"
 const c_teamname = "name"
 
-func (r TeamRepo) GetTeamId(userid int64) (first_team types.Team, team []types.Team, err error) {
+func (r TeamRepo) GetTeamId(userid int64) (types.Team, []types.Team, error) {
 	defer util.RecordTime(time.Now())()
-	err = r.DB.Model(&model.Team_Member_Structure{}).
-		Select(c_teamid, c_teamname).
-		Joins("JOIN team on team.id = team_member_structure.team_id").
-		Where(&model.Team_Member_Structure{
-			MemberId: userid,
-		}).
+
+	var first_team types.Team
+	var team []types.Team
+
+	//查询第一个团队
+	err := r.DB.Model(&model.Team{}).
+		Select("team.id, team.name").
+		Joins("JOIN team_member_structure AS tms ON tms.team_id = team.id").
+		Where("tms.member_id = ?", userid).
 		First(&first_team).
 		Error
 	if err != nil {
+		zlog.Warnf("未找到用户的第一个团队：%v", userid)
 		zlog.Errorf("用户所在的第一个团队信息获取失败：%v", err)
-		return
+		return types.Team{}, nil, err
 	}
 
+	//查询所有团队
 	err = r.DB.Model(&model.Team{}).
-		Joins("JOIN team on team.id = team_member_structure.team_id").
-		Select(C_Id, c_teamname).
+		Select(fmt.Sprintf("%s, %s", c_id, c_teamname)).
 		Find(&team).
 		Error
 	if err != nil {
 		zlog.Errorf("团队信息获取失败：%v", err)
-		return
+		return types.Team{}, nil, err
 	}
-	return
+	return first_team, team, nil
 }

@@ -1,10 +1,8 @@
 package types
 
-import "time"
-
 // 查询成员详细信息(入参）
 type GetMemberDetailReq struct {
-	UserID int64 `json:"user_id" binging:"required" `
+	UserID int64 `form:"user_id" binging:"required" `
 }
 
 // 职位信息
@@ -28,7 +26,7 @@ type MemberPositions struct {
 type GetMemberDetailResp struct {
 	Name           string            `json:"name"`
 	Sex            string            `json:"sex"`
-	CreateDate     time.Time         `json:"create_date"`
+	CreateDate     string            `json:"create_date"`
 	IdCard         string            `json:"id_card"`
 	PhoneNum       uint64            `json:"phone_num"`
 	Email          string            `json:"email"`
@@ -43,6 +41,7 @@ type GetMemberDetailResp struct {
 
 // 给用户点赞/取消赞(入参）
 type LikeCountReq struct {
+	//UserID   int64 `json:"user_id" binging:"required" ` //测试使用 之后会删除
 	MemberID int64 `json:"member_id" binging:"required" `
 }
 
@@ -53,18 +52,18 @@ type LikeCountResp struct {
 
 // 编辑成员详细信息(入参）
 type PutTeamMemberReq struct {
-	ID         int64     `json:"id" binging:"required" `
-	Name       string    `json:"name"`
-	Sex        string    `json:"sex"`
-	CreateDate time.Time `json:"create_date"`
-	IdCard     string    `json:"id_card"`
-	PhoneNum   uint64    `json:"phone_num" binging:"required,len = 11"`
-	Email      string    `json:"email"`
-	Grade      uint      `json:"grade"`
-	Major      string    `json:"major"`
-	StudentID  uint64    `json:"student_id"`
-	Experience string    `json:"experience"`
-	Status     string    `json:"status"`
+	ID         int64  `json:"id" binging:"required" `
+	Name       string `json:"name"`
+	Sex        string `json:"sex"`
+	CreateDate string `json:"create_date"`
+	IdCard     string `json:"id_card"`
+	PhoneNum   string `json:"phone_num" binging:"required,len = 11"`
+	Email      string `json:"email"`
+	Grade      uint64 `json:"grade"`
+	Major      string `json:"major"`
+	StudentID  uint64 `json:"student_id"`
+	Experience string `json:"experience"`
+	Status     string `json:"status"`
 	//组别 + 职位
 	MemberPosition []MemberPositions `json:"member_position"`
 }
