@@ -2,7 +2,7 @@ package types
 
 // 查询成员详细信息(入参）
 type GetMemberDetailReq struct {
-	UserID int64 `form:"user_id" binging:"required" `
+	MemberID int64 `form:"member_id" binging:"required" `
 }
 
 // 职位信息
@@ -39,13 +39,13 @@ type GetMemberDetailResp struct {
 	MemberPosition []MemberPositions `json:"member_position"`
 }
 
-// 给用户点赞/取消赞(入参）
+// 给成员点赞/取消赞(入参）
 type LikeCountReq struct {
 	//UserID   int64 `json:"user_id" binging:"required" ` //测试使用 之后会删除
 	MemberID int64 `json:"member_id" binging:"required" `
 }
 
-// 给用户点赞/取消赞(出参）
+// 给成员点赞/取消赞(出参）
 type LikeCountResp struct {
 	LikeCount uint64 `json:"like_count"`
 }

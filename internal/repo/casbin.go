@@ -119,7 +119,7 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 	// 使用 roleid 和 teamid 查询拥有的 URL
 	err = r.DB.Model(&model.Casbin{}).
 		Select(RoleOrUrl). // 获取 p 规则中的 url
-		Where(fmt.Sprintf("%s = 'p' AND %s in (?) AND %s = ? AND %s = ?", C_Type, C_User, C_Team), managers, teamId, url).
+		Where(fmt.Sprintf("%s = 'p' AND %s in (?) AND %s = ? AND %s = ?", C_Type, C_User, C_Team, RoleOrUrl), managers, teamId, url).
 		First(&res).Error
 
 	if err != nil {

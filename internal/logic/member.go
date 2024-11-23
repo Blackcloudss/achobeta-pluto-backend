@@ -66,7 +66,7 @@ func (l *MemberLogic) GetMemberList(ctx context.Context, req types.MemberlistReq
 func (l *MemberLogic) GetMemberDetail(ctx context.Context, req types.GetMemberDetailReq) (resp *types.GetMemberDetailResp, err error) {
 	defer util.RecordTime(time.Now())()
 
-	resp, err = repo.NewMemberRepo(global.DB).GetMemberDetail(req.UserID)
+	resp, err = repo.NewMemberRepo(global.DB).GetMemberDetail(req.MemberID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.CtxWarnf(ctx, "user not found: %v", err)

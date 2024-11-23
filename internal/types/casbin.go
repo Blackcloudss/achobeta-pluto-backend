@@ -22,6 +22,6 @@ type RuleResp struct {
 
 // 权限验证
 type RuleCheck struct {
-	UserId int64 `json:"user_id"  binding:"required"`
-	TeamId int64 `json:"team_id"`
+	UserId int64 `form:"user_id"  binding:"required"` //测试时使用
+	TeamId int64 `form:"team_id"`
 }

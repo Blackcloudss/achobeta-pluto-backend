@@ -18,10 +18,16 @@ import (
 func PermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := zlog.GetCtxFromGin(c)
-		if userid, exists := c.Get(global.TOKEN_USER_ID); exists {
-			c.Set("user_id", userid)
-		}
-		//绑定 user_id 和 team_id
+
+		//正式使用，    测试时需注释掉
+		//userid, exists := c.Get(global.TOKEN_USER_ID)
+		//if !exists {
+		//	response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		//	return
+		//}
+		//UserId := userid.(int64)
+
+		//绑定  team_id
 		req, err := types.BindReq[types.RuleCheck](c)
 
 		if err != nil {
@@ -35,7 +41,8 @@ func PermissionMiddleware() gin.HandlerFunc {
 		Url := c.Request.URL.Path
 
 		// CheckUserPermissions 检查用户权限
-		exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId)
+		//exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, UserId, req.TeamId) //正式使用
+		exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, req.UserId, req.TeamId) //测试时使用
 
 		if err != nil {
 			response.NewResponse(c).Error(response.PARAM_NOT_VALID)
