@@ -15,6 +15,7 @@ const (
 	Phone         = "phone"
 	UserId        = "user_id"
 	LoginId       = "login_id"
+	DeviceName    = "device_name"
 )
 
 type SignRepo struct {
@@ -120,5 +121,19 @@ func (r SignRepo) ShowDevices(req types.DevicesReq) (resq types.DevicesResp, err
 		Offset(offset).
 		Limit(req.LineNumber).
 		Find(&resq.Devices).Error
+	return
+}
+
+// ModifyDeviceName
+//
+//	@Description: 根据设备的login_id修改设备名称
+//	@receiver r
+//	@param login_id
+//	@param device_name
+//	@return err
+func (r SignRepo) ModifyDeviceName(req types.ModifyDeviceNameReq) (err error) {
+	err = r.DB.Table(SignTableName).
+		Where(fmt.Sprintf("%s=?", LoginId), req.LoginId).
+		UpdateColumn(DeviceName, req.DeviceName).Error
 	return
 }

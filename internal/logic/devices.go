@@ -36,7 +36,7 @@ func (l *DevicesLogic) ShowDevices(ctx context.Context, req types.DevicesReq) (r
 	return
 }
 
-// RemoveDevices
+// RemoveDevice
 //
 //	@Description: 移除常用设备
 //	@receiver l
@@ -44,11 +44,28 @@ func (l *DevicesLogic) ShowDevices(ctx context.Context, req types.DevicesReq) (r
 //	@param req
 //	@return resp
 //	@return err
-func (l *DevicesLogic) RemoveDevices(ctx context.Context, req types.RemoveDeviceReq) (err error) {
+func (l *DevicesLogic) RemoveDevice(ctx context.Context, req types.RemoveDeviceReq) (err error) {
 	defer util.RecordTime(time.Now())()
 	err = repo.NewSignRepo(global.DB).DeleteSignByLoginId(req.LoginId)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "error deleting sign by loginId: %v", err)
+		return response.ErrResp(err, response.COMMON_FAIL)
+	}
+	return
+}
+
+// ModifyDeviceName
+//
+//	@Description: 根据login_id修改设备名字
+//	@receiver l
+//	@param ctx
+//	@param req
+//	@return err
+func (l *DevicesLogic) ModifyDeviceName(ctx context.Context, req types.ModifyDeviceNameReq) (err error) {
+	defer util.RecordTime(time.Now())()
+	err = repo.NewSignRepo(global.DB).ModifyDeviceName(req)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "error modify device name by loginId: %v", err)
 		return response.ErrResp(err, response.COMMON_FAIL)
 	}
 	return

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"tgwp/internal/handler"
 	"tgwp/internal/logic"
@@ -20,7 +19,6 @@ func ShowDevices(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	fmt.Println(req.LineNumber, req.PageNumber)
 	req.UserId = handler.GetUserId(c)
 	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
 	resp, err := logic.NewDevicesLogic().ShowDevices(ctx, req)
@@ -28,5 +26,21 @@ func ShowDevices(c *gin.Context) {
 		response.Response(c, nil, err)
 	}
 	response.Response(c, resp, err)
+	return
+}
+
+// ModifyDeviceName
+//
+//	@Description: 修改设备名称
+//	@param c
+func ModifyDeviceName(c *gin.Context) {
+	ctx := zlog.GetCtxFromGin(c)
+	req, err := types.BindReq[types.ModifyDeviceNameReq](c)
+	if err != nil {
+		return
+	}
+	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
+	err = logic.NewDevicesLogic().ModifyDeviceName(ctx, req)
+	response.Response(c, nil, err)
 	return
 }
