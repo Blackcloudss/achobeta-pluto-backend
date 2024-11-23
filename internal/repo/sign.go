@@ -94,7 +94,7 @@ func (r SignRepo) DeleteSignByIssuer(issuer string) (err error) {
 //	@receiver r
 //	@param login_id
 //	@return err
-func (r SignRepo) DeleteSignByLoginId(login_id string) (err error) {
+func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
 	var Temp model.Sign
 	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", LoginId), login_id).Delete(&Temp).Error
 	return

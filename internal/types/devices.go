@@ -16,5 +16,5 @@ type DevicesResp struct {
 	Devices []Device `json:"devices"`
 }
 type RemoveDeviceReq struct {
-	LoginId string `json:"login_id"`
+	LoginId int64 `json:"login_id"`
 }

@@ -4,7 +4,7 @@ import "time"
 
 type Sign struct {
 	CommonModel
-	LoginId    string    `gorm:"column:login_id;type:char(19);unique;not null;comment:'登录id'"`
+	LoginId    int64     `gorm:"column:login_id;type:bigint;unique;not null;comment:'登录id'"`
 	Issuer     string    `gorm:"column:issuer;type:char(19);unique;not null;comment:'签发标识'"`
 	UserId     int64     `gorm:"column:user_id;type:bigint;not null;comment:'用户id'"`
 	OnlineTime time.Time `gorm:"column:online_time;not null;comment:'上线时间'"`
