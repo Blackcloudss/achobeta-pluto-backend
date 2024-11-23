@@ -6,6 +6,12 @@ import (
 	"tgwp/internal/response"
 )
 
+// PageReq 分页查询通用结构体
+type PageReq struct {
+	Page     int `form:"page" json:"page" uri:"page"`
+	PageSize int `form:"page_size" json:"page_size" uri:"page_size"`
+}
+
 // fixme 注意这个 bindReq 并不适合符合restful 设计规范的参数绑定,只适合单类型参数绑定
 
 // BindReq Uri绑定 /for/example/:id
