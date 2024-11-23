@@ -85,6 +85,8 @@ func (l *TokenLogic) ReflashRtoken(ctx context.Context, req types.TokenReq) (res
 		//表明找不到issuer相等的，即rtoken是无效的
 		return resp, response.ErrResp(err, response.TOKEN_NOT_VALID)
 	}
+	//更新上线时间
+	repo.NewSignRepo(global.DB).ReflashOnlineTime(data.Issuer)
 	//生成新的token
 	resp, err = NewTokenLogic().GenRtoken(ctx, data)
 	if err != nil {
