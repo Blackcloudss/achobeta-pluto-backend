@@ -22,9 +22,6 @@ func ShowDevices(c *gin.Context) {
 	req.UserId = handler.GetUserId(c)
 	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
 	resp, err := logic.NewDevicesLogic().ShowDevices(ctx, req)
-	if err != nil {
-		response.Response(c, nil, err)
-	}
 	response.Response(c, resp, err)
 	return
 }

@@ -35,8 +35,5 @@ func RemoveDevice(c *gin.Context) {
 	}
 	zlog.CtxInfof(ctx, "RemoveDevice request: %v", req)
 	err = logic.NewDevicesLogic().RemoveDevice(ctx, req)
-	if err != nil {
-		response.Response(c, nil, err)
-	}
-	response.NewResponse(c).Success(nil)
+	response.Response(c, nil, err)
 }

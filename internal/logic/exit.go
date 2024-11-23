@@ -40,7 +40,6 @@ func (l *ExitLogic) ExitSystem(ctx context.Context, req types.TokenReq) (err err
 		//自动登录的用户就去签名表删除对应数据
 		err = repo.NewSignRepo(global.DB).DeleteSignByIssuer(data.Issuer)
 		if err != nil {
-			//表明找不到issuer相等的，即rtoken是无效的
 			zlog.CtxErrorf(ctx, "delete sign by issuer failed: %v", err)
 			return response.ErrResp(err, response.COMMON_FAIL)
 		}

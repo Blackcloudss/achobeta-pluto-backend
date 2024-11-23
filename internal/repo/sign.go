@@ -107,20 +107,20 @@ func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
 //	@receiver r
 //	@param user_id
 //	@return err
-func (r SignRepo) ShowDevices(req types.DevicesReq) (resq types.DevicesResp, err error) {
+func (r SignRepo) ShowDevices(req types.DevicesReq) (resp types.DevicesResp, err error) {
 	fmt.Println(req.PageNumber, req.LineNumber)
 	offset := (req.PageNumber - 1) * req.LineNumber
 	r.DB.Model(&model.Sign{}).
 		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
-		Count(&resq.Total)
-	if resq.Total == 0 {
+		Count(&resp.Total)
+	if resp.Total == 0 {
 		return
 	}
 	err = r.DB.Model(&model.Sign{}).
 		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
 		Offset(offset).
 		Limit(req.LineNumber).
-		Find(&resq.Devices).Error
+		Find(&resp.Devices).Error
 	return
 }
 

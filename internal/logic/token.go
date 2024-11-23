@@ -77,13 +77,13 @@ func (l *TokenLogic) ReflashRtoken(ctx context.Context, req types.TokenReq) (res
 	}
 	//判断其是否为rtoken
 	if data.Class != global.AUTH_ENUMS_RTOKEN {
-		return resp, response.ErrResp(err, response.PARAM_TYPE_ERROR)
+		return resp, response.ErrResp(err, response.TOKEN_TYPE_ERROR)
 	}
 	//判断rtoken的签名是否有效
 	err = repo.NewSignRepo(global.DB).CompareSign(data.Issuer)
 	if err != nil {
 		//表明找不到issuer相等的，即rtoken是无效的
-		return resp, response.ErrResp(err, response.PARAM_NOT_VALID)
+		return resp, response.ErrResp(err, response.TOKEN_NOT_VALID)
 	}
 	//生成新的token
 	resp, err = NewTokenLogic().GenRtoken(ctx, data)

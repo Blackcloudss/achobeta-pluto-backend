@@ -7,7 +7,10 @@ import (
 
 func GetUserId(c *gin.Context) int64 {
 	if data, exists := c.Get(global.TOKEN_USER_ID); exists {
-		return data.(int64)
+		user_id, ok := data.(int64)
+		if ok {
+			return user_id
+		}
 	}
 	return 0
 }
