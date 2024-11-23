@@ -1,12 +1,10 @@
 package types
 
-import "time"
-
 // 查询指定团队成员列表（入参）
 type MemberlistReq struct {
-	TeamID  int64 `json:"team_id" binding:"required"`
-	Page    int   `json:"page" binding:"required"`
-	Perpage int   `json:"perpage" binding:"required"`
+	TeamID  int64 `form:"team_id" binding:"required"`
+	Page    int   `form:"page" binding:"required"`
+	Perpage int   `form:"perpage" binding:"required"`
 }
 
 type Members struct {
@@ -29,11 +27,11 @@ type MemberlistResp struct {
 type CreateMemberReq struct {
 	Name            string            `json:"name"`
 	Sex             string            `json:"sex"`
-	CreateDate      time.Time         `json:"create_date"  binding:"required,datetime=2006/01/02"` //日期格式校验
+	CreateDate      string            `json:"create_date"  binding:"required,datetime=2006/01/02"` //日期格式校验
 	IdCard          string            `json:"id_card"`
-	PhoneNum        uint64            `json:"phone_num" binding:"required,len = 11"`
+	PhoneNum        string            `json:"phone_num" binding:"required"`
 	Email           string            `json:"email"`
-	Grade           uint              `json:"grade"`
+	Grade           uint64            `json:"grade"`
 	Major           string            `json:"major"`
 	StudentID       uint64            `json:"student_id"`
 	Experience      string            `json:"experience"`
@@ -48,8 +46,8 @@ type CreateMembersResp struct {
 
 // 删除成员（入参）
 type DeleteMemberReq struct {
-	TeamId   int64 `json:"team_id" binding:"required"`
-	MemberId int64 `json:"member_id" binding:"required"`
+	TeamId   int64 `uri:"team_id" binding:"required"`
+	MemberId int64 `uri:"member_id" binding:"required"`
 }
 
 // 删除成员（出参）
