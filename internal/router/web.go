@@ -34,8 +34,6 @@ func listen() (*gin.Engine, error) {
 
 	// 注册各业务路由组的具体路由
 	registerRoutes(routeManager)
-	messageRoutes(routeManager)
-	feiShuRoutes(routeManager)
 
 	return r, nil
 }
@@ -53,6 +51,10 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.GET("/test", middleware.ReflashAtoken(), func(c *gin.Context) {
 			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
+			}
+			//告诉后面的人如何拿到token里面的数据
+			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
+				response.NewResponse(c).Success(data)
 			}
 		})
 		//是否可以自动登录
@@ -126,22 +128,24 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			MemberMsg.PUT("/change", middleware.PermissionMiddleware(), api.PutTeamMember)
 		}
 	})
-}
 
-// messageRoutes 注册消息相关路由的具体处理函数
-func messageRoutes(routeManager *manager.RouteManager) {
-	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
+	// 消息相关路由组
+	routeManager.RegisterMessageRoutes(func(rg *gin.RouterGroup) {
+		// 建立消息源
 		rg.POST("/set", api.SetMessage)
+		// 将消息与用户绑定
 		rg.POST("/join", middleware.ReflashAtoken(), api.JoinMessage)
+		// 获取消息列表(分页)
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetMessage)
+		// 标记已读
 		rg.POST("/markread", api.MarkReadMessage)
+		// 一键发送消息
 		rg.POST("/send", middleware.ReflashAtoken(), api.SendMessage)
 	})
-}
 
-// feiShuRoutes 有关飞书多维表格的路由
-func feiShuRoutes(routeManager *manager.RouteManager) {
-	routeManager.HandleFeiShuRoutes(func(rg *gin.RouterGroup) {
+	// 飞书相关路由组
+	routeManager.RegisterFeiShuRoutes(func(rg *gin.RouterGroup) {
+		// 获取飞书二维表格
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetFeiShuList)
 	})
 }

@@ -7,6 +7,10 @@ type Message struct {
 	Type    int    `json:"type" ;gorm:"type:int;null;comment:'消息类型'"`
 }
 
+func (t *Message) TableName() string {
+	return "messages"
+}
+
 // UserMessage [用户消息表]
 type UserMessage struct {
 	CommonModel
@@ -15,4 +19,8 @@ type UserMessage struct {
 	IsRead    int   `json:"is_read"`
 
 	Message Message `gorm:"foreignKey:MessageID;references:ID;"`
+}
+
+func (t *UserMessage) TableName() string {
+	return "user_messages"
 }

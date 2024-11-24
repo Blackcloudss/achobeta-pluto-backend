@@ -63,6 +63,16 @@ func (rm *RouteManager) RegisterDevicesRoutes(handler PathHandler) {
 	handler(rm.DevicesRoutes)
 }
 
+// 消息相关的路由组
+func (rm *RouteManager) RegisterMessageRoutes(handler PathHandler) {
+	handler(rm.MessageRoutes)
+}
+
+// 飞书相关的路由组
+func (rm *RouteManager) RegisterFeiShuRoutes(handler PathHandler) {
+	handler(rm.FeiShuRoutes)
+}
+
 // RegisterMiddleware 根据组名为对应的路由组注册中间件
 // group 参数为 "login"、"profile"、"team"或"Common"，分别对应不同的路由组
 func (rm *RouteManager) RegisterMiddleware(group string, middleware Middleware) {
@@ -85,14 +95,4 @@ func RequestGlobalMiddleware(r *gin.Engine) {
 	r.Use(requestid.New())
 	r.Use(middleware.AddTraceId())
 	r.Use(middleware.Cors())
-}
-
-// HandleMessageRoutes 处理消息相关的路由处理函数
-func (rm *RouteManager) HandleMessageRoutes(handler PathHandler) {
-	handler(rm.MessageRoutes)
-}
-
-// HandleFeiShuRoutes 处理飞书相关的路由处理函数
-func (rm *RouteManager) HandleFeiShuRoutes(handler PathHandler) {
-	handler(rm.FeiShuRoutes)
 }
