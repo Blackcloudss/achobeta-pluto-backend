@@ -2,7 +2,7 @@ package types
 
 // 获得权限组（入参）
 type RuleReq struct {
-	//UserId int64 `form:"user_id"` // 仅为了测试使用，之后删除
+	UserId int64 `form:"user_id"` // 仅为了测试使用，之后删除
 	TeamId int64 `form:"team_id"`
 }
 
@@ -20,8 +20,20 @@ type RuleResp struct {
 	Team          []Team   `json:"teams"` // 团队 ID 数组
 }
 
-// 权限验证
-type RuleCheck struct {
-	UserId int64 `form:"user_id"  binding:"required"` //测试时使用
+// 表单权限验证
+type ParamsRuleCheck struct {
+	UserId int64 `form:"user_id"` // 测试时使用
 	TeamId int64 `form:"team_id"`
+}
+
+// Json权限验证
+type JsonRuleCheck struct {
+	UserId int64 `json:"user_id"` // 测试时使用
+	TeamId int64 `json:"team_id"`
+}
+
+// Uri权限验证
+type UriRuleCheck struct {
+	UserId int64 `uri:"user_id"` // 测试时使用
+	TeamId int64 `uri:"team_id"`
 }

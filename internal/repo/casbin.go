@@ -131,6 +131,8 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 		return false, err
 	}
 
+	zlog.Infof("权限验证成功: managers=%v, teamId=%d, url=%s", managers, teamId, url)
+
 	// 查询成功，存在记录，有权限
 	return true, nil
 }

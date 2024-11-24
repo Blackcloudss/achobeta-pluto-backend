@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -36,20 +35,20 @@ func PutLikeCount(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
 	//正式使用，测试时需注释掉
-	userid, exists := c.Get(global.TOKEN_USER_ID)
-	if !exists {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	}
-	UserID := userid.(int64)
+	//userid, exists := c.Get(global.TOKEN_USER_ID)
+	//if !exists {
+	//	response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+	//	return
+	//}
+	//UserID := userid.(int64)
 
 	req, err := types.BindReq[types.LikeCountReq](c)
 	if err != nil {
 		return
 	}
 	zlog.CtxInfof(ctx, "PutLikeCount request: %v", req)
-	resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, UserID, req.MemberID) //正式使用
-	//resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, req.UserID, req.MemberID)  测试时使用
+	//resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, UserID, req.MemberID) //正式使用
+	resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, req.UserID, req.MemberID) //测试时使用
 	response.Response(c, resp, err)
 
 	return
@@ -61,9 +60,9 @@ func PutLikeCount(c *gin.Context) {
 //	@param c
 func PutTeamMember(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
-
 	req, err := types.BindReq[types.PutTeamMemberReq](c)
 	if err != nil {
+		zlog.CtxErrorf(ctx, "绑定请求参数失败: %v", err)
 		return
 	}
 	zlog.CtxInfof(ctx, "PutTeamMember request: %v", req)

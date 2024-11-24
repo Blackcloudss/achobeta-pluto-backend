@@ -108,8 +108,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			MemberList.GET("/get", api.GetTeamMemberlist)
 			//新增成员
 			MemberList.POST("/create", middleware.PermissionMiddleware(), api.CreateTeamMember)
-			//删除成员
-			MemberList.DELETE("/delete/:team_id/:member_id", middleware.PermissionMiddleware(), api.DeleteTeamMember)
+			//删除成员                     // user_id 之后要删除
+			MemberList.DELETE("/delete/:user_id/:team_id/:member_id", middleware.PermissionMiddleware(), api.DeleteTeamMember)
 		}
 
 		// 团队成员信息管理子路由
