@@ -2,7 +2,7 @@ package types
 
 // 查询团队架构(入参)
 type TeamStructReq struct {
-	TeamId int64 `json:"team_id" binding:"required"`
+	TeamId int64 `form:"team_id" binding:"required"`
 }
 
 // 单个团队架构记录
@@ -11,7 +11,7 @@ type TeamStructure struct {
 	MyselfId  int64  `json:"myself_id"`                     // 当前节点 ID
 	FatherId  int64  `json:"father_id" binding:"required"`  // 父节点 ID
 	NodeName  string `json:"node_name"  binding:"required"` // 架构名称（职位名称等）
-	IsDeleted bool   `json:"is_deleted" binding:"required"` //查看是否被删除
+	IsDeleted int8   `json:"is_deleted" binding:"required"` //查看是否被删除
 }
 
 // 查询团队架构（出参）

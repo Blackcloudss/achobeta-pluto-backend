@@ -24,12 +24,6 @@ func InitDataBase(config configs.Config) {
 		//迁移数据库所有的表
 		migrateTables()
 
-		//自动迁移 sign 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Sign{})
-
-		//自动迁移 sign 表，确保表结构存在
-		global.DB.AutoMigrate(&model.Sign{})
-
 		if err != nil {
 			zlog.Fatalf("数据库迁移失败！")
 		}
@@ -50,6 +44,9 @@ func InitRedis(config configs.Config) {
 }
 
 func migrateTables() {
+	//自动迁移 sign 表，确保表结构存在
+	global.DB.AutoMigrate(&model.Sign{})
+
 	// 自动迁移 casbin 表，确保表结构存在
 	global.DB.AutoMigrate(&model.Casbin{})
 
