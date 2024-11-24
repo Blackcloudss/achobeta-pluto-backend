@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"errors"
-	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/handler"
 	"tgwp/internal/model"
@@ -63,24 +61,21 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	if !handler.CompareCode(ctx, req.Code, req.Phone) {
 		return resp, response.ErrResp(err, response.CAPTCHA_ERROR)
 	}
+	var user_id int64
+	user_id, resp.IsTeam, err = repo.NewMemberRepo(global.DB).JudgeUser(req.Phone)
+	if err != nil {
+		zlog.CtxErrorf(ctx, "GenLoginData err: %v", err)
+		//这里的err只可能是数据库出现错误了
+		return resp, response.ErrResp(err, response.COMMON_FAIL)
+	}
+	if !resp.IsTeam {
+		//非团队人员直接返回
+		return resp, err
+	}
 	resp.Ip = ip
 	resp.UserAgent = user_agent
+	//关于login_id问题下一次解决
 	resp.LoginId = node.Generate().Int64()
-	//这里做关于团队成员的判断，思凯会设计一个函数，我传手机号，看看他团队表内有么有
-	resp.IsTeam = true //暂时认定都是团队成员
-	//一个手机号对应的user_id是一样的
-	//这里到时候外键关联用户表，userid就是逻辑外键，手机号也可以删掉了，但是现在不处理
-	//这里生成的id现阶段是方便测试用
-	user_id, err := repo.NewSignRepo(global.DB).CheckUserId(req.Phone)
-	if err != nil {
-		//这里的err是代表找不到对应的user_id,所以生成一个新的id
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			user_id = node.Generate().Int64()
-		} else {
-			zlog.CtxErrorf(ctx, "CheckUserId err: %v", err)
-			return resp, response.ErrResp(err, response.COMMON_FAIL)
-		}
-	}
 	if req.AutoLogin {
 		issuer := snowflake.GenId(node)
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
@@ -93,7 +88,6 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 			LoginId:    resp.LoginId,
 			IP:         resp.Ip,
 			UserAgent:  resp.UserAgent,
-			Phone:      req.Phone,
 		}
 		err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {

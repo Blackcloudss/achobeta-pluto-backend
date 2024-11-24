@@ -490,7 +490,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 //	@return int64
 //	@return bool
 //	@return error
-func (r MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
+func (r *MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
 	defer util.RecordTime(time.Now())()
 
 	var UserID int64
