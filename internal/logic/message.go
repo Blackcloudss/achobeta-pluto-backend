@@ -16,6 +16,13 @@ func NewMessageLogic() *MessageLogic {
 	return &MessageLogic{}
 }
 
+// SetMessage
+//
+//	@Description: 设置初始消息
+//	@receiver l
+//	@param req
+//	@return resp
+//	@return err
 func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessageResp, err error) {
 	// 生成雪花ID生成器
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
@@ -41,6 +48,14 @@ func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessag
 	return
 }
 
+// JoinMessage
+//
+//	@Description: 连接消息(和SetMessage配合)
+//	@receiver l
+//	@param req
+//	@param UserID
+//	@return resp
+//	@return err
 func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp types.JoinMessageResp, err error) {
 	// 生成雪花ID生成器
 	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
@@ -68,27 +83,35 @@ func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp
 	return
 }
 
-func (l *MessageLogic) GetMessage(UserID int64, page int, timestamp int64) (resp types.GetMessageResp, err error) {
-	// 检查是否需要更新
-	is_update := repo.NewMessageRepo(global.DB).CheckUpdate(UserID, timestamp)
-	if is_update {
-		resp, err = repo.NewMessageRepo(global.DB).GetMessage(UserID, page, 5)
-		resp.IsUpdated = true
-	} else {
-		resp.IsUpdated = false
+// GetMessage
+//
+//	@Description: 获取消息
+//	@receiver l
+//	@param UserID
+//	@param req
+//	@return resp
+//	@return err
+func (l *MessageLogic) GetMessage(UserID int64, req types.GetMessageReq) (resp types.GetMessageResp, err error) {
+	resp.IsUpdated = repo.NewMessageRepo(global.DB).CheckUpdate(UserID, req.Timestamp)
+	if resp.IsUpdated {
+		resp, err = repo.NewMessageRepo(global.DB).GetMessage(UserID, req.Page, 5)
+		if err != nil {
+			zlog.Errorf("get message error:%v", err)
+			err = response.ErrResp(err, response.DATABASE_ERROR)
+			return
+		}
 	}
-
-	if err != nil {
-		zlog.Errorf("get message error:%v", err)
-		err = response.ErrResp(err, response.DATABASE_ERROR)
-		return
-	} else {
-		zlog.Infof("get message success")
-	}
-
+	zlog.Infof("get message success")
 	return
 }
 
+// MarkReadMessage
+//
+//	@Description: 标记已读
+//	@receiver l
+//	@param req
+//	@return resp
+//	@return err
 func (l *MessageLogic) MarkReadMessage(req types.MarkReadMessageReq) (resp types.MarkReadMessageResp, err error) {
 
 	// 更新数据库
@@ -105,6 +128,14 @@ func (l *MessageLogic) MarkReadMessage(req types.MarkReadMessageReq) (resp types
 	return
 }
 
+// SendMessage
+//
+//	@Description: 发送消息
+//	@receiver l
+//	@param req
+//	@param UserID
+//	@return resp
+//	@return err
 func (l *MessageLogic) SendMessage(req types.SendMessageReq, UserID int64) (resp types.SendMessageResp, err error) {
 	// 使用 SetMessage 方法
 	respSet, err := l.SetMessage(types.SetMessageReq{

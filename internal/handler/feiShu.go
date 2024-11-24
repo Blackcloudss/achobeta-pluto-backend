@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/levigross/grequests"
 	"log"
@@ -12,6 +13,14 @@ import (
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"time"
+)
+
+const (
+	REDIS_FEISHU_UPDATA_TIME           = "Achobeta:feishu.update.time:string"           // Redis中飞书记录上次更新时间
+	REDIS_FEISHU_TOTAL_TASK_CNT        = "Achobeta:feishu.total.task.cnt:%s:int"        // Redis中飞书记录用户总任务数
+	REDIS_FEISHU_UNFINISHED_TASK_CNT   = "Achobeta:feishu.unfinished.task.cnt:%s:int"   // Redis中飞书记录用户未完成任务数
+	REDIS_FEISHU_WILL_OVERDUE_TASK_CNT = "Achobeta:feishu.will.overdue.task.cnt:%s:int" // Redis中飞书记录用户即将逾期任务数
+	REDIS_FEISHU_OVERDUE_TASK_CNT      = "Achobeta:feishu.overdue.task.cnt:%s:int"      // Redis中飞书记录用户逾期任务数
 )
 
 // TenantAccessTokenResp 获取 tenant_access_token 响应
@@ -69,7 +78,19 @@ type UserOpenIDResp struct {
 	} `json:"data"`
 }
 
+// UpdateFeiShuList
+//
+//	@Description: 更新飞书任务列表
+//	@param ctx
+//	@return err
 func UpdateFeiShuList(ctx context.Context) (err error) {
+	// 更新Redis中记录的最后更新时间
+	err = global.Rdb.Set(ctx, REDIS_FEISHU_UPDATA_TIME, time.Now().Unix(), 0).Err()
+	if err != nil {
+		zlog.CtxErrorf(ctx, "Unable to set FEISHU_TASK_LAST_UPDATE_TIME: %v", err)
+		return
+	}
+
 	// 先获取 tenant_access_token
 	tenant_access_token, err := GetFeiShuTenantAccessToken()
 	if err != nil {
@@ -128,26 +149,32 @@ func UpdateFeiShuList(ctx context.Context) (err error) {
 
 	// 保存到 redis
 	for k, v := range TotalTaskCnt {
-		global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_FEISHU_TOTAL_TASK_CNT, k), v, 0)
-		global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_FEISHU_UNFINISHED_TASK_CNT, k), UnFinishedTaskCnt[k], 0)
-		global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_FEISHU_WILL_OVERDUE_TASK_CNT, k), WillOverdueTaskCnt[k], 0)
-		global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_FEISHU_OVERDUE_TASK_CNT, k), OverdueTaskCnt[k], 0)
+		global.Rdb.Set(ctx, fmt.Sprintf(REDIS_FEISHU_TOTAL_TASK_CNT, k), v, 0)
+		global.Rdb.Set(ctx, fmt.Sprintf(REDIS_FEISHU_UNFINISHED_TASK_CNT, k), UnFinishedTaskCnt[k], 0)
+		global.Rdb.Set(ctx, fmt.Sprintf(REDIS_FEISHU_WILL_OVERDUE_TASK_CNT, k), WillOverdueTaskCnt[k], 0)
+		global.Rdb.Set(ctx, fmt.Sprintf(REDIS_FEISHU_OVERDUE_TASK_CNT, k), OverdueTaskCnt[k], 0)
 		//fmt.Printf("User %s(%s): Total task cnt: %d, Unfinished task cnt: %d, Will overdue task cnt: %d, Overdue task cnt: %d\n", nameList[k], k, TotalTaskCnt[k], UnFinishedTaskCnt[k], WillOverdueTaskCnt[k], OverdueTaskCnt[k])
 	}
 
 	return
 }
 
-// GetFeiShuList 获取飞书任务列表
-func GetFeiShuList(ctx context.Context, openID string, forceUpdate bool) (resp types.GetFeiShuListResp, err error) {
-	needUpdate := true
+// CheckUpdate
+//
+//	@Description: 检查是否需要更新飞书任务列表
+//	@param ctx
+//	@param forceUpdate
+//	@return needUpdate
+//	@return err
+func CheckUpdate(ctx context.Context, forceUpdate bool) (needUpdate bool, err error) {
+	needUpdate = true
 	// 先检查需不需要更新
 	if forceUpdate {
 		//强制更新
 	} else {
 		// 判断Redis是否存在上次更新时间记录
 		var val int64
-		val, err = global.Rdb.Exists(ctx, global.REDIS_FEISHU_UPDATA_TIME).Result()
+		val, err = global.Rdb.Exists(ctx, REDIS_FEISHU_UPDATA_TIME).Result()
 		if err != nil {
 			zlog.CtxErrorf(ctx, "Unable to check FEISHU_UPDATA_TIME: %v", err)
 			return
@@ -155,7 +182,7 @@ func GetFeiShuList(ctx context.Context, openID string, forceUpdate bool) (resp t
 		// 存在则需要检验更新时间
 		if val != 0 {
 			var val string
-			val, err = global.Rdb.Get(ctx, global.REDIS_FEISHU_UPDATA_TIME).Result()
+			val, err = global.Rdb.Get(ctx, REDIS_FEISHU_UPDATA_TIME).Result()
 			if err != nil {
 				zlog.CtxErrorf(ctx, "Unable to get FEISHU_UPDATA_TIME: %v", err)
 				return
@@ -173,62 +200,37 @@ func GetFeiShuList(ctx context.Context, openID string, forceUpdate bool) (resp t
 			}
 		}
 	}
+	return
+}
 
-	// 更新飞书任务列表
-	if needUpdate {
-		err = global.Rdb.Set(ctx, global.REDIS_FEISHU_UPDATA_TIME, time.Now().Unix(), 0).Err()
-		if err != nil {
-			zlog.CtxErrorf(ctx, "Unable to set FEISHU_TASK_LAST_UPDATE_TIME: %v", err)
-			return
-		}
-		err = UpdateFeiShuList(ctx)
-		if err != nil {
-			return
-		}
-	}
-
+// GetFeiShuList
+//
+//	@Description: 获取飞书任务列表
+//	@param ctx
+//	@param openID
+//	@return resp
+//	@return err
+func GetFeiShuList(ctx context.Context, openID string) (resp types.GetFeiShuListResp, err error) {
 	// 获得数据
-	var joinErrors []error
-	TotalTaskCountStr, err := global.Rdb.Get(ctx, fmt.Sprintf(global.REDIS_FEISHU_TOTAL_TASK_CNT, openID)).Result()
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	UnFinishedTaskCountStr, err := global.Rdb.Get(ctx, fmt.Sprintf(global.REDIS_FEISHU_UNFINISHED_TASK_CNT, openID)).Result()
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	WillOverdueTaskCountStr, err := global.Rdb.Get(ctx, fmt.Sprintf(global.REDIS_FEISHU_WILL_OVERDUE_TASK_CNT, openID)).Result()
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	OverdueTaskCountStr, err := global.Rdb.Get(ctx, fmt.Sprintf(global.REDIS_FEISHU_OVERDUE_TASK_CNT, openID)).Result()
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	if len(joinErrors) > 0 {
+	var err1, err2, err3, err4 error
+	TotalTaskCountStr, err1 := global.Rdb.Get(ctx, fmt.Sprintf(REDIS_FEISHU_TOTAL_TASK_CNT, openID)).Result()
+	UnFinishedTaskCountStr, err2 := global.Rdb.Get(ctx, fmt.Sprintf(REDIS_FEISHU_UNFINISHED_TASK_CNT, openID)).Result()
+	WillOverdueTaskCountStr, err3 := global.Rdb.Get(ctx, fmt.Sprintf(REDIS_FEISHU_WILL_OVERDUE_TASK_CNT, openID)).Result()
+	OverdueTaskCountStr, err4 := global.Rdb.Get(ctx, fmt.Sprintf(REDIS_FEISHU_OVERDUE_TASK_CNT, openID)).Result()
+	combinedErr := errors.Join(err1, err2, err3, err4)
+	if combinedErr != nil {
 		zlog.CtxErrorf(ctx, "Unable to get redis feishu data")
-		err = response.ErrResp(err, response.REDIS_ERROR)
+		err = response.ErrResp(err, response.INTERNAL_ERROR)
 		return
 	}
 
 	// 转换成 int
-	resp.TotalTaskCount, err = strconv.Atoi(TotalTaskCountStr)
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	resp.UnFinishedTaskCount, err = strconv.Atoi(UnFinishedTaskCountStr)
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	resp.WillOverdueTaskCount, err = strconv.Atoi(WillOverdueTaskCountStr)
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	resp.OverdueTaskCount, err = strconv.Atoi(OverdueTaskCountStr)
-	if err != nil {
-		joinErrors = append(joinErrors, err)
-	}
-	if len(joinErrors) > 0 {
+	resp.TotalTaskCount, err1 = strconv.Atoi(TotalTaskCountStr)
+	resp.UnFinishedTaskCount, err2 = strconv.Atoi(UnFinishedTaskCountStr)
+	resp.WillOverdueTaskCount, err3 = strconv.Atoi(WillOverdueTaskCountStr)
+	resp.OverdueTaskCount, err4 = strconv.Atoi(OverdueTaskCountStr)
+	combinedErr = errors.Join(err1, err2, err3, err4)
+	if combinedErr != nil {
 		zlog.CtxErrorf(ctx, "Unable to convert redis feishu data to int")
 		err = response.ErrResp(err, response.INTERNAL_ERROR)
 		return
@@ -237,6 +239,11 @@ func GetFeiShuList(ctx context.Context, openID string, forceUpdate bool) (resp t
 	return
 }
 
+// GetFeiShuTenantAccessToken
+//
+//	@Description: 获取飞书 tenant_access_token
+//	@return tenant_access_token
+//	@return err
 func GetFeiShuTenantAccessToken() (tenant_access_token string, err error) {
 	postData := map[string]string{
 		"app_id":     global.FEISHU_APP_ID,
@@ -263,6 +270,12 @@ func GetFeiShuTenantAccessToken() (tenant_access_token string, err error) {
 	return
 }
 
+// GetFeiShuUserOpenID
+//
+//	@Description: 获取飞书用户 open_id
+//	@param phoneNumber
+//	@return openID
+//	@return err
 func GetFeiShuUserOpenID(phoneNumber string) (openID string, err error) {
 	// 先获取 tenant_access_token
 	tenant_access_token, err := GetFeiShuTenantAccessToken()
@@ -287,7 +300,7 @@ func GetFeiShuUserOpenID(phoneNumber string) (openID string, err error) {
 
 	var userOpenIDResp UserOpenIDResp
 	if err = json.Unmarshal([]byte(resp.String()), &userOpenIDResp); err != nil {
-		log.Fatalln("Unable to parse JSON response: ", err)
+		zlog.Errorf("Unable to parse JSON response: %v", err)
 		return
 	}
 	if len(userOpenIDResp.Data.UserList) == 0 {

@@ -26,11 +26,6 @@ func GetFeiShuList(c *gin.Context) {
 	resp, err := logic.NewFeiShuLogic().GetFeiShuList(ctx, UserID, req.ForceUpdate)
 
 	// 响应
-	if err != nil {
-		response.Response(c, resp, err)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 	return
 }

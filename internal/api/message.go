@@ -87,13 +87,10 @@ func GetMessage(c *gin.Context) {
 		return
 	}
 
-	//pageStr := c.DefaultQuery("page", "1")
-	//timestampStr := c.DefaultQuery("timestamp", "0")
-
 	zlog.CtxInfof(ctx, "GetMessage request: %v %v %v", UserID, req.Page, req.Timestamp)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().GetMessage(UserID, req.Page, req.Timestamp)
+	resp, err := logic.NewMessageLogic().GetMessage(UserID, req)
 
 	// 响应
 	response.Response(c, resp, err)
