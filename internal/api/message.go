@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
 	"tgwp/global"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
@@ -16,20 +15,17 @@ func SetMessage(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 	req, err := types.BindReq[types.SetMessageReq](c)
 	if err != nil {
+		zlog.CtxErrorf(ctx, "BindReq failed: %v", err)
+		err = response.ErrResp(err, response.INTERNAL_ERROR)
 		return
 	}
-	zlog.CtxInfof(ctx, "Casbin request: %v", req)
+	zlog.CtxInfof(ctx, "SetMessage request: %v", req)
 
 	// logic 层处理
 	resp, err := logic.NewMessageLogic().SetMessage(req)
 
 	// 响应
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 	return
 }
 
@@ -41,54 +37,63 @@ func JoinMessage(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	UserID, _ := c.Get(global.TOKEN_USER_ID)
-	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
-	if err != nil {
-		return
-	}
-	zlog.CtxInfof(ctx, "Casbin request: %v", req)
-
-	// logic 层处理
-	resp, err := logic.NewMessageLogic().JoinMessage(req, user_id)
-
-	// 响应
-	if err != nil {
+	TempUserID, ok := c.Get(global.TOKEN_USER_ID)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Get token user id failed")
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
-	} else {
-		response.NewResponse(c).Success(resp)
 	}
+	UserID, ok := TempUserID.(int64)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Token user id convert to int64 failed")
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	}
+
+	zlog.CtxInfof(ctx, "JoinMessage request: %v", req)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().JoinMessage(req, UserID)
+
+	// 响应
+	response.Response(c, resp, err)
 
 	return
 }
 
 // GetMessage 获取消息, 从 [消息表] 获取
 func GetMessage(c *gin.Context) {
-	//fmt.Println(util.GenToken(util.TokenData{Userid: "114514", Class: "atoken", Issuer: "1", Time: time.Hour * 24 * 365}))
+	//fmt.Println(util.GenToken(util.TokenData{Userid: 114514, Class: "atoken", Issuer: "", Time: time.Hour * 24 * 365}))
 
 	// 解析请求参数
 	ctx := zlog.GetCtxFromGin(c)
-	UserID, _ := c.Get(global.TOKEN_USER_ID)
-	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
+
+	req, err := types.BindReq[types.GetMessageReq](c)
 	if err != nil {
 		return
 	}
 
-	pageStr := c.DefaultQuery("page", "1")
-	timestampStr := c.DefaultQuery("timestamp", "0")
-
-	zlog.CtxInfof(ctx, "Casbin request: %v %v %v", user_id, pageStr, timestampStr)
-
-	// logic 层处理
-	resp, err := logic.NewMessageLogic().GetMessage(user_id, pageStr, timestampStr)
-
-	// 响应
-	if err != nil {
+	//获取token中的用户id
+	TempUserID, ok := c.Get(global.TOKEN_USER_ID)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Get token user id failed")
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
-	} else {
-		response.NewResponse(c).Success(resp)
 	}
+	UserID, ok := TempUserID.(int64)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Token user id convert to int64 failed")
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	}
+
+	zlog.CtxInfof(ctx, "GetMessage request: %v %v %v", UserID, req.Page, req.Timestamp)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().GetMessage(UserID, req)
+
+	// 响应
+	response.Response(c, resp, err)
 
 	return
 }
@@ -101,18 +106,13 @@ func MarkReadMessage(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	zlog.CtxInfof(ctx, "Casbin request: %v", req)
+	zlog.CtxInfof(ctx, "MarkReadMessage request: %v", req)
 
 	// logic 层处理
 	resp, err := logic.NewMessageLogic().MarkReadMessage(req)
 
 	// 响应
-	if err != nil {
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		return
-	} else {
-		response.NewResponse(c).Success(resp)
-	}
+	response.Response(c, resp, err)
 
 	return
 }
@@ -125,23 +125,26 @@ func SendMessage(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	UserID, _ := c.Get(global.TOKEN_USER_ID)
-	user_id, err := strconv.ParseInt(UserID.(string), 10, 64)
-	if err != nil {
-		return
-	}
-	zlog.CtxInfof(ctx, "Casbin request: %v", req)
-
-	// logic 层处理
-	resp, err := logic.NewMessageLogic().SendMessage(req, user_id)
-
-	// 响应
-	if err != nil {
+	TempUserID, ok := c.Get(global.TOKEN_USER_ID)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Get token user id failed")
 		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
-	} else {
-		response.NewResponse(c).Success(resp)
 	}
+	UserID, ok := TempUserID.(int64)
+	if !ok {
+		zlog.CtxErrorf(ctx, "Token user id convert to int64 failed")
+		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
+		return
+	}
+
+	zlog.CtxInfof(ctx, "SendMessage request: %v", req)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().SendMessage(req, UserID)
+
+	// 响应
+	response.Response(c, resp, err)
 
 	return
 }
