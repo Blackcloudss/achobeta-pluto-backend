@@ -16,6 +16,7 @@ const (
 	UserId        = "user_id"
 	LoginId       = "login_id"
 	DeviceName    = "device_name"
+	CreatedAt     = "created_at"
 )
 
 type SignRepo struct {
@@ -112,14 +113,20 @@ func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
 func (r SignRepo) ShowDevices(req types.DevicesReq) (resp types.DevicesResp, err error) {
 	fmt.Println(req.PageNumber, req.LineNumber)
 	offset := (req.PageNumber - 1) * req.LineNumber
+
+	// 计算30天前的日期
+	thirtyDaysAgo := time.Now().AddDate(0, 0, -30)
+	//由于我们每次进行的都是删除操作，只要一条数据已经创建超过30天，那么这个rtoken必定失效了
 	r.DB.Model(&model.Sign{}).
 		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
+		Where(fmt.Sprintf("%s>?", CreatedAt), thirtyDaysAgo).
 		Count(&resp.Total)
 	if resp.Total == 0 {
 		return
 	}
 	err = r.DB.Model(&model.Sign{}).
 		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
+		Where(fmt.Sprintf("%s>?", CreatedAt), thirtyDaysAgo).
 		Offset(offset).
 		Limit(req.LineNumber).
 		Find(&resp.Devices).Error
