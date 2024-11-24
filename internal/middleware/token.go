@@ -20,6 +20,7 @@ func ReflashAtoken() gin.HandlerFunc {
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			zlog.CtxErrorf(ctx, `token is empty`)
+			response.NewResponse(c).Error(response.TOKEN_IS_BLANK)
 			c.Abort()
 			return
 		}
@@ -34,7 +35,7 @@ func ReflashAtoken() gin.HandlerFunc {
 		}
 		//判断其是否为atoken
 		if data.Class != global.AUTH_ENUMS_ATOKEN {
-			response.NewResponse(c).Error(response.PARAM_TYPE_ERROR)
+			response.NewResponse(c).Error(response.TOKEN_TYPE_ERROR)
 			c.Abort()
 			return
 		}
@@ -46,6 +47,7 @@ func ReflashAtoken() gin.HandlerFunc {
 			if err != nil {
 				//表明找不到issuer相等的，即atoken是无效的
 				zlog.CtxErrorf(ctx, "ReflashAtoken err:%v", err)
+				response.NewResponse(c).Error(response.TOKEN_NOT_VALID)
 				c.Abort()
 				return
 			}
@@ -59,8 +61,8 @@ func ReflashAtoken() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		//将值传递给后面用
-		c.Set(global.AUTH_ENUMS_ATOKEN, resp.Atoken)
+		//将token放到响应头
+		c.Header("Authorization", resp.Atoken)
 		c.Next()
 	}
 }

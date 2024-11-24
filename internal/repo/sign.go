@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"tgwp/internal/model"
+	"tgwp/internal/types"
 	"time"
 )
 
@@ -13,6 +14,8 @@ const (
 	Issuer        = "issuer"
 	Phone         = "phone"
 	UserId        = "user_id"
+	LoginId       = "login_id"
+	DeviceName    = "device_name"
 )
 
 type SignRepo struct {
@@ -74,16 +77,63 @@ func (r SignRepo) CheckUserId(phone string) (int64, error) {
 	return Temp.UserId, nil
 }
 
-// DeleteSign
+// DeleteSignByIssuer
 //
 //	@Description: 查找对应的Issuer并删除，自己退出登录
 //	@receiver r
 //	@param issuer
 //	@return err
-func (r SignRepo) DeleteSign(issuer string) (err error) {
+func (r SignRepo) DeleteSignByIssuer(issuer string) (err error) {
 	var Temp model.Sign
 	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).Delete(&Temp).Error
 	return
 }
 
-//根据LoginId删除信息,被别人下线
+// DeleteSignByLoginId
+//
+//	@Description: 根据LoginId删除信息,被别人下线
+//	@receiver r
+//	@param login_id
+//	@return err
+func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
+	var Temp model.Sign
+	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", LoginId), login_id).Delete(&Temp).Error
+	return
+}
+
+// ShowDevices
+//
+//	@Description: 展示常用设备
+//	@receiver r
+//	@param user_id
+//	@return err
+func (r SignRepo) ShowDevices(req types.DevicesReq) (resp types.DevicesResp, err error) {
+	fmt.Println(req.PageNumber, req.LineNumber)
+	offset := (req.PageNumber - 1) * req.LineNumber
+	r.DB.Model(&model.Sign{}).
+		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
+		Count(&resp.Total)
+	if resp.Total == 0 {
+		return
+	}
+	err = r.DB.Model(&model.Sign{}).
+		Where(fmt.Sprintf("%s=?", UserId), req.UserId).
+		Offset(offset).
+		Limit(req.LineNumber).
+		Find(&resp.Devices).Error
+	return
+}
+
+// ModifyDeviceName
+//
+//	@Description: 根据设备的login_id修改设备名称
+//	@receiver r
+//	@param login_id
+//	@param device_name
+//	@return err
+func (r SignRepo) ModifyDeviceName(req types.ModifyDeviceNameReq) (err error) {
+	err = r.DB.Table(SignTableName).
+		Where(fmt.Sprintf("%s=?", LoginId), req.LoginId).
+		UpdateColumn(DeviceName, req.DeviceName).Error
+	return
+}

@@ -53,10 +53,6 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
 			}
-			//告诉后面的人如何拿到token里面的数据
-			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
-				response.NewResponse(c).Success(data)
-			}
 		})
 		//是否可以自动登录
 		rg.POST("/auto", api.CheckAutoLogin)
@@ -66,7 +62,13 @@ func registerRoutes(routeManager *manager.RouteManager) {
 
 	// 展示常用设备页面相关操作路由
 	routeManager.RegisterDevicesRoutes(func(rg *gin.RouterGroup) {
-
+		rg.Use(middleware.ReflashAtoken())
+		//移除常用设备
+		rg.DELETE("/remove", api.RemoveDevice)
+		//展示常用设备
+		rg.GET("/show", api.ShowDevices)
+		//修改设备名称
+		rg.PUT("/modify", api.ModifyDeviceName)
 	})
 	// 个人信息相关路由
 	routeManager.RegisterProfileRoutes(func(rg *gin.RouterGroup) {
