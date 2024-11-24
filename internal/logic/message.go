@@ -6,7 +6,6 @@ import (
 	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
-	"tgwp/util/snowflake"
 )
 
 type MessageLogic struct {
@@ -24,17 +23,7 @@ func NewMessageLogic() *MessageLogic {
 //	@return resp
 //	@return err
 func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessageResp, err error) {
-	// 生成雪花ID生成器
-	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
-	if err != nil {
-		zlog.Errorf("create snowflake node error:%v", err)
-		err = response.ErrResp(err, response.SNOWFLAKE_ID_GENERATE_ERROR)
-		return
-	}
-	// 生成雪花ID
-	id := node.Generate().Int64()
-
-	message, err := repo.NewMessageRepo(global.DB).CreateMessage(id, req.Content, req.Type)
+	message, err := repo.NewMessageRepo(global.DB).CreateMessage(req.Content, req.Type)
 	if err != nil {
 		zlog.Errorf("create message error:%v", err)
 		err = response.ErrResp(err, response.DATABASE_ERROR)
@@ -43,7 +32,7 @@ func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessag
 		zlog.Infof("create message success, id:%d , content:\"%s\", type:%d", message.ID, message.Content, message.Type)
 	}
 
-	resp.MessageID = id
+	resp.MessageID = message.ID
 
 	return
 }
@@ -57,19 +46,8 @@ func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessag
 //	@return resp
 //	@return err
 func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp types.JoinMessageResp, err error) {
-	// 生成雪花ID生成器
-	node, err := snowflake.NewNode(global.DEFAULT_NODE_ID)
-	if err != nil {
-		zlog.Errorf("create snowflake node error:%v", err)
-		err = response.ErrResp(err, response.SNOWFLAKE_ID_GENERATE_ERROR)
-		return
-	}
-
-	// 生成雪花ID
-	id := node.Generate().Int64()
-
 	// 更新数据库
-	user_message, err := repo.NewMessageRepo(global.DB).CreateUserMessage(id, req.MessageID, UserID)
+	user_message, err := repo.NewMessageRepo(global.DB).CreateUserMessage(req.MessageID, UserID)
 	if err != nil {
 		zlog.Errorf("create message error:%v", err)
 		err = response.ErrResp(err, response.DATABASE_ERROR)
@@ -78,7 +56,7 @@ func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp
 		zlog.Infof("create message success, user_id:%d, message_id:%d", user_message.UserID, user_message.MessageID)
 	}
 
-	resp.UserMessageID = id
+	resp.UserMessageID = user_message.ID
 
 	return
 }
