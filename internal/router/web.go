@@ -34,7 +34,6 @@ func listen() (*gin.Engine, error) {
 
 	// 注册各业务路由组的具体路由
 	registerRoutes(routeManager)
-	messageRoutes(routeManager)
 
 	return r, nil
 }
@@ -52,6 +51,10 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.GET("/test", middleware.ReflashAtoken(), func(c *gin.Context) {
 			if token, exists := c.Get(global.AUTH_ENUMS_ATOKEN); exists {
 				response.NewResponse(c).Success(token)
+			}
+			//告诉后面的人如何拿到token里面的数据
+			if data, exists := c.Get(global.TOKEN_USER_ID); exists {
+				response.NewResponse(c).Success(data)
 			}
 		})
 		//是否可以自动登录
@@ -83,8 +86,9 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
-		//解析 jwt，获取 user_id
-		rg.Use(middleware.ReflashAtoken())
+		//正式使用，测试时需注释掉
+		//解析 jwt
+		//rg.Use(middleware.ReflashAtoken())
 
 		//获得权限组
 		rg.GET("/power", api.GetPower)
@@ -94,44 +98,54 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		{
 			//检验权限
 			TeamStructure.Use(middleware.PermissionMiddleware())
-			// 获取 完整团队架构
+			// 获取 该团队架构全部节点
 			TeamStructure.GET("/collection", api.GetTeamStructure)
 			//保存 更改了的节点信息
 			TeamStructure.PUT("/change", api.PutTeamNode)
 			//新增团队
-			TeamStructure.POST("/add", api.CreateTeam)
+			TeamStructure.POST("/create", api.CreateTeam)
 		}
 
 		// 团队成员列表子路由
 		MemberList := rg.Group("/memberlist")
 		{
-			//查询团队列表--用户基础信息
+			//查询团队内成员列表--成员简单信息
 			MemberList.GET("/get", api.GetTeamMemberlist)
-			//新增用户
-			MemberList.POST("/post", middleware.PermissionMiddleware(), api.CreateTeamMember)
-			//删除用户
-			MemberList.DELETE("/delete", middleware.PermissionMiddleware(), api.DeleteTeamMember)
+			//新增成员
+			MemberList.POST("/create", middleware.PermissionMiddleware(), api.CreateTeamMember)
+			//删除成员                     // user_id 之后要删除
+			MemberList.DELETE("/delete/:user_id/:team_id/:member_id", middleware.PermissionMiddleware(), api.DeleteTeamMember)
 		}
 
 		// 团队成员信息管理子路由
 		MemberMsg := rg.Group("/membermsg")
 		{
-			//查询用户详细信息
+			//查询成员详细信息
 			MemberMsg.GET("/details", api.GetMemberDetail)
-			//给用户点赞/取消赞
+			//给成员点赞/取消赞
 			MemberMsg.PUT("/like", api.PutLikeCount)
-			//编辑用户信息
-			MemberMsg.PUT("/save", middleware.PermissionMiddleware(), api.PutTeamMember)
+			//编辑成员信息
+			MemberMsg.PUT("/change", middleware.PermissionMiddleware(), api.PutTeamMember)
 		}
 	})
-}
 
-// messageRoutes 注册消息相关路由的具体处理函数
-func messageRoutes(routeManager *manager.RouteManager) {
-	routeManager.HandleMessageRoutes(func(rg *gin.RouterGroup) {
+	// 消息相关路由组
+	routeManager.RegisterMessageRoutes(func(rg *gin.RouterGroup) {
+		// 建立消息源
 		rg.POST("/set", api.SetMessage)
+		// 将消息与用户绑定
 		rg.POST("/join", middleware.ReflashAtoken(), api.JoinMessage)
+		// 获取消息列表(分页)
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetMessage)
+		// 标记已读
 		rg.POST("/markread", api.MarkReadMessage)
+		// 一键发送消息
+		rg.POST("/send", middleware.ReflashAtoken(), api.SendMessage)
+	})
+
+	// 飞书相关路由组
+	routeManager.RegisterFeiShuRoutes(func(rg *gin.RouterGroup) {
+		// 获取飞书二维表格
+		rg.GET("/get", middleware.ReflashAtoken(), api.GetFeiShuList)
 	})
 }

@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"tgwp/global"
 	"tgwp/internal/model"
@@ -10,12 +11,12 @@ import (
 	"time"
 )
 
-type CreateTeamRepo struct {
+type TeamRepo struct {
 	DB *gorm.DB
 }
 
-func NewCreateTeamRepo(db *gorm.DB) *CreateTeamRepo {
-	return &CreateTeamRepo{
+func NewTeamRepo(db *gorm.DB) *TeamRepo {
+	return &TeamRepo{
 		DB: db,
 	}
 }
@@ -27,11 +28,14 @@ func NewCreateTeamRepo(db *gorm.DB) *CreateTeamRepo {
 //	@param TeamName
 //	@return types.CreateTeamResp
 //	@return error
-func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
+
+func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
 	//创建新团队
 	err := r.DB.Model(&model.Team{}).
-		Create(&model.Team{Name: TeamName}).
+		Create(&model.Team{
+			Name: TeamName,
+		}).
 		Error
 	if err != nil {
 		zlog.Errorf("生成新团队id 失败：%v", err)
@@ -53,10 +57,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	//初始化团队架构
 	err = r.DB.Model(&model.Structure{}).
 		Create(&model.Structure{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			FatherId: global.ROOT_ID,
 			NodeName: TeamName,
 			TeamId:   TeamId,
@@ -73,10 +73,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	// 普通管理员
 	for _, url := range global.NORMAL_ADMIN_URLS {
 		rule := &model.Casbin{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Ptype: "p",
 			V0:    global.NORMAL_ADMINISTRATOR,
 			V1:    TeamId,
@@ -87,10 +83,6 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	// 超级管理员
 	for _, url := range global.SUPER_ADMIN_URLS {
 		rule := &model.Casbin{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Ptype: "p",
 			V0:    global.SUPERL_ADMINISTRATOR, // 超级管理员
 			V1:    TeamId,
@@ -112,48 +104,45 @@ func (r CreateTeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, erro
 	return &types.CreateTeamResp{}, nil
 }
 
-type TeamIdRepo struct {
-	DB *gorm.DB
-}
-
-const c_teamid = "team_id"
-const c_teamname = "name"
-
-func NewTeamIdRepo(db *gorm.DB) *TeamIdRepo {
-	return &TeamIdRepo{DB: db}
-}
-
 // GetTeamId
 //
-//	@Description:
+//	@Description:  获得团队id
 //	@receiver r
 //	@param userid
 //	@return first_team
 //	@return team
 //	@return err
-func (r TeamIdRepo) GetTeamId(userid int64) (first_team types.Team, team []types.Team, err error) {
+const c_id = "id"
+const c_teamid = "team_id"
+const c_teamname = "name"
+
+func (r TeamRepo) GetTeamId(userid int64) (types.Team, []types.Team, error) {
 	defer util.RecordTime(time.Now())()
-	err = r.DB.Model(&model.Team_Member_Structure{}).
-		Select(c_teamid, c_teamname).
-		Joins("JOIN team on team.id = team_member_structure.team_id").
-		Where(&model.Team_Member_Structure{
-			MemberId: userid,
-		}).
+
+	var first_team types.Team
+	var team []types.Team
+
+	//查询第一个团队
+	err := r.DB.Model(&model.Team{}).
+		Select("team.id, team.name").
+		Joins("JOIN team_member_structure AS tms ON tms.team_id = team.id").
+		Where("tms.member_id = ?", userid).
 		First(&first_team).
 		Error
 	if err != nil {
+		zlog.Warnf("未找到用户的第一个团队：%v", userid)
 		zlog.Errorf("用户所在的第一个团队信息获取失败：%v", err)
-		return
+		return types.Team{}, nil, err
 	}
 
+	//查询所有团队
 	err = r.DB.Model(&model.Team{}).
-		Joins("JOIN team on team.id = team_member_structure.team_id").
-		Select(C_Id, c_teamname).
+		Select(fmt.Sprintf("%s, %s", c_id, c_teamname)).
 		Find(&team).
 		Error
 	if err != nil {
 		zlog.Errorf("团队信息获取失败：%v", err)
-		return
+		return types.Team{}, nil, err
 	}
-	return
+	return first_team, team, nil
 }

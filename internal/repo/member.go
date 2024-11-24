@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-type MemberDetailRepo struct {
+type MemberRepo struct {
 	DB *gorm.DB
 }
 
-func NewMemberDetailRepo(db *gorm.DB) *MemberDetailRepo {
-	return &MemberDetailRepo{
+func NewMemberRepo(db *gorm.DB) *MemberRepo {
+	return &MemberRepo{
 		DB: db,
 	}
 }
@@ -30,7 +30,8 @@ func NewMemberDetailRepo(db *gorm.DB) *MemberDetailRepo {
 //	@param userID
 //	@return *types.GetMemberDetailResp
 //	@return error
-func (r *MemberDetailRepo) GetMemberDetail(userID int64) (*types.GetMemberDetailResp, error) {
+
+func (r *MemberRepo) GetMemberDetail(userID int64) (*types.GetMemberDetailResp, error) {
 	var resp types.GetMemberDetailResp
 
 	var positions []struct {
@@ -96,14 +97,6 @@ func (r *MemberDetailRepo) GetMemberDetail(userID int64) (*types.GetMemberDetail
 	return &resp, nil
 }
 
-type MemberlistRepo struct {
-	DB *gorm.DB
-}
-
-func NewMemberlistRepo(db *gorm.DB) *MemberlistRepo {
-	return &MemberlistRepo{DB: db}
-}
-
 // MemberlistRepo
 //
 //	@Description: 分页查询  用户基本信息
@@ -113,9 +106,9 @@ func NewMemberlistRepo(db *gorm.DB) *MemberlistRepo {
 //	@param Perpage
 //	@return types.MemberlistResp
 //	@return error
-func (r *MemberlistRepo) MemberlistRepo(TeamId int64, Page, Perpage int) (types.MemberlistResp, error) {
+func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.MemberlistResp, error) {
 
-	var Members []types.Members
+	Members := []types.Members{}
 
 	Offset := (Page - 1) * Perpage
 	if Offset < 0 {
@@ -159,30 +152,16 @@ var (
 	SuperManger  = strconv.FormatInt(global.SUPERL_ADMINISTRATOR, 10)
 )
 
-type CreateMemberRepo struct {
-	DB *gorm.DB
-}
-
-func NewCreateMemberRepo(db *gorm.DB) *CreateMemberRepo {
-	return &CreateMemberRepo{
-		DB: db,
-	}
-}
-
 // CreateMember
 //
 //	@Description: 新增团队成员
 //	@receiver r
 //	@param req
 //	@return error
-func (r *CreateMemberRepo) CreateMember(req types.CreateMemberReq) error {
+func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 	defer util.RecordTime(time.Now())()
 	err := r.DB.Model(&model.Member{}).
 		Create(&model.Member{
-			CommonModel: model.CommonModel{
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			},
 			Name:       req.Name,
 			Sex:        req.Sex,
 			CreateDate: req.CreateDate,
@@ -230,7 +209,7 @@ func (r *CreateMemberRepo) CreateMember(req types.CreateMemberReq) error {
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				//说明没有“未分配团队”的团队id不存在，重新创建
-				_, err = NewCreateTeamRepo(global.DB).CreateTeam(init_teamname)
+				_, err = NewTeamRepo(global.DB).CreateTeam(init_teamname)
 				if err != nil {
 					zlog.Errorf("创建未分配团队失败: %v", err)
 					return err
@@ -323,16 +302,6 @@ func (r *CreateMemberRepo) CreateMember(req types.CreateMemberReq) error {
 	return nil
 }
 
-type DeleteMemberRepo struct {
-	DB *gorm.DB
-}
-
-func NewDeleteMemberRepo(db *gorm.DB) *DeleteMemberRepo {
-	return &DeleteMemberRepo{
-		DB: db,
-	}
-}
-
 // DeleteMember
 //
 //	@Description: 删除团队成员
@@ -340,16 +309,17 @@ func NewDeleteMemberRepo(db *gorm.DB) *DeleteMemberRepo {
 //	@param MemberId
 //	@param TeamId
 //	@return error
-func (r *DeleteMemberRepo) DeleteMember(MemberId, TeamId int64) error {
+func (r *MemberRepo) DeleteMember(MemberId, TeamId int64) error {
 	defer util.RecordTime(time.Now())()
 
 	//删除 用户 和 团队 关联的职位
 	err := r.DB.Model(&model.Team_Member_Structure{}).
-		Delete(&model.Team_Member_Structure{}).
 		Where(&model.Team_Member_Structure{
 			MemberId: MemberId,
 			TeamId:   TeamId,
-		}).Error
+		}).
+		Delete(&model.Team_Member_Structure{}).
+		Error
 	if err != nil {
 		zlog.Errorf("删除当前成员和团队相关职位信息失败: %v", err)
 		return err
@@ -357,11 +327,12 @@ func (r *DeleteMemberRepo) DeleteMember(MemberId, TeamId int64) error {
 
 	//删除 用户 和 团队 关联的权限级别
 	err = r.DB.Model(&model.User_Power{}).
-		Delete(&model.User_Power{}).
 		Where(&model.User_Power{
 			MemberId: MemberId,
 			TeamId:   TeamId,
-		}).Error
+		}).
+		Delete(&model.User_Power{}).
+		Error
 	if err != nil {
 		zlog.Errorf("删除当前成员和团队相关权限级别失败: %v", err)
 		return err
@@ -369,12 +340,13 @@ func (r *DeleteMemberRepo) DeleteMember(MemberId, TeamId int64) error {
 
 	//删除 用户 和 团队 关联的 casbin表
 	err = r.DB.Model(&model.Casbin{}).
-		Delete(&model.Casbin{}).
 		Where(&model.Casbin{
 			Ptype: "g",
 			V0:    MemberId,
 			V1:    TeamId,
-		}).Error
+		}).
+		Delete(&model.Casbin{}).
+		Error
 	if err != nil {
 		zlog.Errorf("删除当前成员和团队相关casbin信息失败: %v", err)
 		return err
@@ -386,21 +358,11 @@ func (r *DeleteMemberRepo) DeleteMember(MemberId, TeamId int64) error {
 		Delete(&model.Like_Status{}).
 		Error
 	if err != nil {
-		zlog.Errorf("删除当前成员相关点赞信息信息失败: %v", err)
+		zlog.Errorf("删除当前成员相关点赞信息失败: %v", err)
 		return err
 	}
 
 	return nil
-}
-
-type PutMemberRepo struct {
-	DB *gorm.DB
-}
-
-func NewPutMemberRepo(db *gorm.DB) *PutMemberRepo {
-	return &PutMemberRepo{
-		DB: db,
-	}
 }
 
 // PutMember
@@ -409,28 +371,29 @@ func NewPutMemberRepo(db *gorm.DB) *PutMemberRepo {
 //	@receiver r
 //	@param req
 //	@return error
-func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
+func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 	defer util.RecordTime(time.Now())()
 
 	//更改基本信息
-	err := r.DB.Model(&model.Member{}).Updates(&model.Member{
-		Name:       req.Name,
-		Sex:        req.Sex,
-		CreateDate: req.CreateDate,
-		IdCard:     req.IdCard,
-		PhoneNum:   req.PhoneNum,
-		Email:      req.Email,
-		Grade:      req.Grade,
-		Major:      req.Major,
-		StudentID:  req.StudentID,
-		Experience: req.Experience,
-		Status:     req.Status,
-	}).Where(&model.Member{
-		CommonModel: model.CommonModel{
-			ID: req.ID,
-		},
-		PhoneNum: req.PhoneNum,
-	}).Error
+	err := r.DB.Model(&model.Member{}).
+		Where(&model.Member{
+			CommonModel: model.CommonModel{
+				ID: req.ID,
+			},
+		}).
+		Updates(&model.Member{
+			Name:       req.Name,
+			Sex:        req.Sex,
+			CreateDate: req.CreateDate,
+			IdCard:     req.IdCard,
+			PhoneNum:   req.PhoneNum,
+			Email:      req.Email,
+			Grade:      req.Grade,
+			Major:      req.Major,
+			StudentID:  req.StudentID,
+			Experience: req.Experience,
+			Status:     req.Status,
+		}).Error
 	if err != nil {
 		zlog.Errorf("修改成员信息失败: %v", err)
 		return err
@@ -461,10 +424,12 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 		//更新 user_power权限表
 		err = r.DB.Model(&model.User_Power{}).
-			Update("level", position.Level).
 			Where(&model.User_Power{
 				MemberId: req.ID,
 				TeamId:   position.TeamId,
+			}).
+			Updates(&model.User_Power{
+				Level: position.Level,
 			}).Error
 		if err != nil {
 			zlog.Errorf("更新成员在当前团队的权限级别失败: %v", err)
@@ -473,12 +438,13 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 		//删除 用户 和 团队 关联的 旧casbin表
 		err = r.DB.Model(&model.Casbin{}).
-			Delete(&model.Casbin{}).
 			Where(&model.Casbin{
 				Ptype: "g",
 				V0:    req.ID,
 				V1:    position.TeamId,
-			}).Error
+			}).
+			Delete(&model.Casbin{}).
+			Error
 		if err != nil {
 			zlog.Errorf("删除成员在当前团队旧casbin信息失败: %v", err)
 			return err
@@ -516,16 +482,7 @@ func (r *PutMemberRepo) PutMember(req types.PutTeamMemberReq) error {
 	return nil
 }
 
-// 留给淳桂                    //
-type JudgeUserRepo struct {
-	DB *gorm.DB
-}
-
-func NewJudgeUserRepo(db *gorm.DB) *JudgeUserRepo {
-	return &JudgeUserRepo{DB: db}
-}
-
-// JudgeUser
+// 留给淳桂 //
 //
 //	@Description: 通过手机号判断是不是团队成员
 //	@receiver r
@@ -533,7 +490,7 @@ func NewJudgeUserRepo(db *gorm.DB) *JudgeUserRepo {
 //	@return int64
 //	@return bool
 //	@return error
-func (r JudgeUserRepo) JudgeUser(Phone uint64) (int64, bool, error) {
+func (r MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
 	defer util.RecordTime(time.Now())()
 
 	var UserID int64
@@ -547,9 +504,47 @@ func (r JudgeUserRepo) JudgeUser(Phone uint64) (int64, bool, error) {
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Errorf("未找到该记录：: %v", err)
 			return 0, false, nil
 		}
+		zlog.Errorf("查询失败：: %v", err)
 		return 0, false, err
 	}
 	return UserID, true, nil
+}
+
+// 留给小帅哥 //
+const PHONENUM = "phone_num"
+
+// GetPhone
+//
+//	@Description:  飞书 -- 获取登录用户的手机号
+//	@receiver r
+//	@param UserId
+//	@return int64
+//	@return bool
+//	@return error
+func (r MemberRepo) GetPhoneNum(UserId int64) (string, bool, error) {
+	defer util.RecordTime(time.Now())()
+
+	var PhoneNum string
+
+	err := r.DB.Model(&model.Member{}).
+		Select(PHONENUM).
+		Where(&model.Member{
+			CommonModel: model.CommonModel{
+				ID: UserId,
+			},
+		}).
+		First(&PhoneNum).
+		Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Errorf("未找到该记录：: %v", err)
+			return "", false, nil
+		}
+		zlog.Errorf("查询失败：: %v", err)
+		return "", false, err
+	}
+	return PhoneNum, true, nil
 }

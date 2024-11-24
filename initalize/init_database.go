@@ -67,4 +67,10 @@ func migrateTables() {
 
 	// 自动迁移 user_power 表，确保表结构存在
 	global.DB.AutoMigrate(&model.User_Power{})
+
+	// 自动迁移 message 表，确保表结构存在
+	global.DB.AutoMigrate(&model.Message{})
+
+	// 自动迁移 user_message 表，确保表结构存在
+	global.DB.AutoMigrate(&model.UserMessage{})
 }

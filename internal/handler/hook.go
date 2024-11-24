@@ -15,7 +15,7 @@ func RegisterHook(db *gorm.DB) {
 func BeforeCreateBaseModel(db *gorm.DB) {
 	if db.Statement.Schema != nil {
 		if baseModel, ok := db.Statement.Model.(*model.CommonModel); ok {
-			baseModel.BeforeCreate()
+			baseModel.BeforeCreate(db)
 		}
 	}
 }

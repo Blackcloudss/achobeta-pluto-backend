@@ -31,6 +31,12 @@ type Message struct {
 	IsRead        int    `json:"is_read"`
 }
 
+// GetMessageReq 获取消息请求（入参）
+type GetMessageReq struct {
+	Page      int   `form:"page"`
+	Timestamp int64 `form:"timestamp"`
+}
+
 // GetMessageResp 获取消息请求（出参）
 type GetMessageResp struct {
 	IsUpdated  bool      `json:"is_updated"`
