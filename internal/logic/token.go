@@ -85,6 +85,39 @@ func (l *TokenLogic) ReflashRtoken(ctx context.Context, req types.TokenReq) (res
 		//表明找不到issuer相等的，即rtoken是无效的
 		return resp, response.ErrResp(err, response.TOKEN_NOT_VALID)
 	}
+	//生成新的token
+	resp, err = NewTokenLogic().GenRtoken(ctx, data)
+	if err != nil {
+		return resp, response.ErrResp(err, response.COMMON_FAIL)
+	}
+	return resp, nil
+}
+
+// AutoLogin
+//
+//	@Description: 用于验证自动登录
+//	@receiver l
+//	@param ctx
+//	@param req
+//	@return resp
+//	@return err
+func (l *TokenLogic) AutoLogin(ctx context.Context, req types.TokenReq) (resp types.TokenResp, err error) {
+	//解析token是否有效，并取出上一次的值
+	data, err := util.IdentifyToken(ctx, req.Token)
+	if err != nil {
+		//对应token无效，直接让他返回
+		return resp, response.ErrResp(err, response.TOKEN_IS_EXPIRED)
+	}
+	//判断其是否为rtoken
+	if data.Class != global.AUTH_ENUMS_RTOKEN {
+		return resp, response.ErrResp(err, response.TOKEN_TYPE_ERROR)
+	}
+	//判断rtoken的签名是否有效
+	err = repo.NewSignRepo(global.DB).CompareSign(data.Issuer)
+	if err != nil {
+		//表明找不到issuer相等的，即rtoken是无效的
+		return resp, response.ErrResp(err, response.TOKEN_NOT_VALID)
+	}
 	//更新上线时间
 	repo.NewSignRepo(global.DB).ReflashOnlineTime(data.Issuer)
 	//生成新的token
@@ -93,4 +126,5 @@ func (l *TokenLogic) ReflashRtoken(ctx context.Context, req types.TokenReq) (res
 		return resp, response.ErrResp(err, response.COMMON_FAIL)
 	}
 	return resp, nil
+	return
 }

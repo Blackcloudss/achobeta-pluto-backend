@@ -54,7 +54,9 @@ func (r SignRepo) CompareSign(issuer string) error {
 //	@receiver r
 //	@param issuer
 func (r SignRepo) ReflashOnlineTime(issuer string) {
-	r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Issuer), issuer).UpdateColumn(OnlineTime, time.Now())
+	r.DB.Table(SignTableName).
+		Where(fmt.Sprintf("%s=?", Issuer), issuer).
+		Updates(model.Sign{OnlineTime: time.Now()})
 }
 
 // CheckUserId
