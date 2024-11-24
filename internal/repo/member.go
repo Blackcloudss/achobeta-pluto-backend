@@ -484,7 +484,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 // 留给淳桂 //
 //
-//	@Description: 通过手机号判断是游客还是团队成员
+//	@Description: 通过手机号判断是不是团队成员
 //	@receiver r
 //	@param Phone
 //	@return int64

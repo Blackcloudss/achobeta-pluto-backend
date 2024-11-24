@@ -65,7 +65,7 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	}
 	resp.Ip = ip
 	resp.UserAgent = user_agent
-	resp.LoginId = snowflake.GenId(node)
+	resp.LoginId = node.Generate().Int64()
 	//这里做关于团队成员的判断，思凯会设计一个函数，我传手机号，看看他团队表内有么有
 	resp.IsTeam = true //暂时认定都是团队成员
 	//一个手机号对应的user_id是一样的

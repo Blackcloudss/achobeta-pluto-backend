@@ -10,8 +10,8 @@ const (
 	DEFAULT_CONFIG_FILE_PATH = "/config.yaml"
 	REDIS_PHONE_CODE         = "Achobeta:phone.login.code:%s:string"
 	REDIS_PHONE              = "Achobeta:phone.login.effective:%s:string"
-	ATOKEN_EFFECTIVE_TIME    = time.Second * 300
-	RTOKEN_EFFECTIVE_TIME    = time.Hour * 1
+	ATOKEN_EFFECTIVE_TIME    = time.Hour * 12
+	RTOKEN_EFFECTIVE_TIME    = time.Hour * 24 * 30
 	AUTH_ENUMS_ATOKEN        = "atoken"
 	AUTH_ENUMS_RTOKEN        = "rtoken"
 	DEFAULT_NODE_ID          = 1
