@@ -26,6 +26,10 @@ func GetUserDetail(c *gin.Context) {
 	return
 }
 
+// PutUserLikeCount
+//
+//	@Description: 用户给自己点赞
+//	@param c
 func PutUserLikeCount(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
