@@ -57,7 +57,7 @@ func (l *StructureLogic) GetStructure(ctx context.Context, req types.TeamStructR
 	}
 	Root := root[0].MyselfId
 
-	// 递归获取节点信息
+	// 递归获取节点信息  获取根节点下的子节点
 	err = l.GetStructureNode(ctx, Root, req.TeamId, &teamStructures)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

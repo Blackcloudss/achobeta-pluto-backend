@@ -117,11 +117,11 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 
 	//先这样，要美观的话之后更改
 	err := r.DB.Table("member").
-		Select(`member.id AS member_id, member.name, member.grade, member.major, member.status, 
+		Select(`member.id, member.name, member.grade, member.major, member.status, 
 			member.phone_num, GROUP_CONCAT(structure.node_name) AS positions`).
 		Joins(`JOIN team_member_structure ON team_member_structure.member_id = member.id`).
 		Joins(`JOIN structure ON structure.id = team_member_structure.structure_id`).
-		Where("team_member_structure.team_id = ?", TeamId).
+		Where("team_member_structure.deleted_at IS NULL AND team_member_structure.team_id = ?", TeamId).
 		Group("member.id"). // 按 Member 分组
 		Offset(Offset).
 		Limit(Perpage).
@@ -480,37 +480,6 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 	}
 	return nil
-}
-
-// 留给淳桂 //
-//
-//	@Description: 通过手机号判断是不是团队成员
-//	@receiver r
-//	@param Phone
-//	@return int64
-//	@return bool
-//	@return error
-func (r MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
-	defer util.RecordTime(time.Now())()
-
-	var UserID int64
-
-	err := r.DB.Model(&model.Member{}).
-		Select(C_Id).
-		Where(&model.Member{
-			PhoneNum: Phone,
-		}).
-		First(&UserID).
-		Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			zlog.Errorf("未找到该记录：: %v", err)
-			return 0, false, nil
-		}
-		zlog.Errorf("查询失败：: %v", err)
-		return 0, false, err
-	}
-	return UserID, true, nil
 }
 
 // 留给小帅哥 //

@@ -12,6 +12,7 @@ type TeamStructure struct {
 	FatherId  int64  `json:"father_id" binding:"required"`  // 父节点 ID
 	NodeName  string `json:"node_name"  binding:"required"` // 架构名称（职位名称等）
 	IsDeleted int8   `json:"is_deleted" binding:"required"` //查看是否被删除
+
 }
 
 // 查询团队架构（出参）

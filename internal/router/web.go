@@ -86,10 +86,6 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
-		//正式使用，测试时需注释掉
-		//解析 jwt
-		//rg.Use(middleware.ReflashAtoken())
-
 		//获得权限组
 		rg.GET("/power", api.GetPower)
 
