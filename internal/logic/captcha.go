@@ -85,7 +85,6 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 			UserId:     user_id,
 			Issuer:     issuer,
 			OnlineTime: time.Now(),
-			LoginId:    resp.LoginId,
 			IP:         resp.Ip,
 			UserAgent:  resp.UserAgent,
 		}

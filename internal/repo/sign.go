@@ -10,11 +10,11 @@ import (
 
 const (
 	SignTableName = "sign"
-	OnlineTime    = "online_time"
 	Issuer        = "issuer"
-	Phone         = "phone"
+	IP            = "ip"
+	UserAgent     = "user_agent"
 	UserId        = "user_id"
-	LoginId       = "login_id"
+	LoginId       = "id"
 	DeviceName    = "device_name"
 	CreatedAt     = "created_at"
 )
@@ -60,24 +60,24 @@ func (r SignRepo) ReflashOnlineTime(issuer string) {
 		Updates(model.Sign{OnlineTime: time.Now()})
 }
 
-// CheckUserId
+// CheckLoginId
 //
-//	@Description: 根据手机号查找用户是否已经有过userid，确保userid唯一
+//	@Description: 根据user_agent,ip,user_id是否已经有过login_id，确保login_id唯一
 //	@receiver r
 //	@param phone
-func (r SignRepo) CheckUserId(phone string) (int64, error) {
+func (r SignRepo) CheckLoginId(user_id, ip, user_agent string) (int64, error) {
 	//建立一个临时结构体
 	var Temp struct {
-		UserId int64 `gorm:"column:user_id"` // 假设你的数据库列名是 user_id
+		LoginId int64 `gorm:"column:id"` // LoginId映射到雪花id
 	}
-	err := r.DB.Table(SignTableName).Select(UserId).
-		Where(fmt.Sprintf("%s=?", Phone), phone).
+	err := r.DB.Table(SignTableName).Select(LoginId).
+		Where(fmt.Sprintf("%s=?,%s=?,%s=?", UserId, IP, UserAgent), user_id, ip, user_agent).
 		Take(&Temp).Error
 	if err != nil {
 		return 0, err
 	}
 	// 返回检索到的 user_id
-	return Temp.UserId, nil
+	return Temp.LoginId, nil
 }
 
 // DeleteSignByIssuer
