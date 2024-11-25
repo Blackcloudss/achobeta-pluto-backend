@@ -74,13 +74,11 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 	}
 	resp.Ip = ip
 	resp.UserAgent = user_agent
-	//关于login_id问题下一次解决
-	resp.LoginId = node.Generate().Int64()
 	if req.AutoLogin {
 		issuer := snowflake.GenId(node)
 		resp.Atoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_ATOKEN, issuer, user_id))
 		resp.Rtoken, err = util.GenToken(util.FullToken(global.AUTH_ENUMS_RTOKEN, issuer, user_id))
-		//将点了自动登录的用户的login_id,issuer插入签名表
+		//将点了自动登录的用户的信息插入签名表
 		data := model.Sign{
 			UserId:     user_id,
 			Issuer:     issuer,
@@ -88,7 +86,8 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 			IP:         resp.Ip,
 			UserAgent:  resp.UserAgent,
 		}
-		err = repo.NewSignRepo(global.DB).InsertSign(data)
+		//由于这个login_id只是用于移除常用设备，和填充常用设备的名字，所以也是只有自动登陆的有
+		resp.LoginId, err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "InsertSign err: %v", err)
 			return resp, response.ErrResp(err, response.COMMON_FAIL)
