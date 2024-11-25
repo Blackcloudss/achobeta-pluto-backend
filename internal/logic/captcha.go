@@ -86,8 +86,8 @@ func (l *CodeLogic) GenLoginData(ctx context.Context, req types.PhoneReq, ip, us
 			IP:         resp.Ip,
 			UserAgent:  resp.UserAgent,
 		}
-		//由于这个login_id只是用于移除常用设备，和填充常用设备的名字，所以也是只有自动登陆的有
-		resp.LoginId, err = repo.NewSignRepo(global.DB).InsertSign(data)
+		//由于这个id只是用于移除常用设备，和填充常用设备的名字，所以也是只有自动登陆的有
+		resp.Id, err = repo.NewSignRepo(global.DB).InsertSign(data)
 		if err != nil {
 			zlog.CtxErrorf(ctx, "InsertSign err: %v", err)
 			return resp, response.ErrResp(err, response.COMMON_FAIL)
