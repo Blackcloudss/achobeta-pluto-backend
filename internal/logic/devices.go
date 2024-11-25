@@ -46,7 +46,7 @@ func (l *DevicesLogic) ShowDevices(ctx context.Context, req types.DevicesReq) (r
 //	@return err
 func (l *DevicesLogic) RemoveDevice(ctx context.Context, req types.RemoveDeviceReq) (err error) {
 	defer util.RecordTime(time.Now())()
-	err = repo.NewSignRepo(global.DB).DeleteSignByLoginId(req.LoginId)
+	err = repo.NewSignRepo(global.DB).DeleteSignByLoginId(req.Id)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "error deleting sign by loginId: %v", err)
 		return response.ErrResp(err, response.COMMON_FAIL)
@@ -56,7 +56,7 @@ func (l *DevicesLogic) RemoveDevice(ctx context.Context, req types.RemoveDeviceR
 
 // ModifyDeviceName
 //
-//	@Description: 根据login_id修改设备名字
+//	@Description: 根据id修改设备名字
 //	@receiver l
 //	@param ctx
 //	@param req

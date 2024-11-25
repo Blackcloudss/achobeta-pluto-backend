@@ -12,7 +12,7 @@ const (
 	SignTableName = "sign"
 	Issuer        = "issuer"
 	UserId        = "user_id"
-	LoginId       = "id"
+	Id            = "id"
 	DeviceName    = "device_name"
 	CreatedAt     = "created_at"
 )
@@ -77,9 +77,9 @@ func (r SignRepo) DeleteSignByIssuer(issuer string) (err error) {
 //	@receiver r
 //	@param login_id
 //	@return err
-func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
+func (r SignRepo) DeleteSignByLoginId(id int64) (err error) {
 	var Temp model.Sign
-	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", LoginId), login_id).Delete(&Temp).Error
+	err = r.DB.Table(SignTableName).Where(fmt.Sprintf("%s=?", Id), id).Delete(&Temp).Error
 	return
 }
 
@@ -119,7 +119,7 @@ func (r SignRepo) ShowDevices(req types.DevicesReq) (resp types.DevicesResp, err
 //	@return err
 func (r SignRepo) ModifyDeviceName(req types.ModifyDeviceNameReq) (err error) {
 	err = r.DB.Table(SignTableName).
-		Where(fmt.Sprintf("%s=?", LoginId), req.LoginId).
+		Where(fmt.Sprintf("%s=?", Id), req.Id).
 		UpdateColumn(DeviceName, req.DeviceName).Error
 	return
 }
