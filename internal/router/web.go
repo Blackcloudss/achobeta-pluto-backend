@@ -144,4 +144,12 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		// 获取飞书二维表格
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetFeiShuList)
 	})
+
+	// 个人中心相关路由组
+	routeManager.RegisterUserProfileRoutes(func(rg *gin.RouterGroup) {
+		//查询成员详细信息
+		rg.GET("/details", middleware.ReflashAtoken(), api.GetUserDetail)
+		//给成员点赞/取消赞
+		rg.PUT("/like", middleware.ReflashAtoken(), api.PutUserLikeCount)
+	})
 }

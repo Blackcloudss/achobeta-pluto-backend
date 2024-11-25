@@ -10,11 +10,9 @@ import (
 
 const (
 	SignTableName = "sign"
-	OnlineTime    = "online_time"
 	Issuer        = "issuer"
-	Phone         = "phone"
 	UserId        = "user_id"
-	LoginId       = "login_id"
+	LoginId       = "id"
 	DeviceName    = "device_name"
 	CreatedAt     = "created_at"
 )
@@ -29,13 +27,14 @@ func NewSignRepo(db *gorm.DB) *SignRepo {
 
 // InsertSign
 //
-//	@Description: 插入数据到sign表中
+//	@Description: 插入数据到sign表中,同时返回雪花id作为login_id
 //	@receiver r
 //	@param data
 //	@return error
-func (r SignRepo) InsertSign(data model.Sign) error {
-	return r.DB.Table(SignTableName).
+func (r SignRepo) InsertSign(data model.Sign) (id int64, err error) {
+	err = r.DB.Table(SignTableName).
 		Create(&data).Error
+	return data.ID, err
 }
 
 // CompareSign
@@ -58,26 +57,6 @@ func (r SignRepo) ReflashOnlineTime(issuer string) {
 	r.DB.Table(SignTableName).
 		Where(fmt.Sprintf("%s=?", Issuer), issuer).
 		Updates(model.Sign{OnlineTime: time.Now()})
-}
-
-// CheckUserId
-//
-//	@Description: 根据手机号查找用户是否已经有过userid，确保userid唯一
-//	@receiver r
-//	@param phone
-func (r SignRepo) CheckUserId(phone string) (int64, error) {
-	//建立一个临时结构体
-	var Temp struct {
-		UserId int64 `gorm:"column:user_id"` // 假设你的数据库列名是 user_id
-	}
-	err := r.DB.Table(SignTableName).Select(UserId).
-		Where(fmt.Sprintf("%s=?", Phone), phone).
-		Take(&Temp).Error
-	if err != nil {
-		return 0, err
-	}
-	// 返回检索到的 user_id
-	return Temp.UserId, nil
 }
 
 // DeleteSignByIssuer
@@ -111,9 +90,7 @@ func (r SignRepo) DeleteSignByLoginId(login_id int64) (err error) {
 //	@param user_id
 //	@return err
 func (r SignRepo) ShowDevices(req types.DevicesReq) (resp types.DevicesResp, err error) {
-	fmt.Println(req.PageNumber, req.LineNumber)
 	offset := (req.PageNumber - 1) * req.LineNumber
-
 	// 计算30天前的日期
 	thirtyDaysAgo := time.Now().AddDate(0, 0, -30)
 	//由于我们每次进行的都是删除操作，只要一条数据已经创建超过30天，那么这个rtoken必定失效了

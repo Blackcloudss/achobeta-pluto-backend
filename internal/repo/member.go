@@ -482,38 +482,34 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 	return nil
 }
 
-// 留给小帅哥 //
-const PHONENUM = "phone_num"
-
-// GetPhone
+// 留给淳桂 //
 //
-//	@Description:  飞书 -- 获取登录用户的手机号
+//	@Description: 通过手机号判断是不是团队成员
 //	@receiver r
-//	@param UserId
+//	@param Phone
 //	@return int64
 //	@return bool
 //	@return error
-func (r MemberRepo) GetPhoneNum(UserId int64) (string, bool, error) {
+func (r *MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
 	defer util.RecordTime(time.Now())()
 
-	var PhoneNum string
+	var UserID int64
 
 	err := r.DB.Model(&model.Member{}).
-		Select(PHONENUM).
+		Select(C_Id).
 		Where(&model.Member{
-			CommonModel: model.CommonModel{
-				ID: UserId,
-			},
+			PhoneNum: Phone,
 		}).
-		First(&PhoneNum).
+		First(&UserID).
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			zlog.Errorf("未找到该记录：: %v", err)
-			return "", false, nil
+			return 0, false, nil
 		}
 		zlog.Errorf("查询失败：: %v", err)
-		return "", false, err
+		return 0, false, err
 	}
-	return PhoneNum, true, nil
+	return UserID, true, nil
 }
+
