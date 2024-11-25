@@ -24,12 +24,7 @@ func PermissionMiddleware() gin.HandlerFunc {
 		ctx := zlog.GetCtxFromGin(c)
 
 		//正式使用，    测试时需注释掉
-		//userid, exists := c.Get(global.TOKEN_USER_ID)
-		//if !exists {
-		//	response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-		//	return
-		//}
-		//UserId := userid.(int64)
+		//UserId := handler.GetUserId(c)
 
 		// 绑定 team_id，根据请求方法选择解析方式
 		var req any

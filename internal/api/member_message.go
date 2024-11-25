@@ -35,12 +35,7 @@ func PutLikeCount(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
 	//正式使用，测试时需注释掉
-	//userid, exists := c.Get(global.TOKEN_USER_ID)
-	//if !exists {
-	//	response.NewResponse(c).Error(response.PARAM_NOT_VALID)
-	//	return
-	//}
-	//UserID := userid.(int64)
+	//UserId := handler.GetUserId(c)
 
 	req, err := types.BindReq[types.LikeCountReq](c)
 	if err != nil {

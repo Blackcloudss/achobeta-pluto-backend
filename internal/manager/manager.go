@@ -16,25 +16,27 @@ type Middleware func() gin.HandlerFunc
 
 // RouteManager 管理不同的路由组，按业务功能分组
 type RouteManager struct {
-	LoginRoutes   *gin.RouterGroup // 登录相关的路由组
-	ProfileRoutes *gin.RouterGroup // 个人信息相关的路由组
-	TeamRoutes    *gin.RouterGroup // 团队信息相关的路由组
-	CommonRoutes  *gin.RouterGroup //特殊功能相关的路由组
-	MessageRoutes *gin.RouterGroup // 消息相关的路由组
-	DevicesRoutes *gin.RouterGroup // 展示常用设备页面相关操作路由
-	FeiShuRoutes  *gin.RouterGroup // 飞书相关的路由组
+	LoginRoutes       *gin.RouterGroup // 登录相关的路由组
+	ProfileRoutes     *gin.RouterGroup // 个人信息相关的路由组
+	TeamRoutes        *gin.RouterGroup // 团队信息相关的路由组
+	CommonRoutes      *gin.RouterGroup //特殊功能相关的路由组
+	MessageRoutes     *gin.RouterGroup // 消息相关的路由组
+	DevicesRoutes     *gin.RouterGroup // 展示常用设备页面相关操作路由
+	FeiShuRoutes      *gin.RouterGroup // 飞书相关的路由组
+	UserProfileRoutes *gin.RouterGroup // 个人中心相关的路由组
 }
 
 // NewRouteManager 创建一个新的 RouteManager 实例，包含各业务功能的路由组
 func NewRouteManager(router *gin.Engine) *RouteManager {
 	return &RouteManager{
-		LoginRoutes:   router.Group("/api/login"),   // 初始化登录路由组
-		ProfileRoutes: router.Group("/api/profile"), // 初始化个人信息路由组
-		TeamRoutes:    router.Group("/api/team"),    // 初始化团队信息路由组
-		CommonRoutes:  router.Group("/api/common"),  //通用功能相关的路由组
-		MessageRoutes: router.Group("/api/message"), //通用功能相关的路由组
-		DevicesRoutes: router.Group("/api/devices"), // 展示常用设备页面相关操作路由
-		FeiShuRoutes:  router.Group("/api/feishu"),  //飞书相关的路由组}
+		LoginRoutes:       router.Group("/api/login"),        // 初始化登录路由组
+		ProfileRoutes:     router.Group("/api/profile"),      // 初始化个人信息路由组
+		TeamRoutes:        router.Group("/api/team"),         // 初始化团队信息路由组
+		CommonRoutes:      router.Group("/api/common"),       //通用功能相关的路由组
+		MessageRoutes:     router.Group("/api/message"),      //通用功能相关的路由组
+		DevicesRoutes:     router.Group("/api/devices"),      // 展示常用设备页面相关操作路由
+		FeiShuRoutes:      router.Group("/api/feishu"),       //飞书相关的路由组}
+		UserProfileRoutes: router.Group("/api/user-profile"), // 个人中心相关的路由组
 	}
 }
 
@@ -71,6 +73,11 @@ func (rm *RouteManager) RegisterMessageRoutes(handler PathHandler) {
 // 飞书相关的路由组
 func (rm *RouteManager) RegisterFeiShuRoutes(handler PathHandler) {
 	handler(rm.FeiShuRoutes)
+}
+
+// 个人中心相关的路由组
+func (rm *RouteManager) RegisterUserProfileRoutes(handler PathHandler) {
+	handler(rm.UserProfileRoutes)
 }
 
 // RegisterMiddleware 根据组名为对应的路由组注册中间件
