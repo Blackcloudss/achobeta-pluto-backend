@@ -19,6 +19,6 @@ func CheckAutoLogin(c *gin.Context) {
 		return
 	}
 	zlog.CtxInfof(ctx, "CheckAutoLogin request: %v", req)
-	resp, err := logic.NewTokenLogic().ReflashRtoken(ctx, req)
+	resp, err := logic.NewTokenLogic().AutoLogin(ctx, req)
 	response.Response(c, resp, err)
 }

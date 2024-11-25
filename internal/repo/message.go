@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"tgwp/internal/model"
 	"tgwp/internal/types"
+	"tgwp/log/zlog"
 	"time"
 )
 
@@ -15,49 +16,36 @@ func NewMessageRepo(db *gorm.DB) *MessageRepo {
 	return &MessageRepo{db: db}
 }
 
-// CheckMessageExists 检查消息是否存在
-//func (r MessageRepo) CheckMessageExist(message_id int64) bool {
-//	var count int64
-//	r.db.Model(&model.Message{}).Where("id =?", message_id).Count(&count)
-//	if count > 0 {
-//		return true
-//	} else {
-//		return false
-//	}
-//}
-
-// CheckUserMessageExists 检查用户消息是否存在
-//func (r MessageRepo) CheckUserMessageExist(user_message_id int64) bool {
-//	var count int64
-//	r.db.Model(&model.UserMessage{}).Where("user_message_id =?", user_message_id).Count(&count)
-//	if count > 0 {
-//		return true
-//	} else {
-//		return false
-//	}
-//}
-
 // CreateMessage 创建一条消息
-func (r MessageRepo) CreateMessage(id int64, messageText string, messageType int) (message model.Message, err error) {
+func (r MessageRepo) CreateMessage(messageText string, messageType int) (message model.Message, err error) {
 	message = model.Message{
 		CommonModel: model.CommonModel{
-			ID: id,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 		Content: messageText,
 		Type:    messageType,
 	}
 
-	result := r.db.Create(&message)
+	result := r.db.Model(&model.Message{}).Create(&message)
 	err = result.Error
 
+	// 需要返回hook生成的雪花ID
+	var ok bool
+	message.ID, ok = result.Statement.ReflectValue.FieldByName("ID").Interface().(int64)
+	if !ok {
+		zlog.Errorf("message.ID is not int64")
+		return
+	}
 	return
 }
 
 // CreateUserMessage 连接一条用户消息
-func (r MessageRepo) CreateUserMessage(id int64, message_id int64, user_id int64) (user_message model.UserMessage, err error) {
+func (r MessageRepo) CreateUserMessage(message_id int64, user_id int64) (user_message model.UserMessage, err error) {
 	user_message = model.UserMessage{
 		CommonModel: model.CommonModel{
-			ID: id,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 		UserID:    user_id,
 		MessageID: message_id,
@@ -67,6 +55,13 @@ func (r MessageRepo) CreateUserMessage(id int64, message_id int64, user_id int64
 	result := r.db.Create(&user_message)
 	err = result.Error
 
+	// 需要返回hook生成的雪花ID
+	var ok bool
+	user_message.ID, ok = result.Statement.ReflectValue.FieldByName("ID").Interface().(int64)
+	if !ok {
+		zlog.Errorf("message.ID is not int64")
+		return
+	}
 	return
 }
 
