@@ -8,7 +8,7 @@ type MemberlistReq struct {
 }
 
 type Members struct {
-	ID           int64    `json:"id" gorm:"id"`
+	ID           int64    `json:"id"   gorm:"id"`
 	Name         string   `json:"name" gorm:"name"`
 	Grade        uint     `json:"grade" gorm:"grade"`
 	Major        string   `json:"major" gorm:"major"`

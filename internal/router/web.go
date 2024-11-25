@@ -86,10 +86,6 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 
-		//正式使用，测试时需注释掉
-		//解析 jwt
-		//rg.Use(middleware.ReflashAtoken())
-
 		//获得权限组
 		rg.GET("/power", api.GetPower)
 
@@ -147,5 +143,13 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	routeManager.RegisterFeiShuRoutes(func(rg *gin.RouterGroup) {
 		// 获取飞书二维表格
 		rg.GET("/get", middleware.ReflashAtoken(), api.GetFeiShuList)
+	})
+
+	// 个人中心相关路由组
+	routeManager.RegisterUserProfileRoutes(func(rg *gin.RouterGroup) {
+		//查询成员详细信息
+		rg.GET("/details", middleware.ReflashAtoken(), api.GetUserDetail)
+		//给成员点赞/取消赞
+		rg.PUT("/like", middleware.ReflashAtoken(), api.PutUserLikeCount)
 	})
 }
