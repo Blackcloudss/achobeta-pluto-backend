@@ -31,9 +31,9 @@ type CreateMemberReq struct {
 	IdCard          string            `json:"id_card"`
 	PhoneNum        string            `json:"phone_num" binding:"required"`
 	Email           string            `json:"email"`
-	Grade           uint64            `json:"grade"`
+	Grade           string            `json:"grade"`
 	Major           string            `json:"major"`
-	StudentID       uint64            `json:"student_id"`
+	StudentID       string            `json:"student_id"`
 	Experience      string            `json:"experience"`
 	Status          string            `json:"status"`
 	MemberPositions []MemberPositions `json:"member_position"`
