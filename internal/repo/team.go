@@ -85,7 +85,7 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 		rule := &model.Casbin{
 			Ptype: "p",
 			V0:    global.SUPERL_ADMINISTRATOR, // 超级管理员
-			V1:    TeamId,
+			V1:    0,
 			V2:    url,
 		}
 		Rules = append(Rules, rule)
@@ -106,7 +106,7 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
 // GetTeamId
 //
-//	@Description:  获得团队id
+//	@Description:  获得团队id,name
 //	@receiver r
 //	@param userid
 //	@return first_team
@@ -138,6 +138,7 @@ func (r TeamRepo) GetTeamId(userid int64) (types.Team, []types.Team, error) {
 	//查询所有团队
 	err = r.DB.Model(&model.Team{}).
 		Select(fmt.Sprintf("%s, %s", c_id, c_teamname)).
+		Where("team.deleted_at IS NULL").
 		Find(&team).
 		Error
 	if err != nil {
