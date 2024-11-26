@@ -125,6 +125,5 @@ func (l *TokenLogic) AutoLogin(ctx context.Context, req types.TokenReq) (resp ty
 	if err != nil {
 		return resp, response.ErrResp(err, response.COMMON_FAIL)
 	}
-	return resp, nil
 	return
 }

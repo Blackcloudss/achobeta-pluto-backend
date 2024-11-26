@@ -16,7 +16,7 @@ type JsonMsgResult struct {
 }
 type nilStruct struct{}
 
-const SUCCESS_CODE = 200
+const SUCCESS_CODE = 20000
 const SUCCESS_MSG = "成功"
 const ERROR_MSG = "错误"
 
@@ -26,10 +26,14 @@ const code200 = 200
 func Response(c *gin.Context, data interface{}, err error) {
 	if err != nil {
 		// 如果出现错误，判断是否是RespError类型
-		respErr := &RespError{}
+		respErr := RespError{}
 		// 判断响应是否含有RespError ，如果有则返回错误信息
 		if ok := errors.As(err, &respErr); ok {
-			c.JSON(respErr.Code, respErr)
+			c.JSON(code200, JsonMsgResult{
+				Code:    respErr.Code,
+				Message: respErr.Message,
+				Data:    nil,
+			})
 			return
 		} else {
 			// 更加通用的类型错误返回
