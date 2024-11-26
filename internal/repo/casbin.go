@@ -19,61 +19,91 @@ func NewCasbinRepo(db *gorm.DB) *CasbinRepo {
 	return &CasbinRepo{DB: db}
 }
 
-const Nothing = 0
+const NoPermission = 1
 
+type RoleWithLevel struct {
+	Role  int64
+	Level int
+}
+
+//
 // GetCasbin
-// @Description: 获取权限组
-// @receiver r
-// @param userid 用户ID
-// @param teamid 团队ID
-// @return level 用户权限等级
-// @return urls 用户拥有的URL列表
-// @return error
+//  @Description: 获取权限组
+//  @receiver r
+//  @param userid
+//  @param teamid
+//  @return int
+//  @return []string
+//  @return error
+//
 func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
-	// 根据 UserId 查询用户对应的角色
-	var rolesWithLevels []struct {
-		Role  int64
-		Level int
-	}
-
-	// 修复 JOIN 表别名冲突
-	err := r.DB.Model(&model.Casbin{}).
-		Joins("JOIN user_power AS up1 ON up1.member_id = casbin.v0").
-		Joins("JOIN user_power AS up2 ON up2.team_id = casbin.v1").
-		Select("casbin.v2 AS role, up2.level").
-		Where("casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?", "g", userid, teamid).
-		Find(&rolesWithLevels).Error
+	// 查询用户的角色，包括默认团队（team_id = 0）
+	roles, err := r.queryRoles(userid, teamid)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return Nothing, nil, nil
-		}
-		zlog.Errorf("查询用户对应的用户组失败：%v", err)
-		return Nothing, nil, err
+		zlog.Errorf("查询用户 %d 在团队 %d 的角色失败：%v", userid, teamid, err)
+		return NoPermission, nil, err
+	}
+	if len(roles) == 0 {
+		return NoPermission, nil, nil
 	}
 
-	if len(rolesWithLevels) == 0 {
-		return Nothing, nil, nil
-	}
-
-	level := rolesWithLevels[0].Level
-	var roles []int64
-	for _, r := range rolesWithLevels {
-		roles = append(roles, r.Role)
-	}
-
-	// 使用角色ID和团队ID查询拥有的URL
-	var urls []string
-	err = r.DB.Model(&model.Casbin{}).
-		Select("casbin.v2").
-		Where("casbin.ptype = ? AND casbin.v0 IN ? AND casbin.v1 = ?", "p", roles, teamid).
-		Find(&urls).Error
+	// 查询用户权限等级
+	level, err := r.queryLevel(userid, teamid)
 	if err != nil {
-		zlog.Errorf("查询管理员拥有的 URLs 失败：%v", err)
-		return Nothing, nil, err
+		zlog.Errorf("查询用户 %d 在团队 %d 的权限等级失败：%v", userid, teamid, err)
+		return NoPermission, nil, err
+	}
+
+
+
+	// 查询用户拥有的 URL
+	urls, err := r.queryURLs(roles, teamid)
+	if err != nil {
+		zlog.Errorf("查询用户 %d 在团队 %d 拥有的 URL 失败：%v", userid, teamid, err)
+		return NoPermission, nil, err
 	}
 
 	return level, urls, nil
 }
+
+
+// 查询用户的角色
+func (r CasbinRepo) queryRoles(userid, teamid int64) ([]int64, error) {
+	var roles []int64
+	err := r.DB.Model(&model.Casbin{}).
+		Joins("JOIN user_power AS up1 ON up1.member_id = casbin.v0").
+		Select("DISTINCT casbin.v2").
+		Where("(casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?) OR (casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?)",
+			"g", userid, teamid,   // 指定团队角色
+			"g", userid, 0).       // 默认团队角色（team_id = 0）
+		Pluck("casbin.v2", &roles).Error
+	return roles, err
+}
+
+// 查询用户权限等级
+func (r CasbinRepo) queryLevel(userid, teamid int64) (int, error) {
+	var level int
+	err := r.DB.Model(&model.User_Power{}).
+		Select("level").
+		Where("member_id = ? AND team_id = ?", userid, teamid).
+		Scan(&level).Error
+	return level, err
+}
+
+// 查询用户拥有的 URL
+func (r CasbinRepo) queryURLs(roles []int64, teamid int64) ([]string, error) {
+	var urls []string
+	err := r.DB.Model(&model.Casbin{}).
+		Select("DISTINCT casbin.v2").
+		Where("casbin.ptype = ? AND casbin.v0 IN ? AND casbin.v1 IN ?",
+			"p", roles, []int64{teamid, 0}). // 同时查询 teamid 和默认团队（team_id = 0）
+		Pluck("casbin.v2", &urls).Error
+	if err != nil {
+		return nil, err
+	}
+	return urls, nil
+}
+
 
 // CheckUserPermission
 //

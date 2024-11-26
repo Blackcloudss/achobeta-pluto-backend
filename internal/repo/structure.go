@@ -36,10 +36,7 @@ func (r StructureRepo) GetNode(fatherid, teamid int64) ([]MyNode, error) {
 	var mynode []MyNode
 	err := r.DB.Model(&model.Structure{}).
 		Select(C_Id, c_NodeName).
-		Where(&model.Structure{
-			FatherId: fatherid,
-			TeamId:   teamid,
-		}).
+		Where("structure.deleted_at IS NULL AND father_id = ? AND team_id = ?", fatherid, teamid).
 		Find(&mynode).
 		Error
 	if err != nil {
@@ -77,6 +74,12 @@ func (r StructureRepo) CreateNode(Node types.TeamStructure) error {
 //	@return error
 func (r StructureRepo) DeleteNode(Node types.TeamStructure) error {
 
+	//将 被删除的节点 的 子节点 的 父节点 变为 被删除的节点 的 父节点
+	err := r.DB.Model(&model.Structure{}).
+		Where("father_id = ? AND team_id = ?", Node.MyselfId, Node.TeamId).
+		Update("father_id", Node.FatherId).
+		Error
+
 	var node = model.Structure{
 		CommonModel: model.CommonModel{
 			ID: Node.MyselfId,
@@ -86,7 +89,7 @@ func (r StructureRepo) DeleteNode(Node types.TeamStructure) error {
 		NodeName: Node.NodeName,
 	}
 
-	err := r.DB.Model(&model.Structure{}).
+	err = r.DB.Model(&model.Structure{}).
 		Where(fmt.Sprintf("%s = ?", C_Id), Node.MyselfId).
 		Delete(&node).
 		Error
