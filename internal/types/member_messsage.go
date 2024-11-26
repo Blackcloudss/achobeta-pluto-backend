@@ -30,9 +30,9 @@ type GetMemberDetailResp struct {
 	IdCard         string            `json:"id_card"`
 	PhoneNum       uint64            `json:"phone_num"`
 	Email          string            `json:"email"`
-	Grade          uint              `json:"grade"`
+	Grade          string              `json:"grade"`
 	Major          string            `json:"major"`
-	StudentID      uint64            `json:"student_id"`
+	StudentID      string            `json:"student_id"`
 	Experience     string            `json:"experience"`
 	Status         string            `json:"status"`
 	LikeCount      uint64            `json:"like_count"`
@@ -59,9 +59,9 @@ type PutTeamMemberReq struct {
 	IdCard     string `json:"id_card"`
 	PhoneNum   string `json:"phone_num" binding:"required,len=11"`
 	Email      string `json:"email"`
-	Grade      uint64 `json:"grade"`
+	Grade      string `json:"grade"`
 	Major      string `json:"major"`
-	StudentID  uint64 `json:"student_id"`
+	StudentID  string `json:"student_id"`
 	Experience string `json:"experience"`
 	Status     string `json:"status"`
 	//组别 + 职位

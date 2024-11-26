@@ -28,11 +28,73 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 //	@param TeamName
 //	@return types.CreateTeamResp
 //	@return error
+const ROOTTEAM = 0
 
 func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
-	//创建新团队
+	// 没有根节点才创建，有就不用
+	//创建团队根节点
 	err := r.DB.Model(&model.Team{}).
+		FirstOrCreate(&model.Team{
+		    CommonModel:model.CommonModel{
+				ID : ROOTTEAM,
+			},
+			Name : "超级管理员所在的团队",
+		}).
+		Error
+	if err != nil {
+		zlog.Errorf("创建团队根节点 失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	//创建团队架构新节点
+	err = r.DB.Model(&model.Structure{}).
+		FirstOrCreate(&model.Structure{
+		CommonModel: model.CommonModel{
+			 ID :  global.ROOT_ID,
+		    },
+			FatherId: global.ROOT_ID,
+			NodeName: "所有团队的根节点",
+			TeamId:   ROOTTEAM,
+		}).
+		Error
+	if err != nil {
+		zlog.Errorf("创建团队架构新节点：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	NormalManger := &model.Team{
+		CommonModel: model.CommonModel{
+			ID : 22222,
+		},
+		Name : "普通管理员",
+	}
+	//创建普通管理员
+	err = r.DB.Model(&model.Member{}).
+		FirstOrCreate(NormalManger).
+		Error
+	if err != nil {
+		zlog.Errorf("创建普通管理员失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	SuperManger := &model.Team{
+		CommonModel: model.CommonModel{
+			ID : 33333,
+		},
+		Name : "超级管理员",
+	}
+	//创建超级管理员
+	err = r.DB.Model(&model.Member{}).
+		FirstOrCreate(SuperManger).
+		Error
+	if err != nil {
+		zlog.Errorf("创建超级管理员失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	//创建新团队
+	err = r.DB.Model(&model.Team{}).
 		Create(&model.Team{
 			Name: TeamName,
 		}).
