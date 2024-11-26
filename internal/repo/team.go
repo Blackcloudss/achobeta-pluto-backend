@@ -28,11 +28,73 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 //	@param TeamName
 //	@return types.CreateTeamResp
 //	@return error
+const ROOTTEAM = 0
 
 func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
-	//创建新团队
+	// 没有根节点才创建，有就不用
+	//创建团队根节点
 	err := r.DB.Model(&model.Team{}).
+		FirstOrCreate(&model.Team{
+		    CommonModel:model.CommonModel{
+				ID : ROOTTEAM,
+			},
+			Name : "超级管理员所在的团队",
+		}).
+		Error
+	if err != nil {
+		zlog.Errorf("创建团队根节点 失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	//创建团队架构新节点
+	err = r.DB.Model(&model.Structure{}).
+		FirstOrCreate(&model.Structure{
+		CommonModel: model.CommonModel{
+			 ID :  global.ROOT_ID,
+		    },
+			FatherId: global.ROOT_ID,
+			NodeName: "所有团队的根节点",
+			TeamId:   ROOTTEAM,
+		}).
+		Error
+	if err != nil {
+		zlog.Errorf("创建团队架构新节点：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	NormalManger := &model.Team{
+		CommonModel: model.CommonModel{
+			ID : 22222,
+		},
+		Name : "普通管理员",
+	}
+	//创建普通管理员
+	err = r.DB.Model(&model.Member{}).
+		FirstOrCreate(NormalManger).
+		Error
+	if err != nil {
+		zlog.Errorf("创建普通管理员失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	SuperManger := &model.Team{
+		CommonModel: model.CommonModel{
+			ID : 33333,
+		},
+		Name : "超级管理员",
+	}
+	//创建超级管理员
+	err = r.DB.Model(&model.Member{}).
+		FirstOrCreate(SuperManger).
+		Error
+	if err != nil {
+		zlog.Errorf("创建超级管理员失败：%v", err)
+		return &types.CreateTeamResp{}, err
+	}
+
+	//创建新团队
+	err = r.DB.Model(&model.Team{}).
 		Create(&model.Team{
 			Name: TeamName,
 		}).
@@ -85,7 +147,7 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 		rule := &model.Casbin{
 			Ptype: "p",
 			V0:    global.SUPERL_ADMINISTRATOR, // 超级管理员
-			V1:    TeamId,
+			V1:    0,
 			V2:    url,
 		}
 		Rules = append(Rules, rule)
@@ -106,7 +168,7 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
 // GetTeamId
 //
-//	@Description:  获得团队id
+//	@Description:  获得团队id,name
 //	@receiver r
 //	@param userid
 //	@return first_team
@@ -138,6 +200,7 @@ func (r TeamRepo) GetTeamId(userid int64) (types.Team, []types.Team, error) {
 	//查询所有团队
 	err = r.DB.Model(&model.Team{}).
 		Select(fmt.Sprintf("%s, %s", c_id, c_teamname)).
+		Where("team.deleted_at IS NULL").
 		Find(&team).
 		Error
 	if err != nil {

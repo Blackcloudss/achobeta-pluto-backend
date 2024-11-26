@@ -288,7 +288,7 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 				Create(&model.Casbin{
 					Ptype: "g",
 					V0:    UserID,
-					V1:    member_position.TeamId,
+					V1:    0, //超级管理员 可以控制 所有团队
 					V2:    SuperManger,
 				}).Error
 			if err != nil {
@@ -338,13 +338,9 @@ func (r *MemberRepo) DeleteMember(MemberId, TeamId int64) error {
 		return err
 	}
 
-	//删除 用户 和 团队 关联的 casbin表
+	//删除 用户 和 团队 关联的 casbin表 -- 普通管理员 和 超级管理员
 	err = r.DB.Model(&model.Casbin{}).
-		Where(&model.Casbin{
-			Ptype: "g",
-			V0:    MemberId,
-			V1:    TeamId,
-		}).
+		Where("ptype = ? AND v0 = ? AND v1 IN (?, ?)", "g", MemberId, TeamId, "0").
 		Delete(&model.Casbin{}).
 		Error
 	if err != nil {
@@ -438,11 +434,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 
 		//删除 用户 和 团队 关联的 旧casbin表
 		err = r.DB.Model(&model.Casbin{}).
-			Where(&model.Casbin{
-				Ptype: "g",
-				V0:    req.ID,
-				V1:    position.TeamId,
-			}).
+			Where("ptype = ? AND v0 = ? AND v1 IN (?, ?)", "g", req.ID, position.TeamId, "0").
 			Delete(&model.Casbin{}).
 			Error
 		if err != nil {
@@ -469,7 +461,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 				Create(&model.Casbin{
 					Ptype: "g",
 					V0:    req.ID,
-					V1:    position.TeamId,
+					V1:    0,
 					V2:    SuperManger,
 				}).Error
 			if err != nil {
@@ -512,4 +504,3 @@ func (r *MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
 	}
 	return UserID, true, nil
 }
-
