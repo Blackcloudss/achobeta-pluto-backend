@@ -28,14 +28,14 @@ func NewCodeLogic() *CodeLogic {
 //	@param ctx
 //	@param req
 //	@return err
-func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (err error) {
+func (l *CodeLogic) GenCode(ctx context.Context, req types.PhoneReq) (code string, err error) {
 	defer util.RecordTime(time.Now())()
 	//校验手机号
 	if flag := util.IndetifyPhone(req.Phone); !flag {
-		return response.ErrResp(err, response.PHONE_ERROR)
+		return "", response.ErrResp(err, response.PHONE_ERROR)
 	}
 	//生成随机验证码并发送到对应用户
-	err = handler.PostCode(ctx, req.Phone)
+	code, err = handler.PostCode(ctx, req.Phone)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "GenCode err: %v", err)
 		return

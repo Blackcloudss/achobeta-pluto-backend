@@ -20,30 +20,30 @@ var (
 //	@param ctx
 //	@param phone
 //	@return error
-func PostCode(ctx context.Context, phone string) (err error) {
+func PostCode(ctx context.Context, phone string) (code string, err error) {
 	if !AccessCode(ctx, phone) {
 		zlog.CtxErrorf(ctx, "Access code error")
-		return response.ErrResp(err, codeHasSend)
+		return "", response.ErrResp(err, codeHasSend)
 	}
 	//生成6位数字的验证码
-	code := util.RandomCode()
+	code = util.RandomCode()
 	text := fmt.Sprintf("你的验证码是%s", code)
 	//将验证码放入redis5分钟
 	err = global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE_CODE, phone), code, time.Second*300).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Store the verification code err: %v", err)
-		return response.ErrResp(err, response.COMMON_FAIL)
+		return "", response.ErrResp(err, response.COMMON_FAIL)
 	}
 	//防刷处理
 	err = global.Rdb.Set(ctx, fmt.Sprintf(global.REDIS_PHONE, phone), 0, time.Second*60).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Restrict multiple access err: %v", err)
-		return response.ErrResp(err, response.COMMON_FAIL)
+		return "", response.ErrResp(err, response.COMMON_FAIL)
 	}
 	//发送验证码到用户手机
 	if err := PostMessage(text, phone); err != nil {
 		zlog.CtxErrorf(ctx, "PostMessage err: %v", err)
-		return response.ErrResp(err, response.CONNECT_PHONE_ERROR)
+		return "", response.ErrResp(err, response.CONNECT_PHONE_ERROR)
 	}
 	return
 }
