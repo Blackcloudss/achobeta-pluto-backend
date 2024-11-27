@@ -69,7 +69,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
-		//使用token验证中间件
+		//使用token验证中间件  正式使用时需取消注释
 		rg.Use(middleware.ReflashAtoken())
 		//获得权限组
 		rg.GET("/power", api.GetPower)
@@ -96,7 +96,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			//新增成员
 			MemberList.POST("/create", api.CreateTeamMember)
 			//删除成员                     // user_id 之后要删除
-			MemberList.DELETE("/delete/:user_id/:team_id/:member_id", api.DeleteTeamMember)
+			MemberList.DELETE("/delete/:team_id/:member_id", api.DeleteTeamMember)
 		}
 
 		// 团队成员信息管理子路由

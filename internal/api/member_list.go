@@ -18,7 +18,6 @@ func GetTeamMemberlist(c *gin.Context) {
 	req, err := types.BindReq[types.MemberlistReq](c)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "GetTeamMemberlist err:%v", err)
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
 	zlog.CtxInfof(ctx, "GetTeamMemberlist request: %v", req)
@@ -38,7 +37,6 @@ func CreateTeamMember(c *gin.Context) {
 	req, err := types.BindReq[types.CreateMemberReq](c)
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Create TeamMember err:%v", err)
-		response.NewResponse(c).Error(response.PARAM_NOT_VALID)
 		return
 	}
 	zlog.CtxInfof(ctx, "Create TeamMember request: %v", req)

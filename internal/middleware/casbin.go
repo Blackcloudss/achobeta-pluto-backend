@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 	"tgwp/global"
+	"tgwp/internal/handler"
 	"tgwp/internal/repo"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -24,7 +25,7 @@ func PermissionMiddleware() gin.HandlerFunc {
 		ctx := zlog.GetCtxFromGin(c)
 
 		//正式使用，    测试时需注释掉
-		//UserId := handler.GetUserId(c)
+		UserId := handler.GetUserId(c)
 
 		// 绑定 team_id，根据请求方法选择解析方式
 		var req any
@@ -67,18 +68,18 @@ func PermissionMiddleware() gin.HandlerFunc {
 		c.Request.Body = io.NopCloser(bytes.NewReader(bodyBytes))
 
 		// 类型断言为包含 UserId 和 TeamId 的结构体
-		var userId int64
+		//var userId int64   正式使用时需删除
 		var teamId int64
 
 		switch v := req.(type) {
 		case types.ParamsRuleCheck:
-			userId = v.UserId
+			//userId = v.UserId
 			teamId = v.TeamId
 		case types.JsonRuleCheck:
-			userId = v.UserId
+			//userId = v.UserId
 			teamId = v.TeamId
 		case types.UriRuleCheck:
-			userId = v.UserId
+			//userId = v.UserId
 			teamId = v.TeamId
 		default:
 			zlog.CtxErrorf(ctx, "无效的绑定类型: %T", req)
@@ -102,8 +103,8 @@ func PermissionMiddleware() gin.HandlerFunc {
 		}
 
 		// CheckUserPermissions 检查用户权限
-		//exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, UserId, req.TeamId) //正式使用
-		exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, userId, teamId) //测试时使用
+		exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, UserId, teamId) //正式使用
+		//exist, err := repo.NewCasbinRepo(global.DB).CheckUserPermission(Url, userId, teamId) //测试时使用
 
 		if err != nil {
 			response.NewResponse(c).Error(response.PARAM_NOT_VALID)
