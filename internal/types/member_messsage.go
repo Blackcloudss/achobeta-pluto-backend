@@ -30,7 +30,7 @@ type GetMemberDetailResp struct {
 	IdCard         string            `json:"id_card"`
 	PhoneNum       uint64            `json:"phone_num"`
 	Email          string            `json:"email"`
-	Grade          string              `json:"grade"`
+	Grade          string            `json:"grade"`
 	Major          string            `json:"major"`
 	StudentID      string            `json:"student_id"`
 	Experience     string            `json:"experience"`
@@ -41,7 +41,7 @@ type GetMemberDetailResp struct {
 
 // 给成员点赞/取消赞(入参）
 type LikeCountReq struct {
-	UserID   int64 `json:"user_id" binding:"required" ` //测试使用 之后会删除
+	UserID   int64 `json:"user_id"` //测试使用 之后会删除
 	MemberID int64 `json:"member_id" binding:"required" `
 }
 

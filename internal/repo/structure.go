@@ -72,6 +72,8 @@ func (r StructureRepo) CreateNode(Node types.TeamStructure) error {
 //	@receiver r
 //	@param Node
 //	@return error
+const C_FATHER = "father_id"
+
 func (r StructureRepo) DeleteNode(Node types.TeamStructure) error {
 
 	//将 被删除的节点 的 子节点 的 父节点 变为 被删除的节点 的 父节点
@@ -79,19 +81,18 @@ func (r StructureRepo) DeleteNode(Node types.TeamStructure) error {
 		Where("father_id = ? AND team_id = ?", Node.MyselfId, Node.TeamId).
 		Update("father_id", Node.FatherId).
 		Error
-
-	var node = model.Structure{
-		CommonModel: model.CommonModel{
-			ID: Node.MyselfId,
-		},
-		TeamId:   Node.TeamId,
-		FatherId: Node.FatherId,
-		NodeName: Node.NodeName,
+	if err != nil {
+		zlog.Errorf("被删除节点的子节点的父节点更改失败%v", err)
+		return err
 	}
 
 	err = r.DB.Model(&model.Structure{}).
-		Where(fmt.Sprintf("%s = ?", C_Id), Node.MyselfId).
-		Delete(&node).
+		Where(fmt.Sprintf("%s = ? AND %s = ?", C_Id, C_FATHER), Node.MyselfId, Node.FatherId).
+		Delete(&model.Structure{}).
 		Error
+	if err != nil {
+		zlog.Errorf("指定节点删除失败%v", err)
+		return err
+	}
 	return err
 }

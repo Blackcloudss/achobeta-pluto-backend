@@ -140,6 +140,12 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 	return types.MemberlistResp{Members: Members}, nil
 }
 
+// CreateMember
+//
+//	@Description: 新增团队成员
+//	@receiver r
+//	@param req
+//	@return error
 const (
 	init_likecount = 0
 	team_id        = "id"
@@ -152,12 +158,6 @@ var (
 	SuperManger  = strconv.FormatInt(global.SUPERL_ADMINISTRATOR, 10)
 )
 
-// CreateMember
-//
-//	@Description: 新增团队成员
-//	@receiver r
-//	@param req
-//	@return error
 func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 	defer util.RecordTime(time.Now())()
 	err := r.DB.Model(&model.Member{}).

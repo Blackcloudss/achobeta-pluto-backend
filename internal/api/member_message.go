@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"tgwp/internal/handler"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -35,15 +36,15 @@ func PutLikeCount(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
 	//正式使用，测试时需注释掉
-	//UserId := handler.GetUserId(c)
+	UserId := handler.GetUserId(c)
 
 	req, err := types.BindReq[types.LikeCountReq](c)
 	if err != nil {
 		return
 	}
 	zlog.CtxInfof(ctx, "PutLikeCount request: %v", req)
-	//resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, UserID, req.MemberID) //正式使用
-	resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, req.UserID, req.MemberID) //测试时使用
+	resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, UserId, req.MemberID) //正式使用
+	//resp, err := logic.NewLikeCountLogic().PutLikeCount(ctx, req.UserID, req.MemberID) //测试时使用
 	response.Response(c, resp, err)
 
 	return

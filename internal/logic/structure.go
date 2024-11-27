@@ -147,6 +147,7 @@ func (l *StructureLogic) PutStructureNode(ctx context.Context, req types.PutTeam
 			}
 		} else {
 			// true ：被删除的节点
+			zlog.CtxInfof(ctx, "开始删除节点: %v", Node)
 			err := repo.NewStructureRepo(global.DB).DeleteNode(Node)
 			if err != nil {
 				if errors.Is(err, gorm.ErrRecordNotFound) {
