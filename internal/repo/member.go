@@ -175,7 +175,7 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 		Create(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: &req.CreateDate,
+			CreateDate: req.CreateDate,
 			IdCard:     &req.IdCard,
 			PhoneNum:   req.PhoneNum,
 			Email:      &req.Email,
@@ -391,7 +391,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 		Updates(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: &req.CreateDate,
+			CreateDate: req.CreateDate,
 			IdCard:     &req.IdCard,
 			PhoneNum:   req.PhoneNum,
 			Email:      &req.Email,
