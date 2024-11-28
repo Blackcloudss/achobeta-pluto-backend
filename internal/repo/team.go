@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"log"
 	"tgwp/global"
 	"tgwp/internal/model"
 	"tgwp/internal/types"
@@ -28,18 +29,23 @@ func NewTeamRepo(db *gorm.DB) *TeamRepo {
 //	@param TeamName
 //	@return types.CreateTeamResp
 //	@return error
-const ROOTTEAM = 0
+const ROOTTEAM = 1
 
 func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 
 	// 没有根节点才创建，有就不用
+	// 禁用外键约束
+	err := r.DB.Exec("SET FOREIGN_KEY_CHECKS = 0").Error
+	if err != nil {
+		zlog.Errorf("临时禁用外键约束失败: %v", err)
+	}
 	//创建团队根节点
-	err := r.DB.Model(&model.Team{}).
+	err = r.DB.Model(&model.Team{}).
 		FirstOrCreate(&model.Team{
-		    CommonModel:model.CommonModel{
-				ID : ROOTTEAM,
+			CommonModel: model.CommonModel{
+				ID: ROOTTEAM,
 			},
-			Name : "超级管理员所在的团队",
+			Name: "超级管理员所在的团队",
 		}).
 		Error
 	if err != nil {
@@ -50,9 +56,9 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 	//创建团队架构新节点
 	err = r.DB.Model(&model.Structure{}).
 		FirstOrCreate(&model.Structure{
-		CommonModel: model.CommonModel{
-			 ID :  global.ROOT_ID,
-		    },
+			CommonModel: model.CommonModel{
+				ID: global.ROOT_ID,
+			},
 			FatherId: global.ROOT_ID,
 			NodeName: "所有团队的根节点",
 			TeamId:   ROOTTEAM,
@@ -63,11 +69,12 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 		return &types.CreateTeamResp{}, err
 	}
 
-	NormalManger := &model.Team{
+	NormalManger := &model.Member{
 		CommonModel: model.CommonModel{
-			ID : 22222,
+			ID: 22222,
 		},
-		Name : "普通管理员",
+		Name:     "普通管理员",
+		PhoneNum: "22222",
 	}
 	//创建普通管理员
 	err = r.DB.Model(&model.Member{}).
@@ -78,11 +85,12 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 		return &types.CreateTeamResp{}, err
 	}
 
-	SuperManger := &model.Team{
+	SuperManger := &model.Member{
 		CommonModel: model.CommonModel{
-			ID : 33333,
+			ID: 33333,
 		},
-		Name : "超级管理员",
+		Name:     "超级管理员",
+		PhoneNum: "33333",
 	}
 	//创建超级管理员
 	err = r.DB.Model(&model.Member{}).
@@ -91,6 +99,12 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 	if err != nil {
 		zlog.Errorf("创建超级管理员失败：%v", err)
 		return &types.CreateTeamResp{}, err
+	}
+
+	// 启用外键约束
+	err = r.DB.Exec("SET FOREIGN_KEY_CHECKS = 1").Error
+	if err != nil {
+		log.Fatalf("临时启动外键约束失败: %v", err)
 	}
 
 	//创建新团队
@@ -147,7 +161,7 @@ func (r TeamRepo) CreateTeam(TeamName string) (*types.CreateTeamResp, error) {
 		rule := &model.Casbin{
 			Ptype: "p",
 			V0:    global.SUPERL_ADMINISTRATOR, // 超级管理员
-			V1:    0,
+			V1:    1,
 			V2:    url,
 		}
 		Rules = append(Rules, rule)
