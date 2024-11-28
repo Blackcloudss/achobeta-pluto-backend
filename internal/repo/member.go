@@ -2,6 +2,7 @@ package repo
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -54,6 +55,16 @@ func (r *MemberRepo) GetMemberDetail(userID int64) (*types.GetMemberDetailResp, 
 		zlog.Errorf("查询用户详细信息失败: %v", err)
 		return nil, err
 	}
+
+	// 解析CreateDate字段为time.Time对象
+	createDate, err := time.Parse("2006-01-02", resp.CreateDate)
+	if err != nil {
+		fmt.Println("解析CreateDate失败:", err)
+		return nil, err
+	}
+
+	// 格式化CreateDate为年-月-日
+	resp.CreateDate = createDate.Format("2006-01-02")
 
 	// 查询用户的团队、职位和权限
 	err = r.DB.Model(&model.Team_Member_Structure{}).
