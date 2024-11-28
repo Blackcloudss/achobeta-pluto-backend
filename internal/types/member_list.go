@@ -27,7 +27,7 @@ type MemberlistResp struct {
 type CreateMemberReq struct {
 	Name            string            `json:"name"`
 	Sex             string            `json:"sex"`
-	CreateDate      string            `json:"create_date"  binding:"required,datetime=2006/01/02"` //日期格式校验
+	CreateDate      string            `json:"create_date"  binding:"omitempty,datetime=2006/01/02"` //日期格式校验
 	IdCard          string            `json:"id_card"`
 	PhoneNum        string            `json:"phone_num" binding:"required"`
 	Email           string            `json:"email"`

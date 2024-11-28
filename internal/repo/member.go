@@ -171,6 +171,13 @@ var (
 
 func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 	defer util.RecordTime(time.Now())()
+
+	//如果传入的加入时间为空
+	if req.CreateDate == "" {
+		// 默认是当前时间，且格式为YYYY--MM--DD
+		req.CreateDate = time.Now().Format("2006-01-02")
+	}
+
 	err := r.DB.Model(&model.Member{}).
 		Create(&model.Member{
 			Name:       req.Name,
