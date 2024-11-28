@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 	"tgwp/global"
-	"tgwp/internal/handler"
+	"tgwp/internal/logic"
 	"tgwp/internal/repo"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -25,7 +25,7 @@ func PermissionMiddleware() gin.HandlerFunc {
 		ctx := zlog.GetCtxFromGin(c)
 
 		//正式使用，    测试时需注释掉
-		UserId := handler.GetUserId(c)
+		UserId := logic.GetUserId(c)
 
 		// 绑定 team_id，根据请求方法选择解析方式
 		var req any

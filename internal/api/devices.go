@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"tgwp/internal/handler"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -19,7 +18,7 @@ func ShowDevices(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	req.UserId = handler.GetUserId(c)
+	req.UserId = logic.GetUserId(c)
 	zlog.CtxInfof(ctx, "ShowDevices request: %v", req)
 	resp, err := logic.NewDevicesLogic().ShowDevices(ctx, req)
 	response.Response(c, resp, err)

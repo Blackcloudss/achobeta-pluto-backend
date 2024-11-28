@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"tgwp/internal/handler"
 	"tgwp/internal/logic"
 	"tgwp/internal/response"
 	"tgwp/internal/types"
@@ -17,7 +16,7 @@ func GetPower(c *gin.Context) {
 	ctx := zlog.GetCtxFromGin(c)
 
 	//正式使用，测试时需注释掉
-	UserId := handler.GetUserId(c)
+	UserId := logic.GetUserId(c)
 	req, err := types.BindReq[types.RuleReq](c)
 
 	if err != nil {
