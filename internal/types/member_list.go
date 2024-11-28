@@ -10,10 +10,10 @@ type MemberlistReq struct {
 type Members struct {
 	ID           int64    `json:"id"   gorm:"id"`
 	Name         string   `json:"name" gorm:"name"`
-	Grade        uint     `json:"grade" gorm:"grade"`
+	Grade        string   `json:"grade" gorm:"grade"`
 	Major        string   `json:"major" gorm:"major"`
 	Status       string   `json:"status" gorm:"status"`
-	PhoneNum     uint64   `json:"phone_num"`
+	PhoneNum     string   `json:"phone_num"`
 	Positions    string   `json:"-"`         // 原始字段，用于接收 GROUP_CONCAT
 	PositionList []string `json:"positions"` // 最终切片
 }
@@ -29,7 +29,7 @@ type CreateMemberReq struct {
 	Sex             string            `json:"sex"`
 	CreateDate      string            `json:"create_date"  binding:"omitempty,datetime=2006/01/02"` //日期格式校验
 	IdCard          *string           `json:"id_card"`
-	PhoneNum        string            `json:"phone_num" binding:"required"`
+	PhoneNum        string            `json:"phone_num" binding:"required,len=11"`
 	Email           *string           `json:"email"`
 	Grade           string            `json:"grade"`
 	Major           string            `json:"major"`
