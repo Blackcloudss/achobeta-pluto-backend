@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"tgwp/internal/handler"
 	"tgwp/internal/model"

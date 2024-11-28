@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	REDIS_FEISHU_UPDATA_TIME           = "Achobeta:feishu.update.time:string"              // Redis中飞书记录上次更新时间
+	REDIS_FEISHU_UPDATA_MARK           = "Achobeta:feishu.update.mark:string"              // Redis中飞书更新记录标记
 	REDIS_FEISHU_TOTAL_TASK_CNT        = "Achobeta:feishu.total.task.cnt:%s:string"        // Redis中飞书记录用户总任务数
 	REDIS_FEISHU_UNFINISHED_TASK_CNT   = "Achobeta:feishu.unfinished.task.cnt:%s:string"   // Redis中飞书记录用户未完成任务数
 	REDIS_FEISHU_WILL_OVERDUE_TASK_CNT = "Achobeta:feishu.will.overdue.task.cnt:%s:string" // Redis中飞书记录用户即将逾期任务数
@@ -85,7 +85,7 @@ type UserOpenIDResp struct {
 //	@return err
 func UpdateFeiShuList(ctx context.Context) (err error) {
 	// 更新Redis中记录的最后更新时间
-	err = global.Rdb.Set(ctx, REDIS_FEISHU_UPDATA_TIME, time.Now().Unix(), 0).Err()
+	err = global.Rdb.Set(ctx, REDIS_FEISHU_UPDATA_MARK, "", global.FEISHU_LIST_UPDATE_TIME).Err()
 	if err != nil {
 		zlog.CtxErrorf(ctx, "Unable to set FEISHU_TASK_LAST_UPDATE_TIME: %v", err)
 		return
@@ -166,41 +166,22 @@ func UpdateFeiShuList(ctx context.Context) (err error) {
 //	@param forceUpdate
 //	@return needUpdate
 //	@return err
-func CheckUpdate(ctx context.Context, forceUpdate bool) (needUpdate bool, err error) {
-	needUpdate = true
-	// 先检查需不需要更新
+func CheckUpdate(ctx context.Context, forceUpdate bool) (bool, error) {
 	if forceUpdate {
-		//强制更新
-	} else {
-		// 判断Redis是否存在上次更新时间记录
-		var val int64
-		val, err = global.Rdb.Exists(ctx, REDIS_FEISHU_UPDATA_TIME).Result()
-		if err != nil {
-			zlog.CtxErrorf(ctx, "Unable to check FEISHU_UPDATA_TIME: %v", err)
-			return
-		}
-		// 存在则需要检验更新时间
-		if val != 0 {
-			var val string
-			val, err = global.Rdb.Get(ctx, REDIS_FEISHU_UPDATA_TIME).Result()
-			if err != nil {
-				zlog.CtxErrorf(ctx, "Unable to get FEISHU_UPDATA_TIME: %v", err)
-				return
-			}
-			var valInt int64
-			valInt, err = strconv.ParseInt(val, 10, 64)
-			if err != nil {
-				zlog.CtxErrorf(ctx, "Unable to parse FEISHU_UPDATA_TIME: %v", err)
-				return
-			}
-			//fmt.Println(time.Now().Unix()-valInt, global.FEISHU_LIST_UPDATE_TIME)
-			if time.Now().Unix()-valInt < global.FEISHU_LIST_UPDATE_TIME {
-				// 不需要更新的情况
-				needUpdate = false
-			}
-		}
+		// 强制更新
+		return true, nil
 	}
-	return
+	val, err := global.Rdb.Exists(ctx, REDIS_FEISHU_UPDATA_MARK).Result()
+	if err != nil {
+		zlog.CtxErrorf(ctx, "Unable to check FEISHU_UPDATA_MARK: %v", err)
+		return false, err
+	}
+	if val == 0 {
+		// 找不到更新标记，需要更新
+		return true, nil
+	}
+	return false, nil
+
 }
 
 // GetFeiShuList
