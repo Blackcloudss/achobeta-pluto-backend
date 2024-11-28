@@ -26,18 +26,17 @@ type RoleWithLevel struct {
 	Level int
 }
 
-//
 // GetCasbin
-//  @Description: 获取权限组
-//  @receiver r
-//  @param userid
-//  @param teamid
-//  @return int
-//  @return []string
-//  @return error
 //
+//	@Description: 获取权限组
+//	@receiver r
+//	@param userid
+//	@param teamid
+//	@return int
+//	@return []string
+//	@return error
 func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
-	// 查询用户的角色，包括默认团队（team_id = 0）
+	// 查询用户的角色，包括默认团队（team_id = 1）
 	roles, err := r.queryRoles(userid, teamid)
 	if err != nil {
 		zlog.Errorf("查询用户 %d 在团队 %d 的角色失败：%v", userid, teamid, err)
@@ -54,8 +53,6 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 		return NoPermission, nil, err
 	}
 
-
-
 	// 查询用户拥有的 URL
 	urls, err := r.queryURLs(roles, teamid)
 	if err != nil {
@@ -66,7 +63,6 @@ func (r CasbinRepo) GetCasbin(userid, teamid int64) (int, []string, error) {
 	return level, urls, nil
 }
 
-
 // 查询用户的角色
 func (r CasbinRepo) queryRoles(userid, teamid int64) ([]int64, error) {
 	var roles []int64
@@ -74,8 +70,8 @@ func (r CasbinRepo) queryRoles(userid, teamid int64) ([]int64, error) {
 		Joins("JOIN user_power AS up1 ON up1.member_id = casbin.v0").
 		Select("DISTINCT casbin.v2").
 		Where("(casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?) OR (casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?)",
-			"g", userid, teamid,   // 指定团队角色
-			"g", userid, 0).       // 默认团队角色（team_id = 0）
+			"g", userid, teamid, // 指定团队角色
+			"g", userid, 1). // 默认团队角色（team_id = 1）
 		Pluck("casbin.v2", &roles).Error
 	return roles, err
 }
@@ -96,14 +92,13 @@ func (r CasbinRepo) queryURLs(roles []int64, teamid int64) ([]string, error) {
 	err := r.DB.Model(&model.Casbin{}).
 		Select("DISTINCT casbin.v2").
 		Where("casbin.ptype = ? AND casbin.v0 IN ? AND casbin.v1 IN ?",
-			"p", roles, []int64{teamid, 0}). // 同时查询 teamid 和默认团队（team_id = 0）
+			"p", roles, []int64{teamid, 1}). // 同时查询 teamid 和默认团队（team_id = 1）
 		Pluck("casbin.v2", &urls).Error
 	if err != nil {
 		return nil, err
 	}
 	return urls, nil
 }
-
 
 // CheckUserPermission
 //

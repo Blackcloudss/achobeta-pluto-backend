@@ -175,13 +175,13 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 		Create(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: req.CreateDate,
-			IdCard:     req.IdCard,
+			CreateDate: &req.CreateDate,
+			IdCard:     &req.IdCard,
 			PhoneNum:   req.PhoneNum,
-			Email:      req.Email,
+			Email:      &req.Email,
 			Grade:      req.Grade,
 			Major:      req.Major,
-			StudentID:  req.StudentID,
+			StudentID:  &req.StudentID,
 			Experience: req.Experience,
 			Status:     req.Status,
 			LikeCount:  init_likecount,
@@ -299,7 +299,7 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 				Create(&model.Casbin{
 					Ptype: "g",
 					V0:    UserID,
-					V1:    0, //超级管理员 可以控制 所有团队
+					V1:    1, //超级管理员 可以控制 所有团队
 					V2:    SuperManger,
 				}).Error
 			if err != nil {
@@ -391,13 +391,13 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 		Updates(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: req.CreateDate,
-			IdCard:     req.IdCard,
+			CreateDate: &req.CreateDate,
+			IdCard:     &req.IdCard,
 			PhoneNum:   req.PhoneNum,
-			Email:      req.Email,
+			Email:      &req.Email,
 			Grade:      req.Grade,
 			Major:      req.Major,
-			StudentID:  req.StudentID,
+			StudentID:  &req.StudentID,
 			Experience: req.Experience,
 			Status:     req.Status,
 		}).Error

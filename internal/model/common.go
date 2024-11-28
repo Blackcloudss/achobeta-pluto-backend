@@ -8,7 +8,7 @@ import (
 
 // CommonModel 每张表都有的四个东西，最好不要用 gorm.model（虽然他们一模一样）
 type CommonModel struct {
-	ID        int64 `gorm:"primaryKey;column:id;type:bigint;<-:create"`
+	ID        int64 `gorm:"primaryKey;column:id;type:bigint"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -16,7 +16,9 @@ type CommonModel struct {
 
 func (b *CommonModel) BeforeCreate(db *gorm.DB) error {
 	// 生成雪花ID
-	b.ID = global.Node.Generate().Int64()
+	if b.ID == 0 {
+		b.ID = global.Node.Generate().Int64()
+	}
 
 	return nil
 }
