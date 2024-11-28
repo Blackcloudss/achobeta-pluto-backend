@@ -171,17 +171,24 @@ var (
 
 func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 	defer util.RecordTime(time.Now())()
+
+	//如果传入的加入时间为空
+	if req.CreateDate == "" {
+		// 默认是当前时间，且格式为YYYY--MM--DD
+		req.CreateDate = time.Now().Format("2006-01-02")
+	}
+
 	err := r.DB.Model(&model.Member{}).
 		Create(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
 			CreateDate: req.CreateDate,
-			IdCard:     &req.IdCard,
+			IdCard:     req.IdCard,
 			PhoneNum:   req.PhoneNum,
-			Email:      &req.Email,
+			Email:      req.Email,
 			Grade:      req.Grade,
 			Major:      req.Major,
-			StudentID:  &req.StudentID,
+			StudentID:  req.StudentID,
 			Experience: req.Experience,
 			Status:     req.Status,
 			LikeCount:  init_likecount,
@@ -472,7 +479,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 				Create(&model.Casbin{
 					Ptype: "g",
 					V0:    req.ID,
-					V1:    0,
+					V1:    1,
 					V2:    SuperManger,
 				}).Error
 			if err != nil {
