@@ -28,7 +28,7 @@ type GetMemberDetailResp struct {
 	Sex            string            `json:"sex"`
 	CreateDate     string            `json:"create_date"`
 	IdCard         string            `json:"id_card"`
-	PhoneNum       uint64            `json:"phone_num"`
+	PhoneNum       string            `json:"phone_num"`
 	Email          string            `json:"email"`
 	Grade          string            `json:"grade"`
 	Major          string            `json:"major"`
@@ -52,18 +52,18 @@ type LikeCountResp struct {
 
 // 编辑成员详细信息(入参）
 type PutTeamMemberReq struct {
-	ID         int64  `json:"id" binding:"required" `
-	Name       string `json:"name"`
-	Sex        string `json:"sex"`
-	CreateDate string `json:"create_date"`
-	IdCard     string `json:"id_card"`
-	PhoneNum   string `json:"phone_num" binding:"required,len=11"`
-	Email      string `json:"email"`
-	Grade      string `json:"grade"`
-	Major      string `json:"major"`
-	StudentID  string `json:"student_id"`
-	Experience string `json:"experience"`
-	Status     string `json:"status"`
+	ID         int64   `json:"id" binding:"required" `
+	Name       string  `json:"name"`
+	Sex        string  `json:"sex"`
+	CreateDate string  `json:"create_date" binding:"omitempty,datetime=2006/01/02"`
+	IdCard     *string `json:"id_card"`
+	PhoneNum   string  `json:"phone_num" binding:"required,len=11"`
+	Email      *string `json:"email"`
+	Grade      string  `json:"grade"`
+	Major      string  `json:"major"`
+	StudentID  *string `json:"student_id"`
+	Experience string  `json:"experience"`
+	Status     string  `json:"status"`
 	//组别 + 职位
 	MemberPosition []MemberPositions `json:"member_position"`
 }
