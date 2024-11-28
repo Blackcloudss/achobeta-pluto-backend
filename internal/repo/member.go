@@ -183,12 +183,12 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 			Name:       req.Name,
 			Sex:        req.Sex,
 			CreateDate: req.CreateDate,
-			IdCard:     &req.IdCard,
+			IdCard:     req.IdCard,
 			PhoneNum:   req.PhoneNum,
-			Email:      &req.Email,
+			Email:      req.Email,
 			Grade:      req.Grade,
 			Major:      req.Major,
-			StudentID:  &req.StudentID,
+			StudentID:  req.StudentID,
 			Experience: req.Experience,
 			Status:     req.Status,
 			LikeCount:  init_likecount,
@@ -479,7 +479,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 				Create(&model.Casbin{
 					Ptype: "g",
 					V0:    req.ID,
-					V1:    0,
+					V1:    1,
 					V2:    SuperManger,
 				}).Error
 			if err != nil {

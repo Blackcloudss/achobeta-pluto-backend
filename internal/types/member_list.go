@@ -28,12 +28,12 @@ type CreateMemberReq struct {
 	Name            string            `json:"name"`
 	Sex             string            `json:"sex"`
 	CreateDate      string            `json:"create_date"  binding:"omitempty,datetime=2006/01/02"` //日期格式校验
-	IdCard          string            `json:"id_card"`
+	IdCard          *string           `json:"id_card"`
 	PhoneNum        string            `json:"phone_num" binding:"required"`
-	Email           string            `json:"email"`
+	Email           *string           `json:"email"`
 	Grade           string            `json:"grade"`
 	Major           string            `json:"major"`
-	StudentID       string            `json:"student_id"`
+	StudentID       *string           `json:"student_id"`
 	Experience      string            `json:"experience"`
 	Status          string            `json:"status"`
 	MemberPositions []MemberPositions `json:"member_position"`
