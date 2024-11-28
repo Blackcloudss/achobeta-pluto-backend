@@ -35,13 +35,14 @@ func (r FeiShuRepo) GetFeiShuOpenID(UserID int64) (OpenID string, err error) {
 	}
 	// 如果用户表里还没有FeiShuOpenID，则获取并保存
 	if len(member.FeiShuOpenID) <= 0 {
-		OpenID, err = handler.GetFeiShuUserOpenID(fmt.Sprintf("%d", member.PhoneNum))
+		OpenID, err = handler.GetFeiShuUserOpenID(member.PhoneNum)
 		member.FeiShuOpenID = OpenID
 		if err != nil {
 			zlog.Errorf("get feishu openid err:%v", err)
 			err = response.ErrResp(err, response.FEISHU_ERROR)
 			return
 		}
+		member.CreateDate = member.CreateDate[0:10]
 		err = r.db.Save(&member).Error
 		if err != nil {
 			zlog.Errorf("save member err:%v", err)

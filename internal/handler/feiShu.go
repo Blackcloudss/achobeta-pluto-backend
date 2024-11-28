@@ -16,11 +16,11 @@ import (
 )
 
 const (
-	REDIS_FEISHU_UPDATA_TIME           = "Achobeta:feishu.update.time:string"           // Redis中飞书记录上次更新时间
-	REDIS_FEISHU_TOTAL_TASK_CNT        = "Achobeta:feishu.total.task.cnt:%s:int"        // Redis中飞书记录用户总任务数
-	REDIS_FEISHU_UNFINISHED_TASK_CNT   = "Achobeta:feishu.unfinished.task.cnt:%s:int"   // Redis中飞书记录用户未完成任务数
-	REDIS_FEISHU_WILL_OVERDUE_TASK_CNT = "Achobeta:feishu.will.overdue.task.cnt:%s:int" // Redis中飞书记录用户即将逾期任务数
-	REDIS_FEISHU_OVERDUE_TASK_CNT      = "Achobeta:feishu.overdue.task.cnt:%s:int"      // Redis中飞书记录用户逾期任务数
+	REDIS_FEISHU_UPDATA_TIME           = "Achobeta:feishu.update.time:string"              // Redis中飞书记录上次更新时间
+	REDIS_FEISHU_TOTAL_TASK_CNT        = "Achobeta:feishu.total.task.cnt:%s:string"        // Redis中飞书记录用户总任务数
+	REDIS_FEISHU_UNFINISHED_TASK_CNT   = "Achobeta:feishu.unfinished.task.cnt:%s:string"   // Redis中飞书记录用户未完成任务数
+	REDIS_FEISHU_WILL_OVERDUE_TASK_CNT = "Achobeta:feishu.will.overdue.task.cnt:%s:string" // Redis中飞书记录用户即将逾期任务数
+	REDIS_FEISHU_OVERDUE_TASK_CNT      = "Achobeta:feishu.overdue.task.cnt:%s:string"      // Redis中飞书记录用户逾期任务数
 )
 
 // TenantAccessTokenResp 获取 tenant_access_token 响应
