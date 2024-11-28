@@ -67,6 +67,12 @@ func (r MessageRepo) CreateUserMessage(message_id int64, user_id int64) (user_me
 
 func (r MessageRepo) CheckUpdate(user_id int64, timestamp int64) bool {
 	FirstMessage := model.UserMessage{}
+	var cnt int64
+	r.db.Model(&model.UserMessage{}).Where("user_id =?", user_id).Count(&cnt)
+	if cnt == 0 { // 没有消息，要返回已更新
+		return true
+	}
+
 	r.db.Model(&model.UserMessage{}).Where("user_id =?", user_id).Order("created_at desc").First(&FirstMessage)
 	if FirstMessage.UpdatedAt.Unix() > timestamp {
 		return true

@@ -23,7 +23,7 @@ const (
 	FEISHU_APP_SECRET             = "cqFNuZmHaIKlMeFAr8546cHlaquXw8ep" // 飞书自建应用Secret
 	FEISHU_APP_TOKEN              = "M5l2bHYEiaYq2esmVM1cTyamn5s"      // 飞书自建应用Token
 	FEISHU_TASK_TABLE_ID          = "tblM1AuOpuhpxBSb"                 //飞书多维表格任务表ID
-	FEISHU_LIST_UPDATE_TIME       = 60 * 5                             // 飞书任务表更新频率(秒 int格式)
+	FEISHU_LIST_UPDATE_TIME       = 5 * time.Minute                    // 飞书任务表更新频率
 	FEISHU_LIST_WILL_OVERDUE_TIME = 60 * 60 * 24                       // 飞书任务表即将过期时间(秒 int格式)
 )
 
