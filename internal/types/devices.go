@@ -1,7 +1,7 @@
 package types
 
 type Device struct {
-	Id         string `json:"id"`
+	Id         int64  `json:"id"`
 	Ip         string `json:"ip"`
 	OnlineTime string `json:"online_time"`
 	DeviceName string `json:"device_name"`
