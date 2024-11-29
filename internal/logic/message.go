@@ -46,6 +46,19 @@ func (l *MessageLogic) SetMessage(req types.SetMessageReq) (resp types.SetMessag
 //	@return resp
 //	@return err
 func (l *MessageLogic) JoinMessage(req types.JoinMessageReq, UserID int64) (resp types.JoinMessageResp, err error) {
+	// 判断是否存在该条消息
+	isExist, err := repo.NewMessageRepo(global.DB).CheckMessageExists(req.MessageID)
+	if err != nil {
+		zlog.Errorf("check message error:%v", err)
+		err = response.ErrResp(err, response.DATABASE_ERROR)
+		return
+	}
+	if !isExist {
+		zlog.Errorf("check message error:%v", err)
+		err = response.ErrResp(err, response.MESSAGE_NOT_EXIST)
+		return
+	}
+
 	// 更新数据库
 	user_message, err := repo.NewMessageRepo(global.DB).CreateUserMessage(req.MessageID, UserID)
 	if err != nil {
@@ -91,6 +104,18 @@ func (l *MessageLogic) GetMessage(UserID int64, req types.GetMessageReq) (resp t
 //	@return resp
 //	@return err
 func (l *MessageLogic) MarkReadMessage(req types.MarkReadMessageReq) (resp types.MarkReadMessageResp, err error) {
+	// 判断是否存在该条消息
+	isExist, err := repo.NewMessageRepo(global.DB).CheckUserMessageExists(req.UserMessageID)
+	if err != nil {
+		zlog.Errorf("check message error:%v", err)
+		err = response.ErrResp(err, response.DATABASE_ERROR)
+		return
+	}
+	if !isExist {
+		zlog.Errorf("check message error:%v", err)
+		err = response.ErrResp(err, response.MESSAGE_NOT_EXIST)
+		return
+	}
 
 	// 更新数据库
 	err = repo.NewMessageRepo(global.DB).MarkReadMessage(req.UserMessageID)
