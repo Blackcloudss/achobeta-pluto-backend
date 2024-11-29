@@ -45,6 +45,7 @@ var (
 	USER_ACCOUNT_ALREADY_EXIST = MsgCode{20007, "账号已存在"}
 	CAPTCHA_ERROR              = MsgCode{20500, "验证码错误"}
 	INSUFFICENT_PERMISSIONS    = MsgCode{20403, "权限不足"}
+	FEISHU_OPENID_NOT_EXIST    = MsgCode{20008, "该用户手机号未绑定飞书"}
 
 	/*
 	 USER_ACCOUNT_DISABLE(20005, "账号不可用"),

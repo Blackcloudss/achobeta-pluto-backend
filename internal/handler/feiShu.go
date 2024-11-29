@@ -200,7 +200,7 @@ func GetFeiShuList(ctx context.Context, openID string) (resp types.GetFeiShuList
 	OverdueTaskCountStr, err4 := global.Rdb.Get(ctx, fmt.Sprintf(REDIS_FEISHU_OVERDUE_TASK_CNT, openID)).Result()
 	combinedErr := errors.Join(err1, err2, err3, err4)
 	if combinedErr != nil {
-		zlog.CtxErrorf(ctx, "Unable to get redis feishu data")
+		zlog.CtxErrorf(ctx, "Unable to get redis feishu data", combinedErr)
 		err = response.ErrResp(err, response.INTERNAL_ERROR)
 		return
 	}
