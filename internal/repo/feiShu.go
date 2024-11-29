@@ -51,6 +51,10 @@ func (r FeiShuRepo) GetFeiShuOpenID(UserID int64) (OpenID string, err error) {
 	} else {
 		OpenID = member.FeiShuOpenID
 	}
-
+	if len(OpenID) <= 0 {
+		zlog.Errorf("get feishu openid err:%v", err)
+		err = response.ErrResp(err, response.FEISHU_OPENID_NOT_EXIST)
+		return
+	}
 	return
 }
