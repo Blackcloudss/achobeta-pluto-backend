@@ -156,3 +156,9 @@ func (r MessageRepo) MarkReadMessage(UserMessageID int64) (err error) {
 	err = result.Error
 	return
 }
+
+func (r MessageRepo) MarkReadAllMessage(UserID int64) (err error) {
+	result := r.db.Model(&model.UserMessage{}).Where("user_id =?", UserID).Update("is_read", 1)
+	err = result.Error
+	return
+}
