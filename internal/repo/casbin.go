@@ -134,8 +134,6 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 		return false, err
 	}
 
-	fmt.Println(roles)
-
 	var managers []int64
 	for _, role := range roles {
 		//将string类型转化为 int64
