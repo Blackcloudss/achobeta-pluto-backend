@@ -24,7 +24,7 @@ func NewMessageRepo(db *gorm.DB) *MessageRepo {
 //	@return isExists
 //	@return err
 func (r MessageRepo) CheckMessageExists(MessageID int64) (isExists bool, err error) {
-	err = r.db.Model(&model.Message{}).Where("id = ?", MessageID).Find(&isExists).Error
+	err = r.db.Model(&model.Message{}).Select("1").Where("id = ?", MessageID).Find(&isExists).Error
 	return
 }
 
@@ -36,7 +36,7 @@ func (r MessageRepo) CheckMessageExists(MessageID int64) (isExists bool, err err
 //	@return isExists
 //	@return err
 func (r MessageRepo) CheckUserMessageExists(UserMessageID int64) (isExists bool, err error) {
-	err = r.db.Model(&model.UserMessage{}).Where("id = ?", UserMessageID).Find(&isExists).Error
+	err = r.db.Model(&model.UserMessage{}).Select("1").Where("id = ?", UserMessageID).Find(&isExists).Error
 	return
 }
 
