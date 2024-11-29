@@ -112,6 +112,11 @@ func (r CasbinRepo) queryURLs(roles []int64, teamid int64) ([]string, error) {
 func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool, error) {
 	defer util.RecordTime(time.Now())()
 
+	//新建团队时不传团队Id，则赋给默认值
+	if teamId == 0 {
+		teamId = ROOTTEAM
+	}
+
 	var roles []string
 	err := r.DB.Model(&model.Casbin{}).
 		Select(RoleOrUrl). // 获取 g 规则中的 roleid
@@ -128,6 +133,8 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 		zlog.Errorf("查询用户对应的用户组失败：%v", err)
 		return false, err
 	}
+
+	fmt.Println(roles)
 
 	var managers []int64
 	for _, role := range roles {
