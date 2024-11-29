@@ -123,7 +123,7 @@ func (f ID) Int64() int64 {
 }
 
 // Get12Id 生成 12 位整数形式的 ID
-func Get12Id(node *Node) int64 {
+func GetInt12Id(node *Node) int64 {
 	id := node.Generate().Int64()
 
 	// 获取高位时间戳部分
@@ -151,4 +151,24 @@ func (f ID) String() string {
 
 func GenId(node *Node) string {
 	return node.Generate().String()
+}
+
+// GetString12Id 生成 12 位字符串形式的 ID
+func GetString12Id(node *Node) string {
+	id := node.Generate().Int64()
+
+	timestampPart := id >> 22
+	timestampPart = timestampPart % 1e6
+
+	lowPart := id & ((1 << 22) - 1)
+	lowPart = lowPart % 1e6
+
+	// 合并高低部分，组成 12 位字符串
+	result := fmt.Sprintf("%06d%06d", timestampPart, lowPart)
+
+	// 如果超出 12 位，则截取前 12 位
+	if len(result) > 12 {
+		result = result[:12]
+	}
+	return result
 }
