@@ -53,7 +53,7 @@ func JoinMessage(c *gin.Context) {
 	zlog.CtxInfof(ctx, "JoinMessage request: %v", req)
 
 	// logic 层处理
-	resp, err := logic.NewMessageLogic().JoinMessage(req, UserID)
+	resp, err := logic.NewMessageLogic().JoinMessage(req, UserID, false)
 
 	// 响应
 	response.Response(c, resp, err)
