@@ -29,7 +29,7 @@ func (r FeiShuRepo) GetFeiShuOpenID(UserID int64) (OpenID string, err error) {
 	err = r.db.Model(&model.Member{}).Where("id =?", UserID).Order("created_at desc").First(&member).Error
 	if err != nil {
 		zlog.Errorf("get member err:%v", err)
-		err = response.ErrResp(err, response.DATABASE_ERROR)
+		err = response.ErrResp(err, response.MEMBER_NOT_EXIST)
 		return
 	}
 	// 如果用户表里还没有FeiShuOpenID，则获取并保存

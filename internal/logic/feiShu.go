@@ -23,7 +23,6 @@ func (l *FeiShuLogic) GetFeiShuList(ctx context.Context, UserID int64, ForceUpda
 	openID, err := repo.NewFeiShuRepo(global.DB).GetFeiShuOpenID(UserID)
 	if err != nil {
 		zlog.Errorf("get feishu open_id error:%v", err)
-		err = response.ErrResp(err, response.FEISHU_ERROR)
 		return
 	}
 	// 2.先检查是否需要更新
