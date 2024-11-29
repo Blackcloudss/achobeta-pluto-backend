@@ -17,7 +17,7 @@ type MemberPositions struct {
 	//团队名称
 	TeamName string `json:"team_name"`
 	//组别 + 职位
-	StructNodes []StructureNodes `json:"position_node"`
+	StructNodes []StructureNodes `json:"position_node" gorm:"-"`
 	//权限级别
 	Level int `json:"level"`
 }
@@ -27,12 +27,12 @@ type GetMemberDetailResp struct {
 	Name           string            `json:"name"`
 	Sex            string            `json:"sex"`
 	CreateDate     string            `json:"create_date"`
-	IdCard         string            `json:"id_card"`
+	IdCard         *string           `json:"id_card"`
 	PhoneNum       string            `json:"phone_num"`
-	Email          string            `json:"email"`
+	Email          *string           `json:"email"`
 	Grade          string            `json:"grade"`
 	Major          string            `json:"major"`
-	StudentID      string            `json:"student_id"`
+	StudentID      *string           `json:"student_id"`
 	Experience     string            `json:"experience"`
 	Status         string            `json:"status"`
 	LikeCount      uint64            `json:"like_count"`
@@ -55,7 +55,7 @@ type PutTeamMemberReq struct {
 	ID         int64   `json:"id" binding:"required" `
 	Name       string  `json:"name"`
 	Sex        string  `json:"sex"`
-	CreateDate string  `json:"create_date" binding:"omitempty,datetime=2006/01/02"`
+	CreateDate string  `json:"create_date" binding:"omitempty,datetime=2006-01-02"`
 	IdCard     *string `json:"id_card"`
 	PhoneNum   string  `json:"phone_num" binding:"required,len=11"`
 	Email      *string `json:"email"`

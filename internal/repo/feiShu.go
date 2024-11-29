@@ -41,7 +41,7 @@ func (r FeiShuRepo) GetFeiShuOpenID(UserID int64) (OpenID string, err error) {
 			err = response.ErrResp(err, response.FEISHU_ERROR)
 			return
 		}
-		member.CreateDate = member.CreateDate[0:10]
+		//member.CreateDate = member.CreateDate[0:10]
 		err = r.db.Save(&member).Error
 		if err != nil {
 			zlog.Errorf("save member err:%v", err)

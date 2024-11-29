@@ -2,7 +2,6 @@ package repo
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
@@ -45,7 +44,7 @@ func (r *MemberRepo) GetMemberDetail(userID int64) (*types.GetMemberDetailResp, 
 
 	// 查询用户的基本信息
 	err := r.DB.Model(&model.Member{}).
-		Select(`member.name, member.sex, member.create_date, member.id_card, 
+		Select(`member.name, member.sex, DATE_FORMAT(member.create_date, '%Y-%m-%d') AS create_date, member.id_card, 
 				member.phone_num, member.email, member.grade, member.major, 
 				member.student_id, member.experience, member.status, member.like_count`).
 		Where("id = ?", userID).
@@ -55,16 +54,6 @@ func (r *MemberRepo) GetMemberDetail(userID int64) (*types.GetMemberDetailResp, 
 		zlog.Errorf("查询用户详细信息失败: %v", err)
 		return nil, err
 	}
-
-	// 解析CreateDate字段为time.Time对象
-	createDate, err := time.Parse("2006-01-02", resp.CreateDate)
-	if err != nil {
-		fmt.Println("解析CreateDate失败:", err)
-		return nil, err
-	}
-
-	// 格式化CreateDate为年-月-日
-	resp.CreateDate = createDate.Format("2006-01-02")
 
 	// 查询用户的团队、职位和权限
 	err = r.DB.Model(&model.Team_Member_Structure{}).
@@ -158,9 +147,10 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 //	@param req
 //	@return error
 const (
-	init_likecount = 0
-	team_id        = "id"
-	init_teamname  = "未分配团队"
+	init_likecount  = 0
+	team_id         = "id"
+	init_teamname   = "未分配团队"
+	InitStructureId = 1
 )
 
 // 将 int64 转化成 string
@@ -172,17 +162,26 @@ var (
 func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 	defer util.RecordTime(time.Now())()
 
-	//如果传入的加入时间为空
+	var parsedDate time.Time
+	var err error
+
 	if req.CreateDate == "" {
-		// 默认是当前时间，且格式为YYYY--MM--DD
-		req.CreateDate = time.Now().Format("2006-01-02")
+		// 如果日期为空，使用当前时间
+		parsedDate = time.Now()
+	} else {
+		// 手动解析 CreateDate
+		parsedDate, err = time.Parse("2006-01-02", req.CreateDate)
+		if err != nil {
+			zlog.Errorf("invalid date format for create_date, expected format is 2006-01-02: %v", err)
+			return err
+		}
 	}
 
-	err := r.DB.Model(&model.Member{}).
+	err = r.DB.Model(&model.Member{}).
 		Create(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: req.CreateDate,
+			CreateDate: parsedDate, // 使用解析后的时间
 			IdCard:     req.IdCard,
 			PhoneNum:   req.PhoneNum,
 			Email:      req.Email,
@@ -251,8 +250,9 @@ func (r *MemberRepo) CreateMember(req types.CreateMemberReq) error {
 		// 新成员id 和 未分配团队id 在 Team_Member_Structure 做一个简单关联
 		err = r.DB.Model(&model.Team_Member_Structure{}).
 			Create(&model.Team_Member_Structure{
-				MemberId: UserID,
-				TeamId:   InitTeamId,
+				MemberId:    UserID,
+				TeamId:      InitTeamId,
+				StructureId: InitStructureId,
 			}).Error
 		if err != nil {
 			zlog.Errorf("新成员放入未分配团队失败：: %v", err)
@@ -388,8 +388,23 @@ func (r *MemberRepo) DeleteMember(MemberId, TeamId int64) error {
 func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 	defer util.RecordTime(time.Now())()
 
+	var parsedDate time.Time
+	var err error
+
+	if req.CreateDate == "" {
+		// 如果日期为空，使用当前时间
+		parsedDate = time.Now()
+	} else {
+		// 手动解析 CreateDate
+		parsedDate, err = time.Parse("2006-01-02", req.CreateDate)
+		if err != nil {
+			zlog.Errorf("invalid date format for create_date, expected format is 2006-01-02: %v", err)
+			return err
+		}
+	}
+
 	//更改基本信息
-	err := r.DB.Model(&model.Member{}).
+	err = r.DB.Model(&model.Member{}).
 		Where(&model.Member{
 			CommonModel: model.CommonModel{
 				ID: req.ID,
@@ -398,7 +413,7 @@ func (r *MemberRepo) PutMember(req types.PutTeamMemberReq) error {
 		Updates(&model.Member{
 			Name:       req.Name,
 			Sex:        req.Sex,
-			CreateDate: req.CreateDate,
+			CreateDate: parsedDate,
 			IdCard:     req.IdCard,
 			PhoneNum:   req.PhoneNum,
 			Email:      req.Email,
