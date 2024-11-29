@@ -16,6 +16,30 @@ func NewMessageRepo(db *gorm.DB) *MessageRepo {
 	return &MessageRepo{db: db}
 }
 
+// CheckMessageExists
+//
+//	@Description: 检查消息是否存在
+//	@receiver r
+//	@param MessageID
+//	@return isExists
+//	@return err
+func (r MessageRepo) CheckMessageExists(MessageID int64) (isExists bool, err error) {
+	err = r.db.Model(&model.Message{}).Where("id = ?", MessageID).Find(&isExists).Error
+	return
+}
+
+// CheckUserMessageExists
+//
+//	@Description: 检查用户消息是否存在
+//	@receiver r
+//	@param UserMessageID
+//	@return isExists
+//	@return err
+func (r MessageRepo) CheckUserMessageExists(UserMessageID int64) (isExists bool, err error) {
+	err = r.db.Model(&model.UserMessage{}).Where("id = ?", UserMessageID).Find(&isExists).Error
+	return
+}
+
 // CreateMessage 创建一条消息
 func (r MessageRepo) CreateMessage(messageText string, messageType int) (message model.Message, err error) {
 	message = model.Message{
