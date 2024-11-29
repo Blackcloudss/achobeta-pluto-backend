@@ -135,6 +135,21 @@ func (l *MessageLogic) MarkReadMessage(req types.MarkReadMessageReq) (resp types
 	return
 }
 
+func (l *MessageLogic) MarkReadAllMessage(UserID int64) (resp types.MarkReadMessageResp, err error) {
+	// 更新数据库
+	err = repo.NewMessageRepo(global.DB).MarkReadAllMessage(UserID)
+
+	if err != nil {
+		zlog.Errorf("mark read error:%v", err)
+		err = response.ErrResp(err, response.DATABASE_ERROR)
+		return
+	} else {
+		zlog.Infof("mark read success")
+	}
+
+	return
+}
+
 // SendMessage
 //
 //	@Description: 发送消息

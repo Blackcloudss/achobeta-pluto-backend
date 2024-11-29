@@ -117,6 +117,27 @@ func MarkReadMessage(c *gin.Context) {
 	return
 }
 
+// MarkReadAllMessage
+//
+//	@Description: 标记全部已读, 更新 [用户-消息表] 的 read_at 字段
+//	@param c
+func MarkReadAllMessage(c *gin.Context) {
+	// 解析请求参数
+	ctx := zlog.GetCtxFromGin(c)
+	TempUserID, _ := c.Get(global.TOKEN_USER_ID)
+	UserID := TempUserID.(int64)
+
+	zlog.CtxInfof(ctx, "MarkReadAllMessage requset %v", UserID)
+
+	// logic 层处理
+	resp, err := logic.NewMessageLogic().MarkReadAllMessage(UserID)
+
+	// 响应
+	response.Response(c, resp, err)
+
+	return
+}
+
 // SendMessage 一键发送消息，SetMessage 和 JoinMessage 合并运用
 func SendMessage(c *gin.Context) {
 	// 解析请求参数
