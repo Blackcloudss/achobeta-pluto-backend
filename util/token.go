@@ -12,7 +12,7 @@ import (
 type MyClaims struct {
 	Userid int64  `json:"userid"`
 	Type   string `json:"type"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 var mySecret = []byte("AchoBeta")
@@ -29,10 +29,10 @@ func GenToken(data TokenData) (string, error) {
 	claims := MyClaims{
 		data.Userid,
 		data.Class,
-		jwt.StandardClaims{
-			NotBefore: time.Now().Unix(),
-			ExpiresAt: time.Now().Add(data.Time).Unix(), // 过期时间
-			Issuer:    data.Issuer,                      // 签发人
+		jwt.RegisteredClaims{
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(data.Time)), // 过期时间
+			Issuer:    data.Issuer,                                   // 签发人
 		},
 	}
 	// 使用指定的签名方法创建签名对象
@@ -69,7 +69,7 @@ func IdentifyToken(ctx context.Context, Token string) (TokenData, error) {
 	data.Issuer = claim.Issuer
 	data.Class = claim.Type
 	if claim.Type == global.AUTH_ENUMS_RTOKEN {
-		data.Time = global.RTOKEN_EFFECTIVE_TIME - time.Duration(time.Now().Unix()-claim.StandardClaims.NotBefore)
+		data.Time = global.RTOKEN_EFFECTIVE_TIME - time.Duration(time.Now().Unix()-claim.RegisteredClaims.NotBefore.Unix())
 	} else {
 		data.Time = global.ATOKEN_EFFECTIVE_TIME
 	}
