@@ -2,7 +2,7 @@ package main
 
 import (
 	"tgwp/initalize"
-	"tgwp/internal/router"
+	routerg "tgwp/internal/router"
 	"tgwp/log/zlog"
 )
 

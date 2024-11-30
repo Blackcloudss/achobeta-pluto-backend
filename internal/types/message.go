@@ -53,6 +53,14 @@ type MarkReadMessageReq struct {
 type MarkReadMessageResp struct {
 }
 
+// MarkReadAllMessageReq 标记已读全部消息请求（入参）
+type MarkReadAllMessageReq struct {
+}
+
+// MarkReadAllMessageResp 标记已读消息请求（出参）
+type MarkReadAllMessageResp struct {
+}
+
 // SendMessageReq 发送消息请求（入参）
 type SendMessageReq struct {
 	Type    int    `json:"type"`

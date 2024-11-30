@@ -127,6 +127,8 @@ func registerRoutes(routeManager *manager.RouteManager) {
 		rg.GET("/get", api.GetMessage)
 		// 一键发送消息
 		rg.POST("/send", api.SendMessage)
+		// 标记全部消息已读
+		rg.POST("/markread-all", api.MarkReadAllMessage)
 	})
 
 	// 飞书相关路由组
