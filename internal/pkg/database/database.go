@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 	"tgwp/configs"
 	"tgwp/global"
-	"tgwp/internal/handler"
+	"tgwp/internal/logic"
 	"tgwp/log/zlog"
 )
 
@@ -22,6 +22,6 @@ func InitDataBases(base DataBase, config configs.Config) {
 	}
 	zlog.Infof("初始化数据库成功！")
 	//对该数据库注册 hook
-	handler.RegisterHook(global.DB)
+	logic.RegisterHook(global.DB)
 	return
 }

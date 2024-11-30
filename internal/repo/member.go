@@ -1,12 +1,14 @@
 package repo
 
 import (
+	"context"
 	"errors"
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
 	"tgwp/global"
 	"tgwp/internal/model"
+	"tgwp/internal/response"
 	"tgwp/internal/types"
 	"tgwp/log/zlog"
 	"tgwp/util"
@@ -536,4 +538,32 @@ func (r *MemberRepo) JudgeUser(Phone string) (int64, bool, error) {
 		return 0, false, err
 	}
 	return UserID, true, nil
+}
+
+// GetMemberById
+//
+//	@Description: 获取用户
+//	@receiver r
+//	@param UserID
+//	@return model.Member
+//	@return err
+func (r *MemberRepo) GetMemberById(ctx context.Context, userId int64) (model.Member, error) {
+	var member model.Member
+	err := r.DB.Model(&model.Member{}).
+		Where("id = ?", userId).
+		First(&member).
+		Error
+	if err != nil {
+		zlog.CtxErrorf(ctx, "get member err:%v", err)
+		err = response.ErrResp(err, response.DATABASE_ERROR)
+	}
+	return member, nil
+}
+func (r *MemberRepo) UpdateMember(ctx context.Context, member model.Member) error {
+	err := r.DB.Updates(&member).Error
+	if err != nil {
+		zlog.CtxErrorf(ctx, "save member err:%v", err)
+		err = response.ErrResp(err, response.DATABASE_ERROR)
+	}
+	return err
 }

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"tgwp/global"
 	"tgwp/internal/repo"
 	"tgwp/internal/response"
@@ -126,4 +127,14 @@ func (l *TokenLogic) AutoLogin(ctx context.Context, req types.TokenReq) (resp ty
 		return resp, response.ErrResp(err, response.COMMON_FAIL)
 	}
 	return
+}
+
+func GetUserId(c *gin.Context) int64 {
+	if data, exists := c.Get(global.TOKEN_USER_ID); exists {
+		user_id, ok := data.(int64)
+		if ok {
+			return user_id
+		}
+	}
+	return 0
 }
