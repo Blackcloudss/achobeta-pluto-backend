@@ -109,6 +109,8 @@ func (r CasbinRepo) queryURLs(roles []int64, teamid int64) ([]string, error) {
 //	@param teamId
 //	@return bool
 //	@return error
+const SUPERMANGER_ID = 33333
+
 func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool, error) {
 	defer util.RecordTime(time.Now())()
 
@@ -141,6 +143,10 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 		if err != nil {
 			//转换失败
 			return false, err
+		}
+		if manager == SUPERMANGER_ID {
+			//说明 这个用户 是超级管理员，直接验证成功
+			return true, nil
 		}
 		managers = append(managers, manager)
 	}
