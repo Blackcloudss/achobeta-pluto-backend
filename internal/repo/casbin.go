@@ -122,11 +122,9 @@ func (r CasbinRepo) CheckUserPermission(url string, userId, teamId int64) (bool,
 	var roles []string
 	err := r.DB.Model(&model.Casbin{}).
 		Select(RoleOrUrl). // 获取 g 规则中的 roleid
-		Where(&model.Casbin{
-			Ptype: "g",
-			V0:    userId,
-			V1:    teamId,
-		}).
+		Where("(casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?) OR (casbin.ptype = ? AND casbin.v0 = ? AND casbin.v1 = ?)",
+			"g", userId, teamId, // 指定团队角色
+			"g", userId, 1). // 默认团队角色（team_id = 1）
 		Find(&roles).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
