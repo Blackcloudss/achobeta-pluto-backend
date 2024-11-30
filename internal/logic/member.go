@@ -49,7 +49,6 @@ func (l *MemberLogic) GetMemberList(ctx context.Context, req types.MemberlistReq
 			zlog.Errorf("用户列表查询失败: %v", err)
 			return nil, response.ErrResp(err, codeUsersFoundField)
 		}
-
 	}
 
 	return &users, nil
