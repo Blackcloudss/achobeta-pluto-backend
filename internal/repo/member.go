@@ -130,6 +130,15 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 		Find(&Members).
 		Error
 
+	var TotalCount int64
+	// 查询该团队的总成员数量
+	err = r.DB.Table("member").
+		Joins(`JOIN team_member_structure ON team_member_structure.member_id = member.id`).
+		Joins(`JOIN structure ON structure.id = team_member_structure.structure_id`).
+		Where("team_member_structure.deleted_at IS NULL AND team_member_structure.team_id = ?", TeamId).
+		Count(&TotalCount).
+		Error
+
 	//在查询后将 Positions 的逗号分隔值拆分为切片： 查询 当前用户所处团队的每个职位名称
 	for i, member := range Members {
 		Members[i].PositionList = strings.Split(member.Positions, ",")
@@ -139,7 +148,7 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 		zlog.Errorf("查询用户简单信息失败")
 		return types.MemberlistResp{}, err
 	}
-	return types.MemberlistResp{Members: Members}, nil
+	return types.MemberlistResp{Members: Members, Total: TotalCount}, nil
 }
 
 // CreateMember
