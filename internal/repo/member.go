@@ -166,8 +166,8 @@ func (r *MemberRepo) GetMemberlistRepo(TeamId int64, Page, Perpage int) (types.M
 	// 查询该团队的总成员数量
 	err = r.DB.Table("member").
 		Joins(`JOIN team_member_structure ON team_member_structure.member_id = member.id`).
-		Joins(`JOIN structure ON structure.id = team_member_structure.structure_id`).
 		Where("team_member_structure.deleted_at IS NULL AND team_member_structure.team_id = ?", TeamId).
+		Select("DISTINCT member.id").
 		Count(&TotalCount).
 		Error
 
