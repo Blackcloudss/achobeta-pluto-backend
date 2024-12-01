@@ -70,14 +70,14 @@ func registerRoutes(routeManager *manager.RouteManager) {
 	// 团队信息相关路由
 	routeManager.RegisterTeamRoutes(func(rg *gin.RouterGroup) {
 		//使用token验证中间件  正式使用时需取消注释
-		rg.Use(middleware.ReflashAtoken())
+		//rg.Use(middleware.ReflashAtoken())
 		//获得权限组
 		rg.GET("/power", api.GetPower)
 		// 团队架构管理子路由
 		TeamStructure := rg.Group("/structure")
 		{
 			//检验权限
-			TeamStructure.Use(middleware.PermissionMiddleware())
+			//TeamStructure.Use(middleware.PermissionMiddleware())
 			// 获取 该团队架构全部节点
 			TeamStructure.GET("/collection", api.GetTeamStructure)
 			//保存 更改了的节点信息
@@ -92,7 +92,7 @@ func registerRoutes(routeManager *manager.RouteManager) {
 			//查询团队内成员列表--成员简单信息
 			MemberList.GET("/get", api.GetTeamMemberlist)
 			//使用权限校验中间件
-			MemberList.Use(middleware.PermissionMiddleware())
+			//MemberList.Use(middleware.PermissionMiddleware())
 			//新增成员
 			MemberList.POST("/create", api.CreateTeamMember)
 			//删除成员                     // user_id 之后要删除
